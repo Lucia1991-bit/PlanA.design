@@ -1,95 +1,62 @@
+"use client";
+import {
+  Box,
+  Image as ChakraImage,
+  Text,
+  useBreakpointValue,
+} from "@chakra-ui/react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import styles from "./page.module.css";
+import React, { useEffect, useState } from "react";
 
-export default function Home() {
+const MotionBox = motion(Box);
+
+const HomePage = () => {
+  //確保component只在客戶端渲染後才顯示內容
+  const [mounted, setMounted] = useState(false);
+
+  const imageSrc = useBreakpointValue({
+    base: "https://res.cloudinary.com/datj4og4i/image/upload/v1722068270/%E6%89%8B%E6%A9%9F%E7%89%88%E9%A6%96%E5%9C%96_lg7pku.png",
+    md: "https://res.cloudinary.com/datj4og4i/image/upload/v1722068272/%E9%9B%BB%E8%85%A6%E7%89%88%E9%A6%96%E5%9C%96_ky6vuu.png",
+  });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
+    <Box width="100%" overflowX="hidden">
+      <Box position="relative" width="100%" height="100vh" zIndex={-1}>
+        <MotionBox
+          position="relative"
+          width="115%" // 增加容器寬度
+          height="100vh"
+          zIndex={-1}
+          initial={{ x: "0%", opacity: 0 }}
+          animate={{ x: "-8%", opacity: 1 }} // 向左移動容器
+          transition={{
+            x: { duration: 10, ease: "easeOut" },
+            opacity: { duration: 1.5, ease: "easeIn" },
+          }}
+          style={{
+            right: "0", // 確保右側對齊
+          }}
         >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          <Image
+            src={imageSrc}
+            alt="Responsive Image"
+            fill
+            objectFit="cover"
+            priority
+          />
+        </MotionBox>
+      </Box>
+      <Box width="100%" height="200vh">
+        <div>說明</div>
+      </Box>
+    </Box>
   );
-}
+};
+
+export default HomePage;
