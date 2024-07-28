@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { UIProviders } from "../../providers/ChakraProvider";
 import { fonts } from "../../styles/Googlefonts";
+import { AuthProvider } from "@/context/AuthContext";
 import NavBar from "@/components/_NavBar/NavBar";
 
 export const metadata: Metadata = {
@@ -22,10 +23,12 @@ export default function RootLayout({
       className={`${fonts.lexend.variable} ${fonts.notoSansTC.variable} `}
     >
       <body>
-        <UIProviders>
-          <NavBar />
-          {children}
-        </UIProviders>
+        <AuthProvider>
+          <UIProviders>
+            <NavBar />
+            {children}
+          </UIProviders>
+        </AuthProvider>
       </body>
     </html>
   );

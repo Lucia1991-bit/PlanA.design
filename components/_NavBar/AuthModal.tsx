@@ -6,6 +6,7 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import AuthForm from "./AuthForm";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ const AuthModal = ({ isOpen, onClose }: LoginModalProps) => {
         borderRadius="15px"
         width={{ lg: "450px", base: "85%" }}
         minWidth="300px"
-        bg="rgba(255, 255, 255, 0.75)"
+        bg="rgba(255, 255, 255, 0.65)"
         backdropFilter="blur(5px)"
         display="flex"
         justifyContent="center"

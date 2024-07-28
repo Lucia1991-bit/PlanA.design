@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import AuthModal from "@/components/_NavBar/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 
 //頁面初始加載時 NavBar向下滑動動畫
 const slideDown = keyframes`
@@ -20,9 +21,11 @@ const slideDown = keyframes`
 `;
 
 const NavBar = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
+  //管理登入/註冊 modal開關狀態
+  const { isAuthModalOpen, openAuthModal, closeAuthModal } = useAuth();
 
   // NavBar 的高度和樣式會根據 isScrolled 和 isLoaded 狀態動態變化
   useEffect(() => {
@@ -60,14 +63,14 @@ const NavBar = () => {
         bottom={0}
         opacity={isLoaded ? 1 : 0}
         height={
-          isScrolled ? "80px" : { base: "80px", md: "150px", lg: "200px" }
+          isScrolled ? "80px" : { base: "100px", md: "150px", lg: "200px" }
         }
         animation={isLoaded ? `${slideDown} 0.5s ease-out` : "none"}
         transition="all 0.3s ease-in-out"
         position="fixed"
         justifyContent="center"
         alignItems="center"
-        px={{ base: "0", lg: "80px" }}
+        px={{ base: "15px", lg: "80px" }}
         zIndex={10}
       >
         {/* 使用者往下滑時NavBar出現背景色 */}
@@ -103,8 +106,8 @@ const NavBar = () => {
               {/* LOGO在使用者往下滑時縮小 */}
               <Box
                 position="relative"
-                width={{ base: "120px", md: "150px", lg: "175px", xl: "200px" }}
-                height={{ base: "50px", md: "65px", lg: "75px", xl: "85px" }}
+                width={{ base: "120px", md: "150px", lg: "175px" }}
+                height={{ base: "50px", md: "65px", lg: "75px" }}
                 transform={
                   isScrolled
                     ? { base: "scale(0.9)", lg: "scale(0.5)", xl: "scale(0.6)" }
@@ -114,8 +117,10 @@ const NavBar = () => {
                 <Image
                   src="/LOGO.png"
                   alt="logo"
+                  sizes="100%"
                   fill
                   style={{ objectFit: "contain" }}
+                  priority
                 />
               </Box>
             </Link>
@@ -133,10 +138,10 @@ const NavBar = () => {
               fontWeight="300"
               cursor="pointer"
               _hover={{
-                borderBottom: "5px solid",
-                borderColor: "brand.primary",
+                borderBottom: { base: "3px solid", lg: "5px solid" },
+                borderColor: { base: "brand.primary", lg: "brand.primary" },
               }}
-              onClick={onOpen}
+              onClick={openAuthModal}
               zIndex={10}
             >
               GET STARTED
@@ -144,7 +149,7 @@ const NavBar = () => {
           </Box>
         </List>
       </HStack>
-      <AuthModal isOpen={isOpen} onClose={onClose} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </>
   );
 };

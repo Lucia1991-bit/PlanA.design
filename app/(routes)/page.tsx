@@ -16,6 +16,10 @@ const slogans = [
   "for your dream.",
 ];
 
+// 定義預設圖片路徑
+const defaultImageSrc =
+  "https://res.cloudinary.com/datj4og4i/image/upload/v1722068272/%E9%9B%BB%E8%85%A6%E7%89%88%E9%A6%96%E5%9C%96_ky6vuu.png";
+
 const HomePage = () => {
   //確保component只在客戶端渲染後才顯示內容
   const [mounted, setMounted] = useState(false);
@@ -23,10 +27,11 @@ const HomePage = () => {
   const [mainTitleAnimationComplete, setMainTitleAnimationComplete] =
     useState(false);
 
-  const imageSrc = useBreakpointValue({
-    base: "https://res.cloudinary.com/datj4og4i/image/upload/v1722068270/%E6%89%8B%E6%A9%9F%E7%89%88%E9%A6%96%E5%9C%96_lg7pku.png",
-    md: "https://res.cloudinary.com/datj4og4i/image/upload/v1722068272/%E9%9B%BB%E8%85%A6%E7%89%88%E9%A6%96%E5%9C%96_ky6vuu.png",
-  });
+  const imageSrc =
+    useBreakpointValue({
+      base: "https://res.cloudinary.com/datj4og4i/image/upload/v1722068270/%E6%89%8B%E6%A9%9F%E7%89%88%E9%A6%96%E5%9C%96_lg7pku.png",
+      md: "https://res.cloudinary.com/datj4og4i/image/upload/v1722068272/%E9%9B%BB%E8%85%A6%E7%89%88%E9%A6%96%E5%9C%96_ky6vuu.png",
+    }) || defaultImageSrc;
 
   useEffect(() => {
     setMounted(true);
@@ -108,7 +113,7 @@ const HomePage = () => {
             src={imageSrc}
             alt="Responsive Image"
             fill
-            objectFit="cover"
+            style={{ objectFit: "cover" }}
             priority
           />
         </MotionBox>
@@ -117,7 +122,7 @@ const HomePage = () => {
           top={{ base: "23%", lg: "40%" }}
           left={{ base: "50%", lg: "6%" }}
           transform={{ base: "translateX(-50%)", lg: "none" }}
-          width={{ base: "90%", lg: "1300px" }}
+          width={{ base: "85%", lg: "1300px" }}
           height={{ base: "200px", lg: "300px" }}
           display="flex"
           flexDirection="column"
@@ -132,7 +137,7 @@ const HomePage = () => {
             animate="visible"
             whiteSpace="nowrap"
             fontWeight="200"
-            fontSize={{ base: "40px", md: "55px", lg: "70px" }}
+            fontSize={{ base: "40px", md: "55px", lg: "70px", xl: "75px" }}
           >
             {"SHAPE A PLAN".split("").map((char, index) => (
               <motion.span key={index} variants={letterVariants}>
@@ -152,7 +157,7 @@ const HomePage = () => {
                 exit={{ opacity: 0, transition: { duration: 0.5 } }}
                 whiteSpace="nowrap"
                 fontWeight="300"
-                fontSize={{ base: "45px", md: "63px", lg: "80px" }}
+                fontSize={{ base: "45px", md: "63px", lg: "80px", xl: "85px" }}
                 mt="-20px"
                 color="brand.primary"
               >
