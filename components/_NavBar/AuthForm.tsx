@@ -25,6 +25,12 @@ const AuthForm = () => {
   const brandSecondary = theme.colors.brand.secondary;
   const brandHover = theme.colors.brand.hover;
 
+  const focusStyles = {
+    outline: "none",
+    boxShadow: "none",
+    borderColor: "#c6332e",
+  };
+
   return (
     <Box width="100%" mt={12} py={8} px="25px">
       <Tabs isFitted variant="line" colorScheme="red" isLazy>
@@ -73,6 +79,7 @@ const AuthForm = () => {
                     height="50px"
                     isRequired
                     bg="white"
+                    _focus={focusStyles}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>
@@ -88,8 +95,8 @@ const AuthForm = () => {
                     type="password"
                     placeholder="請輸入密碼(至少6個字母)"
                     height="50px"
-                    isRequired
                     bg="white"
+                    _focus={focusStyles}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>
@@ -127,6 +134,7 @@ const AuthForm = () => {
                     height="50px"
                     isRequired
                     bg="white"
+                    _focus={focusStyles}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>
@@ -144,6 +152,7 @@ const AuthForm = () => {
                     height="50px"
                     isRequired
                     bg="white"
+                    _focus={focusStyles}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>

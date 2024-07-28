@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   HStack,
   List,
@@ -7,9 +7,6 @@ import {
   useDisclosure,
   Text,
   Box,
-  transition,
-  background,
-  Flex,
   keyframes,
 } from "@chakra-ui/react";
 import Image from "next/image";
@@ -22,21 +19,16 @@ const slideDown = keyframes`
   to { transform: translateY(0); }
 `;
 
-//往下滑超過 banner時 NavBar出現背景色動畫
-const slideDownBg = keyframes`
-  0% { transform: scaleY(0); transform-origin: top; }
-  100% { transform: scaleY(1); transform-origin: top; }
-`;
-
 const NavBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // NavBar 的高度和樣式會根據 isScrolled 和 isLoaded 狀態動態變化
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      const threshold = 400;
+      const threshold = 80;
 
       if (scrollPosition > threshold && !isScrolled) {
         setIsScrolled(true);
@@ -50,7 +42,7 @@ const NavBar = () => {
     // 初始檢查
     handleScroll();
 
-    // 設置初始加載動畫
+    // 設置初始加載頁面時 NavBar向下滑動動畫
     setIsLoaded(true);
 
     return () => window.removeEventListener("scroll", handleScroll);
@@ -58,9 +50,14 @@ const NavBar = () => {
 
   return (
     <>
+      {/* 使用者往下滑時 NavBar高度變化並加上背景色 */}
       <HStack
         as="nav"
         width="100%"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
         opacity={isLoaded ? 1 : 0}
         height={
           isScrolled ? "80px" : { base: "80px", md: "150px", lg: "200px" }
@@ -68,13 +65,12 @@ const NavBar = () => {
         animation={isLoaded ? `${slideDown} 0.5s ease-out` : "none"}
         transition="all 0.3s ease-in-out"
         position="fixed"
-        top={0}
         justifyContent="center"
         alignItems="center"
-        px={[2, 4, 6]}
+        px={{ base: "0", lg: "80px" }}
         zIndex={10}
       >
-        {/* 滑動背景 */}
+        {/* 使用者往下滑時NavBar出現背景色 */}
         <Box
           position="absolute"
           top={0}
@@ -90,19 +86,30 @@ const NavBar = () => {
           zIndex={-1}
         />
         <List
-          maxWidth="1500px"
-          width={{ base: "95%", md: "90%", lg: "1300px", xl: "1500px" }}
+          maxWidth="1800px"
+          width={{
+            base: "90%",
+            sm: "90%",
+            md: "90%",
+            lg: "1500px",
+            xl: "1800px",
+          }}
           display="flex"
           justifyContent="space-between"
           alignItems="center"
         >
           <ListItem>
             <Link href="/">
+              {/* LOGO在使用者往下滑時縮小 */}
               <Box
                 position="relative"
                 width={{ base: "120px", md: "150px", lg: "175px", xl: "200px" }}
                 height={{ base: "50px", md: "65px", lg: "75px", xl: "85px" }}
-                transform={isScrolled ? "scale(0.7)" : "scale(1)"}
+                transform={
+                  isScrolled
+                    ? { base: "scale(0.9)", lg: "scale(0.5)", xl: "scale(0.6)" }
+                    : "scale(1)"
+                }
               >
                 <Image
                   src="/LOGO.png"
@@ -114,11 +121,15 @@ const NavBar = () => {
             </Link>
           </ListItem>
           <Box>
+            {/* 按鈕在使用者往下滑時縮小 */}
             <Text
               as="span"
               transition="all 0.3s ease-in-out"
-              transform={isScrolled ? "scale(0.7)" : "scale(1)"}
-              fontSize={{ base: "16px", md: "18px", lg: "20px", xl: "22px" }}
+              fontSize={
+                isScrolled
+                  ? { lg: "16px", xl: "18px" }
+                  : { base: "16px", md: "18px", lg: "20px", xl: "22px" }
+              }
               fontWeight="300"
               cursor="pointer"
               _hover={{

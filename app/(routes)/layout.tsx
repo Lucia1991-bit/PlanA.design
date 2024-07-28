@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { UIProviders } from "../providers/ChakraProvider";
-import { fonts } from "../styles/Googlefonts";
+import { UIProviders } from "../../providers/ChakraProvider";
+import { fonts } from "../../styles/Googlefonts";
 import NavBar from "@/components/_NavBar/NavBar";
 
 export const metadata: Metadata = {
