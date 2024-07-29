@@ -19,7 +19,7 @@ const AuthModal = ({ isOpen, onClose }: LoginModalProps) => {
       onClose={onClose}
       isOpen={isOpen}
       isCentered
-      size="xl"
+      size={{ base: "sm", md: "md", lg: "lg" }}
       preserveScrollBarGap
       autoFocus={false}
     >

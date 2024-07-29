@@ -40,13 +40,18 @@ const OAuth = ({ handleAlert }: OAuthProps) => {
   return (
     <IconButton
       boxShadow="md"
-      size="lg"
       bg="white"
       borderRadius="50%"
       aria-label="google"
-      mb="-10px"
-      icon={<FcGoogle fontSize="30px" />}
+      mb="-5px"
+      w={{ base: "40px", lg: "45px" }}
+      h={{ base: "40px", lg: "45px" }}
+      fontSize={{ base: "23px", lg: "28px" }}
+      icon={<FcGoogle />}
       onClick={handleGoogleSignIn}
+      _hover={{
+        bg: "brand.light",
+      }}
     />
   );
 };

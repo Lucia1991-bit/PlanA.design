@@ -11,6 +11,7 @@ const theme = extendTheme({
       hover: "#a02d2d",
       dark: "#545251",
       secondary: "#c7c8c8",
+      placeholder: "#b5b5b5",
       light: "rgba(199,200,201, 0.35)",
     },
   },

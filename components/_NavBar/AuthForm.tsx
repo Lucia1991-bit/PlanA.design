@@ -80,6 +80,13 @@ const AuthForm = () => {
     setTimeout(() => setAlertInfo(null), 5000);
   };
 
+  //在註冊/登入表單間切換
+  const handleTabChange = (index: number) => {
+    setAlertInfo(null); // 清除 alert
+    setEmail(""); // 清除 email 輸入
+    setPassword(""); // 清除 password 輸入
+  };
+
   //送出註冊表單
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,6 +116,8 @@ const AuthForm = () => {
         title: "註冊失敗",
         message: errorMessage,
       });
+      setEmail("");
+      setPassword("");
       setIsLoading(false);
     }
   };
@@ -117,6 +126,7 @@ const AuthForm = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
       await signIn(email, password);
       handleAlert({
@@ -140,18 +150,31 @@ const AuthForm = () => {
         title: "登入失敗",
         message: errorMessage,
       });
+      setEmail("");
+      setPassword("");
       setIsLoading(false);
     }
   };
 
   return (
-    <Box width="100%" mt={12} px={{ base: "15px", lg: "20px" }}>
-      <Tabs isFitted variant="line" colorScheme="red" isLazy>
+    <Box
+      width="100%"
+      maxWidth="450px"
+      mt={12}
+      px={{ base: "15px", md: "30px", lg: "25px" }}
+    >
+      <Tabs
+        isFitted
+        variant="line"
+        colorScheme="red"
+        isLazy
+        onChange={handleTabChange}
+      >
         <TabList>
           <Tab
             letterSpacing={2}
             borderColor="#c7c8c8"
-            fontSize="20px"
+            fontSize={{ base: "18px", lg: "20px" }}
             fontWeight="300"
             _selected={{
               color: brandPrimary,
@@ -165,7 +188,7 @@ const AuthForm = () => {
           <Tab
             letterSpacing={2}
             borderColor="#c7c8c8"
-            fontSize="20px"
+            fontSize={{ base: "18px", lg: "20px" }}
             fontWeight="300"
             _selected={{
               color: brandPrimary,
@@ -182,35 +205,56 @@ const AuthForm = () => {
           <TabPanel>
             <VStack
               as="form"
-              spacing={{ base: "10px", lg: "20px" }}
-              py={5}
+              spacing={{ base: "13px", md: "18px", lg: "20px" }}
+              py={{ base: "10px", md: "15px", lg: "20px" }}
               onSubmit={handleSignUp}
             >
               {alertInfo && (
-                <Alert status={alertInfo.status} borderRadius="5px">
+                <Alert
+                  status={alertInfo.status}
+                  borderRadius="5px"
+                  variant="left-accent"
+                >
                   <AlertIcon />
                   <Box>
-                    <AlertTitle>{alertInfo.title}</AlertTitle>
-                    <AlertDescription>{alertInfo.message}</AlertDescription>
+                    <AlertTitle
+                      fontSize={{ base: "16px", md: "17px", lg: "18px" }}
+                    >
+                      {alertInfo.title}
+                    </AlertTitle>
+                    <AlertDescription
+                      fontSize={{ base: "14px", md: "15px", lg: "16px" }}
+                    >
+                      {alertInfo.message}
+                    </AlertDescription>
                   </Box>
                 </Alert>
               )}
 
               <FormControl>
                 <InputGroup>
-                  <InputLeftElement pointerEvents="none" height="50px">
-                    <EmailIcon fontSize="20px" />
+                  <InputLeftElement
+                    pointerEvents="none"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
+                  >
+                    <EmailIcon
+                      fontSize={{ base: "18px", md: "19px", lg: "20px" }}
+                    />
                   </InputLeftElement>
                   <Input
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
                     border="none"
                     type="email"
                     placeholder="請輸入電子信箱"
-                    height="50px"
                     isRequired
                     bg="white"
                     _focus={focusStyles}
+                    _placeholder={{
+                      fontSize: { base: "14px", md: "15px", lg: "16px" },
+                      color: "#b5b5b5",
+                    }}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>
@@ -218,8 +262,14 @@ const AuthForm = () => {
 
               <FormControl>
                 <InputGroup>
-                  <InputLeftElement pointerEvents="none" height="50px">
-                    <LockIcon color="brandPrimary" fontSize="20px" />
+                  <InputLeftElement
+                    pointerEvents="none"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
+                  >
+                    <LockIcon
+                      color="brandPrimary"
+                      fontSize={{ base: "18px", md: "19px", lg: "20px" }}
+                    />
                   </InputLeftElement>
                   <Input
                     value={password}
@@ -227,9 +277,13 @@ const AuthForm = () => {
                     border="none"
                     type="password"
                     placeholder="請輸入密碼(至少6個字母)"
-                    height="50px"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
                     bg="white"
                     _focus={focusStyles}
+                    _placeholder={{
+                      fontSize: { base: "14px", md: "15px", lg: "16px" },
+                      color: "#b5b5b5",
+                    }}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>
@@ -239,15 +293,21 @@ const AuthForm = () => {
                 bg={brandPrimary}
                 color="white"
                 width="full"
-                height="50px"
+                height={{ base: "45px", lg: "50px" }}
+                fontSize={{ base: "14px", md: "15px", lg: "16px" }}
                 _hover={{
                   bg: `${brandHover}`,
                 }}
                 isLoading={isLoading}
+                _loading={{
+                  bg: "#aa4d4d",
+                  opacity: 1,
+                  cursor: "auto",
+                }}
               >
                 註冊
               </Button>
-              <Text fontSize="15px" mt={4}>
+              <Text fontSize={{ base: "13px", md: "14px", lg: "15px" }} mt={4}>
                 或選擇以Google帳號註冊
               </Text>
               <OAuth handleAlert={handleAlert}></OAuth>
@@ -258,23 +318,40 @@ const AuthForm = () => {
           <TabPanel>
             <VStack
               as="form"
-              spacing={{ base: "10px", lg: "20px" }}
-              py={5}
+              spacing={{ base: "13px", md: "18px", lg: "20px" }}
+              py={{ base: "10px", md: "15px", lg: "20px" }}
               onSubmit={handleSignIn}
             >
               {alertInfo && (
-                <Alert status={alertInfo.status} borderRadius="5px">
+                <Alert
+                  status={alertInfo.status}
+                  borderRadius="5px"
+                  variant="left-accent"
+                >
                   <AlertIcon />
                   <Box>
-                    <AlertTitle>{alertInfo.title}</AlertTitle>
-                    <AlertDescription>{alertInfo.message}</AlertDescription>
+                    <AlertTitle
+                      fontSize={{ base: "16px", md: "17px", lg: "18px" }}
+                    >
+                      {alertInfo.title}
+                    </AlertTitle>
+                    <AlertDescription
+                      fontSize={{ base: "14px", md: "15px", lg: "16px" }}
+                    >
+                      {alertInfo.message}
+                    </AlertDescription>
                   </Box>
                 </Alert>
               )}
               <FormControl>
                 <InputGroup>
-                  <InputLeftElement pointerEvents="none" height="50px">
-                    <EmailIcon fontSize="20px" />
+                  <InputLeftElement
+                    pointerEvents="none"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
+                  >
+                    <EmailIcon
+                      fontSize={{ base: "18px", md: "19px", lg: "20px" }}
+                    />
                   </InputLeftElement>
                   <Input
                     value={email}
@@ -282,10 +359,14 @@ const AuthForm = () => {
                     border="none"
                     type="email"
                     placeholder="請輸入電子信箱"
-                    height="50px"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
                     isRequired
                     bg="white"
                     _focus={focusStyles}
+                    _placeholder={{
+                      fontSize: { base: "14px", md: "15px", lg: "16px" },
+                      color: "#b5b5b5",
+                    }}
                   />
                 </InputGroup>
                 <FormErrorMessage>Email is required.</FormErrorMessage>
@@ -293,8 +374,13 @@ const AuthForm = () => {
 
               <FormControl>
                 <InputGroup>
-                  <InputLeftElement pointerEvents="none" height="50px">
-                    <LockIcon fontSize="20px" />
+                  <InputLeftElement
+                    pointerEvents="none"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
+                  >
+                    <LockIcon
+                      fontSize={{ base: "18px", md: "19px", lg: "20px" }}
+                    />
                   </InputLeftElement>
                   <Input
                     value={password}
@@ -302,28 +388,37 @@ const AuthForm = () => {
                     border="none"
                     type="password"
                     placeholder="請輸入密碼"
-                    height="50px"
+                    height={{ base: "45px", md: "48px", lg: "50px" }}
                     isRequired
                     bg="white"
                     _focus={focusStyles}
+                    _placeholder={{
+                      fontSize: { base: "14px", md: "15px", lg: "16px" },
+                      color: "#b5b5b5",
+                    }}
                   />
                 </InputGroup>
-                <FormErrorMessage>Email is required.</FormErrorMessage>
               </FormControl>
               <Button
                 type="submit"
                 bg={brandPrimary}
                 color="white"
                 width="full"
-                height="50px"
+                height={{ base: "45px", lg: "50px" }}
+                fontSize={{ base: "14px", md: "15px", lg: "16px" }}
                 _hover={{
                   bg: `${brandHover}`,
                 }}
                 isLoading={isLoading}
+                _loading={{
+                  bg: "#aa4d4d",
+                  opacity: 1,
+                  cursor: "auto",
+                }}
               >
                 登入
               </Button>
-              <Text fontSize="15px" mt={4}>
+              <Text fontSize={{ base: "13px", md: "14px", lg: "15px" }} mt={4}>
                 或選擇以Google帳戶登入
               </Text>
               <OAuth handleAlert={handleAlert} />
