@@ -1,9 +1,11 @@
 "use client";
+
 import { Box, Text, transition, useBreakpointValue } from "@chakra-ui/react";
 import { motion, AnimatePresence, stagger, delay } from "framer-motion";
 import { Damion } from "next/font/google";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import Footer from "@/components/_HomePage/Footer";
 
 const MotionBox = motion(Box);
 const MotionText = motion(Text);
@@ -93,7 +95,13 @@ const HomePage = () => {
 
   return (
     <Box width="100%" overflowX="hidden">
-      <Box position="relative" width="100%" height="100vh" zIndex={-1}>
+      <Box
+        as="main"
+        position="relative"
+        width="100%"
+        height="100vh"
+        zIndex={-1}
+      >
         <MotionBox
           position="relative"
           width="115%" // 增加容器寬度
@@ -176,9 +184,10 @@ const HomePage = () => {
           </AnimatePresence>
         </Box>
       </Box>
-      <Box width="100%" height="200vh">
-        <div>說明</div>
+      <Box width="100%" height="100vh">
+        <div>操作說明</div>
       </Box>
+      <Footer />
     </Box>
   );
 };

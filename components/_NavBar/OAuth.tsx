@@ -26,7 +26,7 @@ const OAuth = ({ handleAlert }: OAuthProps) => {
       setTimeout(() => {
         closeAuthModal();
         router.push("/dashboard");
-      }, 1500);
+      }, 800);
     } catch (error) {
       console.error("Google登入錯誤:", error);
       handleAlert({

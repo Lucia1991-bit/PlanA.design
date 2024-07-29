@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AuthModal from "@/components/_NavBar/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
+import ProfileMenu from "./ProfileMenu";
 
 //頁面初始加載時 NavBar向下滑動動畫
 const slideDown = keyframes`
@@ -25,13 +26,14 @@ const NavBar = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   //管理登入/註冊 modal開關狀態
-  const { isAuthModalOpen, openAuthModal, closeAuthModal } = useAuth();
+  const { isAuthModalOpen, openAuthModal, closeAuthModal, user, isLoading } =
+    useAuth();
 
   // NavBar 的高度和樣式會根據 isScrolled 和 isLoaded 狀態動態變化
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      const threshold = 80;
+      const threshold = 100;
 
       if (scrollPosition > threshold && !isScrolled) {
         setIsScrolled(true);
@@ -51,6 +53,11 @@ const NavBar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isScrolled]);
 
+  //加在頁面時檢查使用者登入狀態需要時間，防止閃現另一種狀態的按鈕
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <>
       {/* 使用者往下滑時 NavBar高度變化並加上背景色 */}
@@ -63,7 +70,7 @@ const NavBar = () => {
         bottom={0}
         opacity={isLoaded ? 1 : 0}
         height={
-          isScrolled ? "80px" : { base: "100px", md: "150px", lg: "200px" }
+          isScrolled ? "70px" : { base: "100px", md: "150px", lg: "200px" }
         }
         animation={isLoaded ? `${slideDown} 0.5s ease-out` : "none"}
         transition="all 0.3s ease-in-out"
@@ -125,28 +132,32 @@ const NavBar = () => {
               </Box>
             </Link>
           </ListItem>
-          <Box>
-            {/* 按鈕在使用者往下滑時縮小 */}
-            <Text
-              as="span"
-              transition="all 0.3s ease-in-out"
-              fontSize={
-                isScrolled
-                  ? { lg: "16px", xl: "18px" }
-                  : { base: "16px", md: "18px", lg: "20px", xl: "22px" }
-              }
-              fontWeight="300"
-              cursor="pointer"
-              _hover={{
-                borderBottom: { base: "3px solid", lg: "5px solid" },
-                borderColor: { base: "brand.primary", lg: "brand.primary" },
-              }}
-              onClick={openAuthModal}
-              zIndex={10}
-            >
-              GET STARTED
-            </Text>
-          </Box>
+          {user ? (
+            <ProfileMenu />
+          ) : (
+            <Box>
+              {/* 按鈕在使用者往下滑時縮小 */}
+              <Text
+                as="span"
+                transition="all 0.3s ease-in-out"
+                fontSize={
+                  isScrolled
+                    ? { lg: "16px", xl: "18px" }
+                    : { base: "16px", md: "18px", lg: "20px", xl: "22px" }
+                }
+                fontWeight="300"
+                cursor="pointer"
+                _hover={{
+                  borderBottom: { base: "3px solid", lg: "5px solid" },
+                  borderColor: { base: "brand.primary", lg: "brand.primary" },
+                }}
+                onClick={openAuthModal}
+                zIndex={10}
+              >
+                GET STARTED
+              </Text>
+            </Box>
+          )}
         </List>
       </HStack>
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />

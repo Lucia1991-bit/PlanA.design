@@ -18,6 +18,7 @@ interface AuthContextType {
   displayName: string | null;
   photoURL: string | null;
   isAuthModalOpen: boolean;
+  isLoading: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
   signUp: (email: string, password: string) => Promise<void>;
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [photoURL, setPhotoURL] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   //使用 ChakraUI 自帶的 控制 modal 開關元件
   const {
@@ -51,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(user);
       setDisplayName(user?.displayName || null);
       setPhotoURL(user?.photoURL || null);
+      setIsLoading(false); // 更新加載狀態
     });
     return unsubscribe;
   }, []);
@@ -91,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     displayName,
     photoURL,
     isAuthModalOpen,
+    isLoading,
     openAuthModal,
     closeAuthModal,
     signUp,

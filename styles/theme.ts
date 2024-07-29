@@ -12,6 +12,7 @@ const theme = extendTheme({
       dark: "#545251",
       secondary: "#c7c8c8",
       placeholder: "#b5b5b5",
+      third: "#9b9b9b",
       light: "rgba(199,200,201, 0.35)",
     },
   },

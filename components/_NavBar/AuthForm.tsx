@@ -218,12 +218,12 @@ const AuthForm = () => {
                   <AlertIcon />
                   <Box>
                     <AlertTitle
-                      fontSize={{ base: "16px", md: "17px", lg: "18px" }}
+                      fontSize={{ base: "15px", md: "17px", lg: "18px" }}
                     >
                       {alertInfo.title}
                     </AlertTitle>
                     <AlertDescription
-                      fontSize={{ base: "14px", md: "15px", lg: "16px" }}
+                      fontSize={{ base: "13px", md: "15px", lg: "16px" }}
                     >
                       {alertInfo.message}
                     </AlertDescription>
