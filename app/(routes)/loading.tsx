@@ -1,7 +1,7 @@
-import React from "react";
+import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
 
-const loading = () => {
-  return <div>loading</div>;
+const Loading = () => {
+  return <SimpleLoadingPage />;
 };
 
-export default loading;
+export default Loading;

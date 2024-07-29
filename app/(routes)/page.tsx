@@ -1,11 +1,10 @@
 "use client";
 
+import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
 import { Box, Text, transition, useBreakpointValue } from "@chakra-ui/react";
 import { motion, AnimatePresence, stagger, delay } from "framer-motion";
-import { Damion } from "next/font/google";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import Footer from "@/components/_HomePage/Footer";
 
 const MotionBox = motion(Box);
 const MotionText = motion(Text);
@@ -91,7 +90,8 @@ const HomePage = () => {
     },
   };
 
-  if (!mounted) return null;
+  //畫面未加載完成時顯示loading頁面
+  if (!mounted) return <SimpleLoadingPage />;
 
   return (
     <Box width="100%" overflowX="hidden">
@@ -187,7 +187,6 @@ const HomePage = () => {
       <Box width="100%" height="100vh">
         <div>操作說明</div>
       </Box>
-      <Footer />
     </Box>
   );
 };

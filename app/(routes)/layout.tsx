@@ -3,6 +3,7 @@ import { UIProviders } from "../../providers/ChakraProvider";
 import { fonts } from "../../styles/Googlefonts";
 import { AuthProvider } from "@/context/AuthContext";
 import NavBar from "@/components/_NavBar/NavBar";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Plan A | 簡單步驟，無限可能",
@@ -26,8 +27,8 @@ export default function RootLayout({
         <AuthProvider>
           <UIProviders>
             <NavBar />
-
             {children}
+            <Footer />
           </UIProviders>
         </AuthProvider>
       </body>
