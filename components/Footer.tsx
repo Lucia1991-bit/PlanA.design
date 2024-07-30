@@ -11,7 +11,7 @@ const Footer = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <Text letterSpacing={2} fontWeight="200">
+      <Text letterSpacing={2} fontWeight="200" fontSize="14px">
         Copyright © 2024 Plan A
       </Text>
     </HStack>

@@ -1,3 +1,9 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -10,6 +16,7 @@ const nextConfig = {
       },
     ],
   },
+  // 可以在這裡添加其他 Next.js 配置
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

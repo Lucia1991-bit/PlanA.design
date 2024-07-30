@@ -108,6 +108,7 @@ const NavBar = () => {
           justifyContent="space-between"
           alignItems="center"
         >
+          {/* LOGO */}
           <ListItem>
             <Link href="/">
               {/* LOGO在使用者往下滑時縮小 */}
@@ -131,6 +132,7 @@ const NavBar = () => {
                 />
               </Box>
             </Link>
+            {/* 若沒登入，顯示登入/註冊按鈕，若已登入，顯示使用者 Menu */}
           </ListItem>
           {user ? (
             <ProfileMenu />
@@ -160,6 +162,7 @@ const NavBar = () => {
           )}
         </List>
       </HStack>
+      {/* 登入/註冊 modal */}
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </>
   );

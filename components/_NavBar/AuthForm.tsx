@@ -300,7 +300,7 @@ const AuthForm = () => {
                 }}
                 isLoading={isLoading}
                 _loading={{
-                  bg: "#aa4d4d",
+                  bg: "#a02d2d",
                   opacity: 1,
                   cursor: "auto",
                 }}
@@ -411,7 +411,7 @@ const AuthForm = () => {
                 }}
                 isLoading={isLoading}
                 _loading={{
-                  bg: "#aa4d4d",
+                  bg: "#a02d2d",
                   opacity: 1,
                   cursor: "auto",
                 }}

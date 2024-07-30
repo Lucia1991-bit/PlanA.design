@@ -1,10 +1,11 @@
 "use client";
 
-import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
 import { Box, Text, transition, useBreakpointValue } from "@chakra-ui/react";
 import { motion, AnimatePresence, stagger, delay } from "framer-motion";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
+import DefaultLayout from "./layout";
 
 const MotionBox = motion(Box);
 const MotionText = motion(Text);
@@ -165,7 +166,12 @@ const HomePage = () => {
                 exit={{ opacity: 0, transition: { duration: 0.5 } }}
                 whiteSpace="nowrap"
                 fontWeight="300"
-                fontSize={{ base: "45px", md: "63px", lg: "80px", xl: "85px" }}
+                fontSize={{
+                  base: "45px",
+                  md: "63px",
+                  lg: "80px",
+                  xl: "85px",
+                }}
                 mt="-20px"
                 color="brand.primary"
               >

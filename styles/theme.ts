@@ -8,6 +8,7 @@ const theme = extendTheme({
   colors: {
     brand: {
       primary: "#c6332e",
+      primary_light: "#f9f9f8",
       hover: "#a02d2d",
       dark: "#545251",
       secondary: "#c7c8c8",
