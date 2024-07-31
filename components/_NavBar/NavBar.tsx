@@ -14,6 +14,7 @@ import Link from "next/link";
 import AuthModal from "@/components/_NavBar/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileMenu from "./ProfileMenu";
+import NavBarBackground from "./NavBarBackground";
 
 //頁面初始加載時 NavBar向下滑動動畫
 const slideDown = keyframes`
@@ -70,7 +71,7 @@ const NavBar = () => {
         bottom={0}
         opacity={isLoaded ? 1 : 0}
         height={
-          isScrolled ? "70px" : { base: "100px", md: "150px", lg: "200px" }
+          isScrolled ? "65px" : { base: "100px", md: "150px", lg: "200px" }
         }
         animation={isLoaded ? `${slideDown} 0.5s ease-out` : "none"}
         transition="all 0.3s ease-in-out"
@@ -81,20 +82,7 @@ const NavBar = () => {
         zIndex={10}
       >
         {/* 使用者往下滑時NavBar出現背景色 */}
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          backgroundColor="rgba(255, 255, 255, 0.7)"
-          backdropFilter="blur(4px)"
-          boxShadow="sm"
-          transform={isScrolled ? "scaleY(1)" : "scaleY(0)"}
-          transformOrigin="top"
-          transition="transform 0.3s ease-in-out"
-          zIndex={-1}
-        />
+        <NavBarBackground isScrolled={isScrolled} />
         <List
           maxWidth="1800px"
           width={{

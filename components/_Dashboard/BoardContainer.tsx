@@ -9,8 +9,8 @@ interface Props extends BoxProps {
 const BoardContainer = ({ children, hoverStyles, ...rest }: Props) => {
   return (
     <Box
-      borderRadius="6px"
-      border="1px solid rgba(199,200,201, 0.35)"
+      borderRadius="10px"
+      border="0.5px solid rgba(199,200,201, 0.1)"
       aspectRatio="3/3.5"
       boxShadow="md"
       _hover={hoverStyles}

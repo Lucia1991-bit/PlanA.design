@@ -33,6 +33,7 @@ const DashboardPage = () => {
       overflowX="hidden"
       minHeight="calc(100vh - 95px)"
       position="relative"
+      bg="brand.primary_light"
     >
       {/* TODO: 如果使用者設計紀錄是空的顯示創建新設計 */}
       {designData.length !== 0 ? <EmptyBoard /> : <BoardList />}

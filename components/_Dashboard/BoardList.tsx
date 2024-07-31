@@ -4,7 +4,6 @@ import { Box, Center, SimpleGrid, Text } from "@chakra-ui/react";
 import Board from "./Board";
 import BoardContainer from "./BoardContainer";
 import BoardSkeleton from "./BoardSkeleton";
-import createNewBoard from "./NewBoard";
 import NewBoard from "./NewBoard";
 
 const BoardList = () => {

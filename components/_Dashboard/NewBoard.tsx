@@ -9,6 +9,7 @@ const NewBoard = () => {
       height="100%"
       bg="brand.primary"
       _hover={{ bg: "brand.hover" }}
+      borderRadius="10px"
     >
       <VStack
         width="100%"

@@ -2,19 +2,20 @@ import { Box, Card, CardBody, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
 import BoardMenu from "./BoardMenu";
+import Overlay from "./Overlay";
 
 const Board = () => {
   return (
     <Box position="relative" width="100%" height="100%">
       <Link href="/">
         <Card
-          borderRadius="6px"
+          borderRadius="10px"
           display="flex"
           flexDir="column"
           width="100%"
           height="100%"
           overflow="hidden"
-          transition={"transform 0.3s ease-in-out"}
+          transition="transform 0.3s ease-in-out"
         >
           <Box
             position="relative"
@@ -25,19 +26,8 @@ const Board = () => {
             flex="1"
           >
             {/* 遮罩 */}
-            <Box
-              className="board-overlay"
-              position="absolute"
-              top="0"
-              left="0"
-              right="0"
-              bottom="0"
-              bg="brand.dark"
-              opacity="0"
-              transition="opacity 0.3s ease-in-out"
-              pointerEvents="none"
-              zIndex={2}
-            />
+            <Overlay />
+
             <Image
               className="board-thumbnail"
               src="/boards/placeholders/placeholder1.svg"
@@ -55,7 +45,7 @@ const Board = () => {
             height="65px"
             maxHeight="70px"
           >
-            <Text fontSize="18px" fontWeight="500">
+            <Text fontSize="17px" fontWeight="500">
               檔案名稱
             </Text>
             <Text fontSize="12px" fontWeight="200">
@@ -64,16 +54,7 @@ const Board = () => {
           </CardBody>
         </Card>
       </Link>
-      <Box
-        className="board-menu"
-        position="absolute"
-        top={2}
-        right={2}
-        zIndex={10}
-        opacity={0}
-      >
-        <BoardMenu />
-      </Box>
+      <BoardMenu />
     </Box>
   );
 };

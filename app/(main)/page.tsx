@@ -190,7 +190,7 @@ const HomePage = () => {
           </AnimatePresence>
         </Box>
       </Box>
-      <Box width="100%" height="100vh">
+      <Box width="100%" height="100vh" bg="brand.primary_light">
         <div>操作說明</div>
       </Box>
     </Box>

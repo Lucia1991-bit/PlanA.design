@@ -1,20 +1,35 @@
 import { Card, CardBody, Skeleton, SkeletonText } from "@chakra-ui/react";
-import React from "react";
 
 const BoardSkeleton = () => {
   return (
-    <Card borderRadius="6px" width="100%" height="100%">
+    <Card
+      borderRadius="10px"
+      display="flex"
+      flexDir="column"
+      width="100%"
+      height="100%"
+      overflow="hidden"
+    >
       <Skeleton
-        height="300px"
-        startColor="brand.light"
-        endColor="brand.third"
+        width="100%"
+        pt="75%"
+        startColor="brand.secondary"
+        endColor="brand.light"
+        flex="1"
       />
-      <CardBody>
+      <CardBody
+        height="65px"
+        maxHeight="70px"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        px="50px"
+      >
         <SkeletonText
           noOfLines={2}
-          skeletonHeight="4"
-          startColor="brand.light"
-          endColor="brand.third"
+          skeletonHeight="3"
+          startColor="brand.secondary"
+          endColor="brand.light"
         />
       </CardBody>
     </Card>
