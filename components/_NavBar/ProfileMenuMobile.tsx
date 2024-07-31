@@ -81,8 +81,13 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
               <VStack justifyContent="center" alignItems="center" my={3}>
                 <Avatar src={photoURL || defaultAvatarSrc} size="md" />
                 <VStack spacing="1px">
-                  <Text fontSize="18px" fontWeight="600" color="brand.dark">
-                    {displayName || "歡迎"}
+                  <Text
+                    fontSize="18px"
+                    fontWeight="600"
+                    color="brand.dark"
+                    letterSpacing={0.3}
+                  >
+                    {displayName || "歡迎使用"}
                   </Text>
                   <Text fontSize="13px" fontWeight="400" color={"brand.third"}>
                     {user?.email}
@@ -92,7 +97,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
               <Divider borderColor="brand.light" />
               <Button
                 w="100%"
-                leftIcon={<AddIcon />}
+                leftIcon={<AddIcon fontSize="16px" />}
                 justifyContent="center"
                 variant="ghost"
                 color="brand.dark"
@@ -104,7 +109,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
               </Button>
               <Button
                 w="100%"
-                leftIcon={<PiSignOutBold size="17px" />}
+                leftIcon={<PiSignOutBold fontSize="20px" />}
                 justifyContent="center"
                 variant="ghost"
                 onClick={signOut}

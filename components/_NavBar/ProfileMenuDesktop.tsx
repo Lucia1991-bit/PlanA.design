@@ -65,8 +65,8 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
             <VStack justifyContent="center" alignItems="center" mb={3}>
               <Avatar src={photoURL || defaultAvatarSrc} size="md" />
               <VStack spacing="1px">
-                <Text fontSize="16px" fontWeight="600">
-                  {displayName || "歡迎"}
+                <Text fontSize="16px" fontWeight="600" letterSpacing={0.3}>
+                  {displayName || "歡迎使用"}
                 </Text>
                 <Text fontSize="13px" fontWeight="400" color={"brand.third"}>
                   {user?.email}

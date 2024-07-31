@@ -41,7 +41,7 @@ const HomePage = () => {
     //等待 shape your plan 動畫完成後開始 for your...動畫循環
     const timer = setTimeout(() => {
       setMainTitleAnimationComplete(true);
-    }, 1500); // 幾秒後開始 slogan 動畫
+    }, 1300); // 幾秒後開始 slogan 動畫
 
     return () => clearTimeout(timer);
   }, []);
@@ -50,7 +50,7 @@ const HomePage = () => {
     if (mainTitleAnimationComplete) {
       const interval = setInterval(() => {
         setCurrentSlogan((prev) => (prev + 1) % slogans.length);
-      }, 2300);
+      }, 1800);
       return () => clearInterval(interval);
     }
   }, [mainTitleAnimationComplete]);
@@ -71,7 +71,7 @@ const HomePage = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05, // 增加間隔時間
+        staggerChildren: 0.05,
         delayChildren: 0.1,
       },
     },
