@@ -9,7 +9,6 @@ const EmptyBoard = () => {
       width="100%"
       height="100%"
       minHeight="calc(100vh - 95px)"
-      bg="green"
       position="absolute"
       top="50%"
       transform="translateY(-50%)"

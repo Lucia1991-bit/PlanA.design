@@ -32,11 +32,10 @@ const DashboardPage = () => {
       width="100%"
       overflowX="hidden"
       minHeight="calc(100vh - 95px)"
-      bg="red"
       position="relative"
     >
       {/* TODO: 如果使用者設計紀錄是空的顯示創建新設計 */}
-      {designData.length === 0 ? <EmptyBoard /> : <BoardList />}
+      {designData.length !== 0 ? <EmptyBoard /> : <BoardList />}
     </Box>
   );
 };
