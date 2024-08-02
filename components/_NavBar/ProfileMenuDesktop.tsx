@@ -22,7 +22,7 @@ interface ProfileMenuDesktopProps {
 }
 
 const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
-  const { displayName, photoURL, signOut, user } = useAuth();
+  const { signOut, user } = useAuth();
   const router = useRouter();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,7 +52,7 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
           boxShadow="md"
           icon={
             <Avatar
-              src={photoURL || defaultAvatarSrc}
+              src={user?.photoURL || defaultAvatarSrc}
               width="38px "
               height="38px"
             />
@@ -60,13 +60,13 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
           _focus={{ boxShadow: "none", outline: "none" }}
           _active={{ bg: "transparent" }}
         />
-        <MenuList py={5} boxShadow="md" width="200px" mr={4} bg="#f7f8f7">
+        <MenuList py={5} boxShadow="md" width="200px" mr={4}>
           <VStack spacing={2} align="stretch">
             <VStack justifyContent="center" alignItems="center" mb={3}>
-              <Avatar src={photoURL || defaultAvatarSrc} size="md" />
+              <Avatar src={user?.photoURL || defaultAvatarSrc} size="md" />
               <VStack spacing="1px">
                 <Text fontSize="16px" fontWeight="600" letterSpacing={0.3}>
-                  {displayName || "歡迎使用"}
+                  {user?.displayName || "歡迎使用"}
                 </Text>
                 <Text fontSize="13px" fontWeight="400" color={"brand.third"}>
                   {user?.email}
@@ -78,7 +78,6 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
               py={2}
               px={6}
               icon={<AddIcon />}
-              bg="#f7f8f7"
               fontSize="15px"
               _hover={{ bg: "brand.light" }}
               _focus={{ bg: "brand.light" }}
@@ -90,7 +89,6 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
               py={2}
               px={6}
               icon={<PiSignOutBold size="17px" />}
-              bg="#f7f8f7"
               fontSize="15px"
               _hover={{ bg: "brand.light" }}
               _focus={{ bg: "brand.light" }}

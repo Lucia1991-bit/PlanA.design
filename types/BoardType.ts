@@ -1,5 +1,5 @@
 //設計資料型別
-export interface Board {
+export interface BoardType {
   id: string;
   fileName: string;
   thumbnailURL: string;
@@ -26,17 +26,16 @@ export interface UpdateBoard {
 
 //使用 useBoards hook 回傳的資料
 export interface UseBoardsReturn {
-  boards: Board[];
-  loading: boolean;
-  error: string | null;
-  addBoard: (board: NewBoard) => Promise<Board>;
+  boards: BoardType[] | null;
+  fetching: boolean;
+  addBoard: (board: NewBoard) => Promise<BoardType>;
   updateBoard: (id: string, board: UpdateBoard) => Promise<void>;
   deleteBoard: (id: string) => Promise<void>;
 }
 
 //使用 useSingleBoard hook 回傳的資料
 export interface UseSingleBoardReturn {
-  boards: Board[];
-  loading: boolean;
+  board: BoardType | null;
+  fetching: boolean;
   error: string | null;
 }

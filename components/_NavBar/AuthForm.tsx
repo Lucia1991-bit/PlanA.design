@@ -257,7 +257,6 @@ const AuthForm = () => {
                     }}
                   />
                 </InputGroup>
-                <FormErrorMessage>Email is required.</FormErrorMessage>
               </FormControl>
 
               <FormControl>
@@ -286,7 +285,6 @@ const AuthForm = () => {
                     }}
                   />
                 </InputGroup>
-                <FormErrorMessage>Email is required.</FormErrorMessage>
               </FormControl>
               <Button
                 type="submit"
@@ -369,7 +367,6 @@ const AuthForm = () => {
                     }}
                   />
                 </InputGroup>
-                <FormErrorMessage>Email is required.</FormErrorMessage>
               </FormControl>
 
               <FormControl>

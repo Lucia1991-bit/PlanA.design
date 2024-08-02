@@ -39,7 +39,7 @@ const BoardMenu = () => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Menu isOpen={isOpen} placement="right" isLazy>
+      <Menu isOpen={isOpen} placement="right" isLazy matchWidth={true}>
         <MenuButton
           as={IconButton}
           size="sm"

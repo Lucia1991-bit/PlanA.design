@@ -1,30 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
 import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
-import { Box, Stack } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
+import { useAuth } from "@/hooks/useAuth";
+import useBoards from "@/hooks/useBoards";
 import EmptyBoard from "@/components/_Dashboard/EmptyBoard";
 import BoardList from "@/components/_Dashboard/BoardList";
 
 const DashboardPage = () => {
-  const { user, isLoading } = useAuth();
-  const [designData, setDesignData] = useState([]);
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
+
+  const { boards, fetching: boardsFetching } = useBoards(user?.uid);
 
   //驗證使用者登入狀態
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!authLoading && !user) {
       return router.replace("/");
     }
-  }, [user, isLoading, router]);
+  }, [user, authLoading, router]);
 
   // 如果正在加載或用戶未登入，顯示加載頁面
-  if (isLoading || !user) {
+  if (authLoading || !user) {
     return <SimpleLoadingPage />;
   }
-
-  //TODO: 從 firestore獲取設計紀錄
 
   return (
     <Box
@@ -35,8 +35,7 @@ const DashboardPage = () => {
       position="relative"
       bg="brand.primary_light"
     >
-      {/* TODO: 如果使用者設計紀錄是空的顯示創建新設計 */}
-      {designData.length !== 0 ? <EmptyBoard /> : <BoardList />}
+      <BoardList boards={boards} fetching={boardsFetching} />
     </Box>
   );
 };

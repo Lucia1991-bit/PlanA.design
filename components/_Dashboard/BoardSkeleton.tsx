@@ -16,6 +16,7 @@ const BoardSkeleton = () => {
         startColor="brand.secondary"
         endColor="brand.light"
         flex="1"
+        borderRadius={0}
       />
       <CardBody
         height="65px"

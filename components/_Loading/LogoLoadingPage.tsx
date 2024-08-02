@@ -8,13 +8,13 @@ interface LoadingProps extends StackProps {
   text?: string;
 }
 
-const LoadingPage = ({ text, ...stackProps }: LoadingProps) => {
+const LogoLoadingPage = ({ text, ...stackProps }: LoadingProps) => {
   return (
     <VStack
       justifyContent="center"
       alignItems="center"
       height="100vh"
-      bg="brand.light"
+      bg="#ecebeb"
       spacing={6}
       {...stackProps}
     >
@@ -33,4 +33,4 @@ const LoadingPage = ({ text, ...stackProps }: LoadingProps) => {
   );
 };
 
-export default LoadingPage;
+export default LogoLoadingPage;

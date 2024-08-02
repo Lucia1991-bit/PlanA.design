@@ -44,7 +44,7 @@ const LoadingLogo = () => {
                 : "M0,100 A100,100 0 0,0 100,0"
             }
             fill="none"
-            stroke="#c7c8c9"
+            stroke="#ecebeb"
             strokeWidth="6px"
             strokeLinecap="round"
           />

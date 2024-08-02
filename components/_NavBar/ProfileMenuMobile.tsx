@@ -27,7 +27,7 @@ interface ProfileMenuMobileProps {
 
 const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { displayName, photoURL, signOut, user } = useAuth();
+  const { signOut, user } = useAuth();
   const router = useRouter();
 
   const handleDashboardClick = () => {
@@ -42,7 +42,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
         variant="ghost"
         icon={
           <Avatar
-            src={photoURL || defaultAvatarSrc}
+            src={user?.photoURL || defaultAvatarSrc}
             width="32px"
             height="32px"
           />
@@ -79,7 +79,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
           <DrawerBody>
             <VStack spacing={4} align="stretch" pb={2}>
               <VStack justifyContent="center" alignItems="center" my={3}>
-                <Avatar src={photoURL || defaultAvatarSrc} size="md" />
+                <Avatar src={user?.photoURL || defaultAvatarSrc} size="md" />
                 <VStack spacing="1px">
                   <Text
                     fontSize="18px"
@@ -87,7 +87,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
                     color="brand.dark"
                     letterSpacing={0.3}
                   >
-                    {displayName || "歡迎使用"}
+                    {user?.displayName || "歡迎使用"}
                   </Text>
                   <Text fontSize="13px" fontWeight="400" color={"brand.third"}>
                     {user?.email}

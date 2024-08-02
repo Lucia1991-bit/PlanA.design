@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 
 import { doc, onSnapshot } from "firebase/firestore";
-import { Board } from "../types/Board";
+import { BoardType, UseSingleBoardReturn } from "../types/BoardType";
 import { db } from "@/lib/firebase";
 
-const useSingleBoard = (id: string) => {
-  const [board, setBoard] = useState<Board | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+const useSingleBoard = (id: string): UseSingleBoardReturn => {
+  const [board, setBoard] = useState<BoardType | null>(null);
+  const [fetching, setFetching] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
       setBoard(null);
-      setLoading(false);
+      setFetching(false);
       return;
     }
 
-    setLoading(true);
+    setFetching(true);
     const boardRef = doc(db, "boards", id);
 
     const unsubscribe = onSnapshot(
@@ -29,22 +29,22 @@ const useSingleBoard = (id: string) => {
             ...data,
             createdAt: data.createdAt?.toDate(),
             lastModified: data.lastModified?.toDate(),
-          } as Board);
+          } as BoardType);
         } else {
           setError("查無此設計資料");
         }
-        setLoading(false);
+        setFetching(false);
       },
       (error) => {
         console.error("Error fetching boards:", error);
         setError("獲取設計紀錄時發生錯誤");
-        setLoading(false);
+        setFetching(false);
       }
     );
     return () => unsubscribe();
   }, [id]);
 
-  return { board, loading, error };
+  return { board, fetching, error };
 };
 
 export default useSingleBoard;

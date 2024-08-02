@@ -10,9 +10,8 @@ const BoardContainer = ({ children, hoverStyles, ...rest }: Props) => {
   return (
     <Box
       borderRadius="10px"
-      border="0.5px solid rgba(199,200,201, 0.1)"
+      borderColor="rgba(199,200,201, 0.1)"
       aspectRatio="3/3.5"
-      boxShadow="md"
       _hover={hoverStyles}
       {...rest}
     >
