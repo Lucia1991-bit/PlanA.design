@@ -21,7 +21,7 @@ const LogoLoadingPage = ({ text, ...stackProps }: LoadingProps) => {
       <LoadingLogo />
       {text && (
         <Text
-          fontSize="25px"
+          fontSize={{ base: "18px", lg: "25px" }}
           fontWeight="300"
           color="brand.primary"
           letterSpacing={2}

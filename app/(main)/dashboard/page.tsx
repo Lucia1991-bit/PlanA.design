@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
-import { Box } from "@chakra-ui/react";
+import { Box, Container, Flex } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
 import useBoards from "@/hooks/useBoards";
 import EmptyBoard from "@/components/_Dashboard/EmptyBoard";
@@ -30,12 +30,24 @@ const DashboardPage = () => {
     <Box
       pt={{ base: "100px", md: "150px", lg: "200px" }}
       width="100%"
-      overflowX="hidden"
       minHeight="calc(100vh - 95px)"
-      position="relative"
       bg="brand.primary_light"
+      overflow="auto"
+      position="relative"
     >
-      <BoardList boards={boards} fetching={boardsFetching} />
+      <Container
+        maxWidth={{ base: "85%", md: "90%", lg: "88%", xl: "1500px" }}
+        px={{ base: 4, md: 6 }}
+        py={{ base: "80px", md: "100px", lg: "80px" }}
+      >
+        {boardsFetching ? (
+          <BoardList boards={boards} fetching={true} />
+        ) : boards && boards.length === 0 ? (
+          <EmptyBoard />
+        ) : (
+          <BoardList boards={boards} fetching={false} />
+        )}
+      </Container>
     </Box>
   );
 };

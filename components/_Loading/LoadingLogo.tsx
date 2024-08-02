@@ -10,8 +10,8 @@ const arcTransition = keyframes`
 const LoadingLogo = () => {
   return (
     <Box
-      width="100px"
-      height="100px"
+      width={{ base: "50px", lg: "100px" }}
+      height={{ base: "50px", lg: "100px" }}
       backgroundColor="#c6332e"
       position="relative"
       overflow="hidden"

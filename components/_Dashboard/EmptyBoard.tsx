@@ -1,9 +1,9 @@
-import { useCreateBoard } from "@/hooks/useCreateBoard";
+import { useBoardOperations } from "@/hooks/useBoardOperations ";
 import { Box, Button, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
 
 const EmptyBoard = () => {
-  const { createBoard, isCreating } = useCreateBoard();
+  const { createBoard, isLoading } = useBoardOperations();
 
   const handleCreateBoard = () => {
     createBoard();
@@ -58,7 +58,7 @@ const EmptyBoard = () => {
         _hover={{
           bg: "#a02d2d",
         }}
-        isLoading={isCreating}
+        isLoading={isLoading}
         onClick={handleCreateBoard}
       >
         START

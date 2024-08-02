@@ -1,9 +1,9 @@
 import { AddIcon } from "@chakra-ui/icons";
 import { Button, Spinner, Text, VStack } from "@chakra-ui/react";
-import { useCreateBoard } from "@/hooks/useCreateBoard";
+import { useBoardOperations } from "@/hooks/useBoardOperations ";
 
 const NewBoard = () => {
-  const { createBoard, isCreating } = useCreateBoard();
+  const { createBoard, isLoading } = useBoardOperations();
 
   const handleCreateBoard = () => {
     createBoard();
@@ -17,7 +17,7 @@ const NewBoard = () => {
       bg="brand.primary"
       _hover={{ bg: "brand.hover" }}
       borderRadius="10px"
-      isDisabled={isCreating}
+      isDisabled={isLoading}
       onClick={handleCreateBoard}
       _disabled={{
         cursor: "auto",

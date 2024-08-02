@@ -41,7 +41,7 @@ const HomePage = () => {
     //等待 shape your plan 動畫完成後開始 for your...動畫循環
     const timer = setTimeout(() => {
       setMainTitleAnimationComplete(true);
-    }, 1300); // 幾秒後開始 slogan 動畫
+    }, 1400); // 幾秒後開始 slogan 動畫
 
     return () => clearTimeout(timer);
   }, []);
@@ -50,7 +50,7 @@ const HomePage = () => {
     if (mainTitleAnimationComplete) {
       const interval = setInterval(() => {
         setCurrentSlogan((prev) => (prev + 1) % slogans.length);
-      }, 1800);
+      }, 1600);
       return () => clearInterval(interval);
     }
   }, [mainTitleAnimationComplete]);
@@ -111,8 +111,8 @@ const HomePage = () => {
           initial={{ x: "0%", opacity: 0 }}
           animate={{ x: "-8%", opacity: 1 }} // 向左移動容器
           transition={{
-            x: { duration: 10, ease: "easeOut" }, //移動動畫
-            opacity: { duration: 1.5, ease: "easeIn" }, //淡入動畫
+            x: { duration: 11, ease: "easeOut" }, //移動動畫
+            opacity: { duration: 1.8, ease: "easeIn" }, //淡入動畫
           }}
           style={{
             right: "0", // 確保右側對齊

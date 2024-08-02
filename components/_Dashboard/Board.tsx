@@ -48,15 +48,26 @@ const Board = ({ board }: BoardProps) => {
           >
             {/* 遮罩 */}
             <Overlay />
-
-            <Image
-              className="board-thumbnail"
-              src={board.thumbnailURL}
-              alt="file thumbnail"
-              fill
-              style={{ objectFit: "cover", position: "absolute" }}
-              priority
-            />
+            <Box
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              width="90%"
+              height="90%"
+            >
+              <Image
+                className="board-thumbnail"
+                src={board.thumbnailURL}
+                alt="file thumbnail"
+                fill
+                style={{
+                  objectFit: "contain",
+                  position: "absolute",
+                }}
+                priority
+              />
+            </Box>
           </Box>
           <CardBody
             textAlign="center"
@@ -64,19 +75,19 @@ const Board = ({ board }: BoardProps) => {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            height="65px"
-            maxHeight="70px"
+            height="70px"
+            maxHeight="75px"
           >
-            <Text fontSize="17px" fontWeight="500">
+            <Text fontSize={{ base: "15px", lg: "17px" }} fontWeight="500">
               {board.fileName}
             </Text>
-            <Text fontSize="14px" fontWeight="200">
+            <Text fontSize={{ base: "12px", lg: "13px" }} fontWeight="200">
               {formatDate(board.lastModified)}
             </Text>
           </CardBody>
         </Card>
       </Link>
-      <BoardMenu boardId={board.id} />
+      <BoardMenu boardId={board.id} boardName={board.fileName} />
     </Box>
   );
 };
