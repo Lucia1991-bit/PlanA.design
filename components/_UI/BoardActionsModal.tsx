@@ -46,16 +46,21 @@ const BoardActionsModal = ({
   currentName,
 }: BoardActionsModalProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const config = modalConfig[type];
 
   useEffect(() => {
-    if (isOpen && type === "rename" && inputRef.current) {
-      inputRef.current.value = currentName || "";
-      inputRef.current.focus();
-      inputRef.current.select();
+    if (isOpen) {
+      if (type === "rename" && inputRef.current) {
+        inputRef.current.value = currentName || "";
+        inputRef.current.focus();
+        inputRef.current.select();
+      } else if (type === "delete" && modalRef.current) {
+        modalRef.current.focus();
+      }
+      setError("");
     }
-    setError("");
   }, [isOpen, type, currentName]);
 
   const handleSubmit = () => {
@@ -76,6 +81,17 @@ const BoardActionsModal = ({
     setError("");
   };
 
+  // 處理按下 Enter 鍵時送出表單
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    //檢查是否正在使用輸入法(避免一按 enter就送出)，不是的話才送出表單
+    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleSubmit();
+    } else if (e.key === "Escape") {
+      onClose();
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -84,9 +100,9 @@ const BoardActionsModal = ({
       preserveScrollBarGap
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent ref={modalRef} tabIndex={0} onKeyDown={handleKeyDown}>
         <ModalHeader>{config.title}</ModalHeader>
-        <ModalCloseButton />
+        <ModalCloseButton _focus={{ outline: "none", boxShadow: "none" }} />
         <ModalBody>
           <Text>{config.bodyText}</Text>
           {type === "rename" && (
@@ -129,7 +145,6 @@ const BoardActionsModal = ({
             _hover={{
               bg: "brand.hover",
             }}
-            isDisabled={false}
           >
             {config.submitText}
           </Button>

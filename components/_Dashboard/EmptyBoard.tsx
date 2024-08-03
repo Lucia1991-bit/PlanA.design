@@ -17,8 +17,8 @@ const EmptyBoard = () => {
       height="100%"
       minHeight="calc(100vh - 95px)"
       position="absolute"
-      top="50%"
-      transform="translateY(-50%)"
+      top="0"
+      left="0"
     >
       <Box
         position="relative"

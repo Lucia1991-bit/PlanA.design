@@ -37,7 +37,7 @@ export const useBoardOperations = () => {
     toast({
       title,
       status,
-      duration: 1000,
+      duration: 2000,
       position: "top-right",
       isClosable: true,
       variant: "left-accent",
@@ -64,10 +64,10 @@ export const useBoardOperations = () => {
 
       if (newBoardId) {
         setIsLoading(false);
-        showToast("新增成功", "success");
+        // showToast("新增成功", "success");
         setTimeout(() => {
           route.push(`/design/${newBoardId}`);
-        }, 1000);
+        }, 200);
       }
     } catch (error) {
       showToast("新增失敗，請稍後再試", "error");

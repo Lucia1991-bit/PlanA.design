@@ -11,15 +11,28 @@ import {
   MenuList,
   Text,
   VStack,
+  keyframes,
   useDisclosure,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { PiSignOutBold } from "react-icons/pi";
+import { motion, stagger } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 
 interface ProfileMenuDesktopProps {
   defaultAvatarSrc: string;
 }
+
+//設置動畫
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const slideUp = keyframes`
+  from { transform: translateY(33px); }
+  to { transform: translateY(0); }
+`;
 
 const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
   const { signOut, user } = useAuth();
@@ -34,6 +47,11 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
 
   const handleMouseLeave = () => {
     onClose();
+  };
+
+  const animationStyles = {
+    opacity: 0,
+    animation: `${fadeIn} 0.35s ease-out forwards, ${slideUp} 0.4s ease-out forwards`,
   };
 
   return (
@@ -60,19 +78,21 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
           _focus={{ boxShadow: "none", outline: "none" }}
           _active={{ bg: "transparent" }}
         />
-        <MenuList py={5} boxShadow="md" width="200px" mr={4}>
+        <MenuList py={6} boxShadow="md" width="200px" mr={4}>
           <VStack spacing={2} align="stretch">
-            <VStack justifyContent="center" alignItems="center" mb={3}>
-              <Avatar src={user?.photoURL || defaultAvatarSrc} size="md" />
-              <VStack spacing="1px">
-                <Text fontSize="16px" fontWeight="600" letterSpacing={0.3}>
-                  {user?.displayName || "歡迎使用"}
-                </Text>
-                <Text fontSize="13px" fontWeight="400" color={"brand.third"}>
-                  {user?.email}
-                </Text>
+            <Box sx={animationStyles} style={{ animationDelay: "0.1s, 0.1s" }}>
+              <VStack justifyContent="center" alignItems="center" mb={3}>
+                <Avatar src={user?.photoURL || defaultAvatarSrc} size="md" />
+                <VStack spacing="1px">
+                  <Text fontSize="16px" fontWeight="600" letterSpacing={0.3}>
+                    {user?.displayName || "歡迎使用"}
+                  </Text>
+                  <Text fontSize="13px" fontWeight="400" color={"brand.third"}>
+                    {user?.email}
+                  </Text>
+                </VStack>
               </VStack>
-            </VStack>
+            </Box>
             <Divider mx="auto" mb={2} width="90%" borderColor="brand.light" />
             <MenuItem
               py={2}
@@ -82,6 +102,8 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
               _hover={{ bg: "brand.light" }}
               _focus={{ bg: "brand.light" }}
               onClick={() => router.push("/dashboard")}
+              sx={animationStyles}
+              style={{ animationDelay: "0.2s, 0.2s" }}
             >
               Dashboard
             </MenuItem>
@@ -93,6 +115,8 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
               _hover={{ bg: "brand.light" }}
               _focus={{ bg: "brand.light" }}
               onClick={signOut}
+              sx={animationStyles}
+              style={{ animationDelay: "0.3s, 0.3s" }}
             >
               Sign out
             </MenuItem>

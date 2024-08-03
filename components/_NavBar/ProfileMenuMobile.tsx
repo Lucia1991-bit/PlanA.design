@@ -59,6 +59,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
         onClose={onClose}
         size="xs"
         autoFocus={false}
+        preserveScrollBarGap
       >
         <DrawerOverlay bg="blackAlpha.300" />
         <DrawerContent bg="#f7f8f7" backdropFilter="blur(5px)">
