@@ -78,7 +78,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
           </DrawerHeader>
 
           <DrawerBody>
-            <VStack spacing={4} align="stretch" pb={2}>
+            <VStack spacing={4} align="stretch" mb={4}>
               <VStack justifyContent="center" alignItems="center" my={3}>
                 <Avatar src={user?.photoURL || defaultAvatarSrc} size="md" />
                 <VStack spacing="1px">
@@ -95,7 +95,7 @@ const ProfileMenuMobile = ({ defaultAvatarSrc }: ProfileMenuMobileProps) => {
                   </Text>
                 </VStack>
               </VStack>
-              <Divider borderColor="brand.light" />
+              <Divider borderColor="brand.light" mb={2} />
               <Button
                 w="100%"
                 leftIcon={<AddIcon fontSize="16px" />}

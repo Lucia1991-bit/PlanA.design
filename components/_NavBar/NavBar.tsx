@@ -11,9 +11,9 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
-import AuthModal from "@/components/_NavBar/AuthModal";
+import AuthModal from "@/components/_Auth/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import ProfileMenu from "./ProfileMenu";
+import ProfileMenu from "@/components/_Profile/ProfileMenu";
 import NavBarBackground from "./NavBarBackground";
 
 //頁面初始加載時 NavBar向下滑動動畫

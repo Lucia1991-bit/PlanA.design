@@ -78,7 +78,14 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
           _focus={{ boxShadow: "none", outline: "none" }}
           _active={{ bg: "transparent" }}
         />
-        <MenuList py={6} boxShadow="md" width="200px" mr={4}>
+        <MenuList
+          py={6}
+          boxShadow="md"
+          width="200px"
+          mr={4}
+          bg="#ffffff"
+          color="brand.dark"
+        >
           <VStack spacing={2} align="stretch">
             <Box sx={animationStyles} style={{ animationDelay: "0.1s, 0.1s" }}>
               <VStack justifyContent="center" alignItems="center" mb={3}>
@@ -95,6 +102,7 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
             </Box>
             <Divider mx="auto" mb={2} width="90%" borderColor="brand.light" />
             <MenuItem
+              bg="#ffffff"
               py={2}
               px={6}
               icon={<AddIcon />}
@@ -108,6 +116,7 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
               Dashboard
             </MenuItem>
             <MenuItem
+              bg="#ffffff"
               py={2}
               px={6}
               icon={<PiSignOutBold size="17px" />}

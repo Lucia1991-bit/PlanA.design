@@ -23,7 +23,7 @@ import {
 import { AuthError } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import OAuth from "@/components/_NavBar/OAuth";
+import OAuth from "@/components/_Auth/OAuth";
 
 type AlertStatus = "error" | "success";
 
@@ -49,7 +49,6 @@ const AuthForm = () => {
   const focusStyles = {
     outline: "none",
     boxShadow: "none",
-    // boxShadow: "0 0 0 1px #c6332e",
   };
 
   //firebase auth 錯誤 code
@@ -69,6 +68,15 @@ const AuthForm = () => {
         return "信箱或密碼不正確，請重新輸入";
       default:
         return "發生未知錯誤，請稍後再試";
+    }
+  };
+
+  //根據不同狀態取得 alert背景色
+  const getAlertBgColor = (status: AlertStatus) => {
+    if (status === "error") {
+      return "red.100";
+    } else {
+      return "green.100";
     }
   };
 
@@ -139,6 +147,8 @@ const AuthForm = () => {
           status={alertInfo.status}
           borderRadius="5px"
           variant="left-accent"
+          bg={getAlertBgColor(alertInfo.status)}
+          opacity={1}
         >
           <AlertIcon />
           <Box>

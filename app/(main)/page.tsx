@@ -1,11 +1,10 @@
 "use client";
 
-import { Box, Text, transition, useBreakpointValue } from "@chakra-ui/react";
-import { motion, AnimatePresence, stagger, delay } from "framer-motion";
+import { Box, Text, useBreakpointValue } from "@chakra-ui/react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
-import DefaultLayout from "./layout";
 
 const MotionBox = motion(Box);
 const MotionText = motion(Text);

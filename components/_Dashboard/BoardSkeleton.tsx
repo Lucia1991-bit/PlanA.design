@@ -3,6 +3,7 @@ import { Card, CardBody, Skeleton, SkeletonText } from "@chakra-ui/react";
 const BoardSkeleton = () => {
   return (
     <Card
+      bg="#ffffff"
       borderRadius="10px"
       display="flex"
       flexDir="column"

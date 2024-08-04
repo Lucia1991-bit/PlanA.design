@@ -1,6 +1,13 @@
 import { extendTheme } from "@chakra-ui/react";
+import { color } from "framer-motion";
+
+const config: any = {
+  initialColorMode: "light",
+  useSystemColorMode: false,
+};
 
 const theme = extendTheme({
+  config,
   fonts: {
     heading: `var(--font-lexend), var(--font-noto-sans-tc), sans-serif`,
     body: `var(--font-lexend), var(--font-noto-sans-tc), sans-serif`,
@@ -11,6 +18,7 @@ const theme = extendTheme({
       primary_light: "#f9f9f8",
       hover: "#a02d2d",
       dark: "#545251",
+      dark_hover: "#373838",
       secondary: "#c7c8c8",
       placeholder: "#b5b5b5",
       third: "#9b9b9b",
@@ -18,10 +26,10 @@ const theme = extendTheme({
     },
   },
   styles: {
-    global: {
+    global: (props: any) => ({
       body: {
-        bg: "#ffffff",
-        color: "#545251",
+        bg: "brand.primary_light",
+        color: "brand.dark",
       },
       // 重置所有元素的邊框和輪廓
       "*": {
@@ -32,7 +40,7 @@ const theme = extendTheme({
       hr: {
         borderColor: "gray.200",
       },
-    },
+    }),
   },
 });
 

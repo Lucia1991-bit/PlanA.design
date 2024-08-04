@@ -24,16 +24,18 @@ const BoardList = ({ boards, fetching }: BoardListProps) => {
   const [isMobileOrTablet] = useMediaQuery("(max-width: 1024px)");
 
   useEffect(() => {
-    setSkeletonCount(Math.min(Math.max(columns - 1, 1), columns * 2));
+    setSkeletonCount(Math.min(Math.max(columns, 1), columns * 2));
   }, [columns]);
 
   const renderContent = () => {
-    if (!boards || fetching) {
+    if (!boards) {
+      return null;
+    }
+
+    //加載中，顯示skeleton
+    if (fetching) {
       return (
         <>
-          <BoardContainer bg="brand.primary">
-            <NewBoard />
-          </BoardContainer>
           {Array.from({ length: skeletonCount }).map((_, index) => (
             <BoardContainer key={`skeleton-${index}`}>
               <BoardSkeleton />
@@ -43,6 +45,7 @@ const BoardList = ({ boards, fetching }: BoardListProps) => {
       );
     }
 
+    //沒有資料，顯示空版頁面
     if (boards.length === 0) {
       return <EmptyBoard />;
     }
@@ -60,7 +63,6 @@ const BoardList = ({ boards, fetching }: BoardListProps) => {
                 ? {}
                 : {
                     boxShadow: "lg",
-                    transition: "all 0.5s ease-in-out",
                     "& .board-menu": { opacity: 1 },
                     "& .board-thumbnail": { transform: "scale(1.1)" },
                     "& .board-overlay": { opacity: 0.3 },

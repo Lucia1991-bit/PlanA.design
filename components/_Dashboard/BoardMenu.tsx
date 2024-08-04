@@ -99,6 +99,7 @@ const BoardMenu = ({ boardId, boardName }: BoardMenuProps) => {
         right={2}
         zIndex={20}
         opacity={isMobileOrTablet ? 1 : 0}
+        transition="opacity 0.3s ease-in-out"
       >
         <Popover
           placement={isMobileOrTablet ? "bottom" : "right"}
@@ -122,6 +123,7 @@ const BoardMenu = ({ boardId, boardName }: BoardMenuProps) => {
             />
           </PopoverTrigger>
           <PopoverContent
+            bg="#ffffff"
             width="120px"
             _focus={{ outline: "none", boxShadow: "none" }}
             onMouseEnter={handleMouseEnter}

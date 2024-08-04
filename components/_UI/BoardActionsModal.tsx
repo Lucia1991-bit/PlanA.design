@@ -100,7 +100,12 @@ const BoardActionsModal = ({
       preserveScrollBarGap
     >
       <ModalOverlay />
-      <ModalContent ref={modalRef} tabIndex={0} onKeyDown={handleKeyDown}>
+      <ModalContent
+        ref={modalRef}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        bg="brand.primary_light"
+      >
         <ModalHeader>{config.title}</ModalHeader>
         <ModalCloseButton _focus={{ outline: "none", boxShadow: "none" }} />
         <ModalBody>
@@ -108,13 +113,19 @@ const BoardActionsModal = ({
           {type === "rename" && (
             <FormControl isInvalid={!!error}>
               <Input
+                type="text"
+                color="brand.dark"
                 required
                 maxLength={20}
                 borderColor="brand.light"
                 ref={inputRef}
                 onChange={handleInputChange}
                 placeholder={currentName}
+                _placeholder={{ color: "brand.placeholder" }}
                 mt={2}
+                _hover={{
+                  borderColor: "brand.dark",
+                }}
                 _focus={{
                   outline: "none",
                   boxShadow: "none",

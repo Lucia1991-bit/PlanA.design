@@ -30,6 +30,7 @@ const Board = ({ board }: BoardProps) => {
     <Box position="relative" width="100%" height="100%">
       <Link href={`/design/${board.id}`}>
         <Card
+          bg="#ffffff"
           borderRadius="10px"
           display="flex"
           flexDir="column"
@@ -37,6 +38,7 @@ const Board = ({ board }: BoardProps) => {
           height="100%"
           overflow="hidden"
           transition="transform 0.3s ease-in-out"
+          color="brand.dark"
         >
           <Box
             position="relative"
@@ -64,6 +66,7 @@ const Board = ({ board }: BoardProps) => {
                 style={{
                   objectFit: "contain",
                   position: "absolute",
+                  transition: "transform 0.3s ease-in-out",
                 }}
                 priority
               />
@@ -78,10 +81,18 @@ const Board = ({ board }: BoardProps) => {
             height="70px"
             maxHeight="75px"
           >
-            <Text fontSize={{ base: "15px", lg: "17px" }} fontWeight="500">
+            <Text
+              fontSize={{ base: "15px", lg: "17px" }}
+              fontWeight="500"
+              color="primary.dark"
+            >
               {board.fileName}
             </Text>
-            <Text fontSize={{ base: "12px", lg: "13px" }} fontWeight="200">
+            <Text
+              fontSize={{ base: "12px", lg: "13px" }}
+              fontWeight="200"
+              color="primary.dark"
+            >
               {formatDate(board.lastModified)}
             </Text>
           </CardBody>
