@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Box, Show, Text, VStack } from "@chakra-ui/react";
 import { useDesignColorMode } from "@/context/colorModeContext";
@@ -12,6 +12,7 @@ import useCanvasStore from "@/stores/useCanvasStore";
 import TopToolBar from "@/components/_Design/TopToolBar";
 import Info from "@/components/_Design/Info";
 import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
+import LeftToolBar from "@/components/_Design/LeftToolBar";
 
 const DesignPage = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -20,8 +21,9 @@ const DesignPage = () => {
 
   const boardId = params.id as string;
   const { board, fetching, error } = useSingleBoard(boardId);
-
   const { useDesignColorModeValue } = useDesignColorMode();
+
+  const [showLoading, setShowLoading] = useState(true);
 
   const bgColor = useDesignColorModeValue(
     "brand.primary_light",
@@ -42,7 +44,18 @@ const DesignPage = () => {
     return authLoading || fetching;
   }, [authLoading, fetching]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading) {
+      // 設置一個最小的加載時間，例如 1.5 秒
+      const timer = setTimeout(() => {
+        setShowLoading(false);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  if (showLoading) {
     return <LogoLoadingPage text="get ready to design!" />;
   }
 
@@ -63,6 +76,7 @@ const DesignPage = () => {
         >
           <Info />
           <TopToolBar />
+          <LeftToolBar />
           {/* 成功獲取到設計資料才渲染畫布 */}
           {board && <Canvas board={board} />}
         </Box>

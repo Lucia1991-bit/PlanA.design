@@ -5,7 +5,6 @@ import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
 import { Box, Container } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
 import useBoards from "@/hooks/useBoards";
-import EmptyBoard from "@/components/_Dashboard/EmptyBoard";
 import BoardList from "@/components/_Dashboard/BoardList";
 
 const DashboardPage = () => {
