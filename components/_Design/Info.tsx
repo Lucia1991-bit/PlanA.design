@@ -7,17 +7,15 @@ const Info = () => {
 
   return (
     <HStack
-      position="absolute"
-      bg={color.toolBar.backgroundColor}
-      left="0"
-      top="20px"
-      width="10%"
-      height="80px"
-      p={4}
+      bg="transparent"
+      width="300px"
+      height="30px"
       zIndex={2}
+      justifyContent="space-around"
+      alignItems="center"
     >
+      <Text>項目名稱</Text>
       <ColorModeSwitch />
-      <Text>INFO</Text>
     </HStack>
   );
 };

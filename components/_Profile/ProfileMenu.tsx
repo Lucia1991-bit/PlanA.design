@@ -7,7 +7,12 @@ import { useAuth } from "@/hooks/useAuth";
 //預設頭像圖片
 const DEFAULT_AVATAR_SRC = "/icons/profile-02.svg";
 
-const ProfileMenu = () => {
+//確認是不是在設計頁面
+interface ProfileMenuProps {
+  isDesignPage?: boolean;
+}
+
+const ProfileMenu = ({ isDesignPage }: ProfileMenuProps) => {
   const isMobile = useBreakpointValue({ base: true, lg: false });
   const { isLoading } = useAuth();
 
@@ -19,7 +24,12 @@ const ProfileMenu = () => {
     return <ProfileMenuMobile defaultAvatarSrc={DEFAULT_AVATAR_SRC} />;
   }
 
-  return <ProfileMenuDesktop defaultAvatarSrc={DEFAULT_AVATAR_SRC} />;
+  return (
+    <ProfileMenuDesktop
+      defaultAvatarSrc={DEFAULT_AVATAR_SRC}
+      isDesignPage={isDesignPage}
+    />
+  );
 };
 
 export default ProfileMenu;

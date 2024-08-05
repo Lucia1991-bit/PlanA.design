@@ -10,6 +10,7 @@ interface CanvasState {
   setGrid: (grid: fabric.Group) => void;
   setZoom: (zoom: number) => void;
   setPan: (pan: { x: number; y: number }) => void;
+  addObject: (object: fabric.Object) => void;
 }
 
 const useCanvasStore = create<CanvasState>((set, get) => ({
@@ -21,6 +22,13 @@ const useCanvasStore = create<CanvasState>((set, get) => ({
   setGrid: (grid) => set({ grid }),
   setZoom: (zoom) => set({ zoom }),
   setPan: (pan) => set({ pan }),
+  addObject: (object) => {
+    const { canvas } = get();
+    if (canvas) {
+      canvas.add(object);
+      canvas.requestRenderAll();
+    }
+  },
 }));
 
 export default useCanvasStore;

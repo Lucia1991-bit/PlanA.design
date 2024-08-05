@@ -5,8 +5,10 @@ const ColorModeSwitch = () => {
   const { designColorMode, toggleDesignColorMode } = useDesignColorMode();
 
   return (
-    <HStack width="200px">
+    <HStack width="80px">
       <Switch
+        colorScheme="whiteAlpha"
+        size="sm"
         isChecked={designColorMode === "dark"}
         onChange={toggleDesignColorMode}
       />

@@ -18,9 +18,11 @@ import { AddIcon } from "@chakra-ui/icons";
 import { PiSignOutBold } from "react-icons/pi";
 import { motion, stagger } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import useDesignColor from "@/hooks/useDesignColor";
 
 interface ProfileMenuDesktopProps {
   defaultAvatarSrc: string;
+  isDesignPage?: boolean;
 }
 
 //設置動畫
@@ -34,7 +36,10 @@ const slideUp = keyframes`
   to { transform: translateY(0); }
 `;
 
-const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
+const ProfileMenuDesktop = ({
+  defaultAvatarSrc,
+  isDesignPage,
+}: ProfileMenuDesktopProps) => {
   const { signOut, user } = useAuth();
   const router = useRouter();
 
@@ -48,6 +53,14 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
   const handleMouseLeave = () => {
     onClose();
   };
+
+  //使用 dark/light mode顏色
+  const color = useDesignColor();
+
+  //根據是不是設計頁面取得對應的顏色
+  const bgColor = isDesignPage ? color.toolBar.backgroundColor : "#ffffff";
+  const textColor = isDesignPage ? color.toolBar.text : "brand.dark";
+  const hoverBgColor = isDesignPage ? color.toolBar.hover : "brand.light";
 
   const animationStyles = {
     opacity: 0,
@@ -83,8 +96,10 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
           boxShadow="md"
           width="200px"
           mr={4}
-          bg="#ffffff"
-          color="brand.dark"
+          bg={bgColor}
+          color={textColor}
+          borderWidth="0.5px"
+          borderColor={color.toolBar.hover}
         >
           <VStack spacing={2} align="stretch">
             <Box sx={animationStyles} style={{ animationDelay: "0.1s, 0.1s" }}>
@@ -102,7 +117,7 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
             </Box>
             <Divider mx="auto" mb={2} width="90%" borderColor="brand.light" />
             <MenuItem
-              bg="#ffffff"
+              bg={bgColor}
               py={2}
               px={6}
               icon={<AddIcon />}
@@ -116,7 +131,7 @@ const ProfileMenuDesktop = ({ defaultAvatarSrc }: ProfileMenuDesktopProps) => {
               Dashboard
             </MenuItem>
             <MenuItem
-              bg="#ffffff"
+              bg={bgColor}
               py={2}
               px={6}
               icon={<PiSignOutBold size="17px" />}

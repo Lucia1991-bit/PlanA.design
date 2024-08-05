@@ -276,12 +276,7 @@ const Canvas = ({ board }: CanvasProps) => {
     };
   }, [initCanvas, board, setCanvas]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{ border: "2px solid purple", zIndex: "0" }}
-    />
-  );
+  return <canvas ref={canvasRef} style={{ zIndex: "0" }} />;
 };
 
 export default Canvas;

@@ -13,6 +13,7 @@ import TopToolBar from "@/components/_Design/TopToolBar";
 import Info from "@/components/_Design/Info";
 import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
 import LeftToolBar from "@/components/_Design/LeftToolBar";
+import DesignNavBar from "@/components/_Design/DesignNavBar";
 
 const DesignPage = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -74,7 +75,7 @@ const DesignPage = () => {
           color={textColor}
           position="relative"
         >
-          <Info />
+          <DesignNavBar />
           <TopToolBar />
           <LeftToolBar />
           {/* 成功獲取到設計資料才渲染畫布 */}
