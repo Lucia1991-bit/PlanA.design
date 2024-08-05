@@ -13,10 +13,12 @@ const AddFurnitureButton: React.FC = () => {
   const handleAddImage = () => {
     Image.fromURL("/furniture/單人沙發Ｗ80D85-1.png", {
       crossOrigin: "anonymous",
-      objectCaching: false,
     })
       .then((img) => {
+        //套用比例系統
         img.scale(GLOBAL_SCALE);
+
+        img.objectCaching = false;
 
         // 設置圖片到畫布中心
         if (canvas) {
