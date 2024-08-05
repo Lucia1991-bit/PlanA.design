@@ -39,10 +39,11 @@ const AddFurnitureButton: React.FC = () => {
   const handleAddImage2 = () => {
     Image.fromURL("/furniture/四人沙發Ｗ230D105.png", {
       crossOrigin: "anonymous",
-      objectCaching: false,
     })
       .then((img) => {
         img.scale(GLOBAL_SCALE);
+
+        img.objectCaching = false;
 
         // 設置圖片到畫布中心
         if (canvas) {
