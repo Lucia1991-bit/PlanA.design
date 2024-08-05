@@ -162,46 +162,6 @@ const Canvas = ({ board }: CanvasProps) => {
     canvas.requestRenderAll();
   }, []);
 
-  // const handleZoom = useCallback((opt: fabric.IEvent) => {
-  //   const canvas = fabricRef.current;
-  //   if (!canvas || !opt.e) return;
-
-  //   const currentTime = Date.now();
-  //   // if (
-  //   //   isDraggingRef.current ||
-  //   //   currentTime - lastInteractionTimeRef.current < INTERACTION_DELAY
-  //   // ) {
-  //   //   opt.e.preventDefault();
-  //   //   return;
-  //   // }
-
-  //   isScrollingRef.current = true;
-  //   lastInteractionTimeRef.current = currentTime;
-
-  //   const delta = (opt.e as WheelEvent).deltaY;
-  //   let zoom = canvas.getZoom();
-  //   const newZoom = Math.min(Math.max(0.7, zoom * 0.999 ** delta), 4);
-  //   // zoom *= 0.999 ** delta;
-  //   // zoom = Math.min(Math.max(0.7, zoom), 4);
-
-  //   // const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
-  //   // canvas.zoomToPoint(point, zoom);
-  //   if (zoom !== newZoom) {
-  //     const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
-  //     canvas.zoomToPoint(point, newZoom);
-  //   }
-
-  //   opt.e.preventDefault();
-  //   opt.e.stopPropagation();
-
-  //   requestAnimationFrame(updateGridPosition);
-
-  //   setTimeout(() => {
-  //     isScrollingRef.current = false;
-  //     lastInteractionTimeRef.current = Date.now();
-  //   }, INTERACTION_DELAY);
-  // }, []);
-
   const initCanvas = useCallback(() => {
     if (fabricRef.current || !canvasRef.current) return;
 
@@ -231,7 +191,9 @@ const Canvas = ({ board }: CanvasProps) => {
       zoom *= 0.999 ** delta;
       zoom = Math.min(Math.max(MIN_ZOOM, zoom), MAX_ZOOM_LEVEL);
 
-      canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+      const point = new fabric.Point(opt.e.offsetX, opt.e.offsetY);
+      canvas.zoomToPoint(point, zoom);
+
       //禁止瀏覽器滾動
       opt.e.preventDefault();
       //防止事件冒泡
