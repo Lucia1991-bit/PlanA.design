@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import * as fabric from "fabric";
+import { fabric } from "fabric";
 
 interface CanvasState {
   canvas: fabric.Canvas | null;

@@ -1,4 +1,4 @@
-import * as fabric from "fabric";
+import { fabric } from "fabric";
 import { useCallback, useEffect, useRef, useState } from "react";
 import useCanvasStore from "@/stores/useCanvasStore";
 import useDesignColor from "@/hooks/useDesignColor";
