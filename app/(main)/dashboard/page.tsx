@@ -32,11 +32,25 @@ const DashboardPage = () => {
       bg="brand.primary_light"
       overflow="auto"
       position="relative"
+      display="flex"
+      flexDirection="column"
     >
+      <Box flex="0"></Box>
       <Container
-        maxWidth={{ base: "85%", md: "90%", lg: "88%", xl: "1500px" }}
-        px={{ base: 4, md: 6 }}
-        py={{ base: "80px", md: "100px", lg: "80px" }}
+        maxWidth={{
+          base: "90%",
+          sm: "90%",
+          md: "90%",
+          lg: "1300px",
+          xl: "1500px",
+        }}
+        h="100%"
+        px={{ base: "20px", md: "30px", lg: "40px" }}
+        py={{ base: 10, md: 4 }}
+        display="flex"
+        alignItems="center"
+        position="relative"
+        flex="1.05"
       >
         <BoardList boards={boards} fetching={boardsFetching} />
       </Container>

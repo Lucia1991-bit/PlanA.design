@@ -50,7 +50,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   //檢查使用者登入狀態
   useEffect(() => {
-    console.log("檢查");
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setIsLoading(false); // 更新加載狀態
@@ -78,7 +77,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   //登入 google
   const signInWithGoogle = useCallback(async () => {
     const provider = new GoogleAuthProvider();
-    console.log("google登入");
     await signInWithPopup(auth, provider);
   }, []);
 

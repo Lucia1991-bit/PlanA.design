@@ -139,7 +139,8 @@ const HomePage = () => {
         >
           {/* 標題shape a plan動畫 */}
           <MotionText
-            ket="main-title"
+            as="h1"
+            key="main-title"
             variants={mainTitleVariants}
             initial="hidden"
             animate="visible"
@@ -158,6 +159,7 @@ const HomePage = () => {
           <AnimatePresence mode="wait">
             {mainTitleAnimationComplete && (
               <MotionText
+                as="h2"
                 key={currentSlogan}
                 variant={sloganVariants}
                 initial="hidden"

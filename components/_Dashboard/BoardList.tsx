@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
+  Box,
   SimpleGrid,
   useBreakpointValue,
   useMediaQuery,
@@ -77,9 +78,15 @@ const BoardList = ({ boards, fetching }: BoardListProps) => {
   };
 
   return (
-    <SimpleGrid columns={{ base: 1, md: 2, lg: 4, xl: 5 }} spacing={6}>
-      {renderContent()}
-    </SimpleGrid>
+    <>
+      <SimpleGrid
+        w="100%"
+        columns={{ base: 1, md: 2, lg: 4, xl: 5 }}
+        spacing={6}
+      >
+        {renderContent()}
+      </SimpleGrid>
+    </>
   );
 };
 

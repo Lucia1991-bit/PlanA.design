@@ -4,13 +4,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Box, Show, Text, VStack } from "@chakra-ui/react";
 import { useDesignColorMode } from "@/context/colorModeContext";
-import useCanvasGridColor from "@/hooks/useDesignColor";
+import { DesignProvider } from "@/context/DesignContext";
 import { useAuth } from "@/hooks/useAuth";
-import Canvas from "@/components/_Design/Canvas";
 import useSingleBoard from "@/hooks/useSingleBoard";
-import useCanvasStore from "@/stores/useCanvasStore";
+import Canvas from "@/components/_Design/Canvas";
 import TopToolBar from "@/components/_Design/TopToolBar";
-import Info from "@/components/_Design/Info";
 import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
 import LeftToolBar from "@/components/_Design/LeftToolBar";
 import DesignNavBar from "@/components/_Design/DesignNavBar";
@@ -66,22 +64,24 @@ const DesignPage = () => {
 
   return (
     <>
-      <Show above="md">
-        <Box
-          w="100%"
-          h="100vh"
-          overflow="hidden"
-          bg={bgColor}
-          color={textColor}
-          position="relative"
-        >
-          <DesignNavBar />
-          <TopToolBar />
-          <LeftToolBar />
-          {/* 成功獲取到設計資料才渲染畫布 */}
-          {board && <Canvas board={board} />}
-        </Box>
-      </Show>
+      <DesignProvider>
+        <Show above="md">
+          <Box
+            w="100%"
+            h="100vh"
+            overflow="hidden"
+            bg={bgColor}
+            color={textColor}
+            position="relative"
+          >
+            <DesignNavBar />
+            <TopToolBar />
+            <LeftToolBar />
+            {/* 成功獲取到設計資料才渲染畫布 */}
+            {board && <Canvas board={board} />}
+          </Box>
+        </Show>
+      </DesignProvider>
       <Show below="md">
         <VStack
           w="100%"

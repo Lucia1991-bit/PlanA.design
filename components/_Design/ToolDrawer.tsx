@@ -17,6 +17,7 @@ const ToolDrawer: React.FC<CustomDrawerProps> = ({
   isOpen,
   onClose,
   placement = "left",
+  blockScrollOnMount = "false",
   size = "sm",
   contentProps,
   children,

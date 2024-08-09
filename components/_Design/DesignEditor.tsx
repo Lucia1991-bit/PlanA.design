@@ -169,7 +169,7 @@ const Canvas = ({ board }: CanvasProps) => {
       width: window.innerWidth,
       height: window.innerHeight,
       backgroundColor: color.canvas.backgroundColor,
-      renderOnAddRemove: false,
+      // renderOnAddRemove: false, //添加或移除物件時畫布不會自動重新渲染
     });
     fabricRef.current = canvas;
     setCanvas(canvas);

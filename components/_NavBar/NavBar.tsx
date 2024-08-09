@@ -78,19 +78,20 @@ const NavBar = () => {
         position="fixed"
         justifyContent="center"
         alignItems="center"
-        px={{ base: "15px", lg: "80px" }}
+        px={{ base: "15px", md: "25px", lg: "40px" }}
         zIndex={10}
       >
         {/* 使用者往下滑時NavBar出現背景色 */}
         <NavBarBackground isScrolled={isScrolled} />
         <List
-          maxWidth="1800px"
+          className="navBar-container"
+          maxWidth="1500px"
           width={{
             base: "90%",
             sm: "90%",
             md: "90%",
-            lg: "1500px",
-            xl: "1800px",
+            lg: "1300px",
+            xl: "1500px",
           }}
           display="flex"
           justifyContent="space-between"
