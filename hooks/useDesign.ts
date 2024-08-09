@@ -1,37 +1,40 @@
 import { fabric } from "fabric";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   MAIN_GRID_SIZE,
   SUB_GRID_SIZE,
   MAX_ZOOM,
   MIN_ZOOM,
   MAX_ZOOM_LEVEL,
+  DesignHookProps,
 } from "@/types/DesignType";
 import useDesignColor from "./useDesignColor";
+import useCanvasEvents from "./useCanvasEvents";
+import useAutoResize from "./useAutoResize";
 
 //所有設計功能的邏輯
-const buildDesign = ({ canvas }: BuildDesignProps) => {
-  const getWorkspace = () => {
-    return canvas.getObjects().find((object) => object.name === "clip");
-  };
+// const buildDesign = ({ canvas }: BuildDesignProps) => {
+//   const getWorkspace = () => {
+//     return canvas.getObjects().find((object) => object.name === "clip");
+//   };
 
-  //獲取畫布中心點
-  const center = (object: fabric.Object) => {
-    const workspace = getWorkspace();
-    const center = workspace?.getCenterPoint();
+//   //獲取畫布中心點
+//   const center = (object: fabric.Object) => {
+//     const workspace = getWorkspace();
+//     const center = workspace?.getCenterPoint();
 
-    if (!center) return;
+//     if (!center) return;
 
-    // @ts-ignore
-    canvas._centerObject(object, center);
-  };
+//     // @ts-ignore
+//     canvas._centerObject(object, center);
+//   };
 
-  const addToCanvas = (object: fabric.Object) => {
-    center(object);
-    canvas.add(object);
-    canvas.setActiveObject(object);
-  };
-};
+//   const addToCanvas = (object: fabric.Object) => {
+//     center(object);
+//     canvas.add(object);
+//     canvas.setActiveObject(object);
+//   };
+// };
 
 const useDesign = ({ defaultState }: DesignHookProps) => {
   const initialState = useRef(defaultState);
@@ -39,8 +42,8 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
 
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
-  const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
-  const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
+  // const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
+  // const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
 
   //獲取 light模式及dark模式顏色
   const color = useDesignColor();
@@ -53,8 +56,6 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
   //創建網格線
   const createGrid = useCallback(
     (width: number, height: number) => {
-      if (!canvas) return;
-
       const canvasWidth = width;
       const canvasHeight = height;
 
@@ -157,13 +158,13 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
 
       return gridGroup;
     },
-    [color.canvas.mainGridColor, color.canvas.subGridColor, canvas]
+    [color.canvas.mainGridColor, color.canvas.subGridColor]
   );
 
   //將網格線置中
   const updateGridPosition = useCallback(() => {
     const grid = gridRef.current;
-    if (!canvas || !grid) return;
+    if (!grid || !canvas) return;
 
     const zoom = canvas.getZoom();
     const vpt = canvas.viewportTransform;
@@ -176,6 +177,14 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
     }
     canvas.requestRenderAll();
   }, [canvas]);
+
+  // 畫布尺寸隨視窗縮放改變
+  const { resizeCanvas } = useAutoResize({
+    canvas,
+    gridRef,
+    createGrid,
+    updateGridPosition,
+  });
 
   //初始化畫布
   const initCanvas = useCallback(
@@ -198,28 +207,35 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
         initialCanvas.renderAll();
       });
 
-      setCanvas(initialCanvas);
-
+      // 創建網格但不立即添加到畫布
       const grid = createGrid(window.innerWidth, window.innerHeight);
-
       if (grid) {
-        initialCanvas.add(grid);
         gridRef.current = grid;
-        updateGridPosition();
       }
 
-      initialCanvas.renderAll();
+      // 更新 canvas 狀態
+      setCanvas(initialCanvas);
 
       // const currentState = JSON.stringify(initialCanvas.toJSON(JSON_KEYS));
       // canvasHistory.current = [currentState];
       // setHistoryIndex(0);
     },
-    [createGrid, updateGridPosition]
+    [color.canvas.backgroundColor, createGrid]
   );
+
+  // 使用 useEffect 來處理依賴於 canvas 狀態的操作
+  useEffect(() => {
+    if (canvas && gridRef.current) {
+      canvas.add(gridRef.current);
+      updateGridPosition();
+      canvas.renderAll();
+    }
+  }, [canvas, updateGridPosition]);
 
   const design = useMemo(() => {
     if (canvas) {
-      return buildDesign();
+      console.log("回傳設計功能");
+      // return buildDesign();
     }
 
     return undefined;

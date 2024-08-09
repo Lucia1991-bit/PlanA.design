@@ -8,6 +8,7 @@ const TopToolBar = () => {
       width="28%"
       height="70px"
       bg={color.toolBar.backgroundColor}
+      color={color.toolBar.text}
       position="absolute"
       top="64px"
       left="50%"

@@ -15,7 +15,6 @@ const EmptyBoard = () => {
       justify="center"
       width="100%"
       height="100%"
-      minHeight="calc(100vh - 95px)"
       position="absolute"
       top="0"
       left="0"
@@ -46,7 +45,7 @@ const EmptyBoard = () => {
         color="brand.third"
         mt="-10px"
       >
-        快來創建您的第一個設計吧！
+        快來開始您的第一個設計吧！
       </Text>
       <Button
         mt={4}
@@ -61,7 +60,7 @@ const EmptyBoard = () => {
         isLoading={isLoading}
         onClick={handleCreateBoard}
       >
-        START
+        CREATE
       </Button>
     </VStack>
   );

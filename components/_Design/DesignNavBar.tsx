@@ -10,6 +10,7 @@ const DesignNavBar = () => {
   return (
     <HStack
       bgColor={color.navBar.backgroundColor}
+      color={color.navBar.text}
       backdropFilter="blur(4px)"
       boxShadow="lg"
       width="100%"

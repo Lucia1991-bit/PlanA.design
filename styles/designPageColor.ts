@@ -3,18 +3,21 @@ import { background } from "@chakra-ui/react";
 export const designPageColor = {
   light: {
     canvas: {
-      backgroundColor: "#f9f9f8",
+      backgroundColor: "#ecebeb",
       mainGridColor: "rgba(199,200,201, 0.4)",
       subGridColor: "rgba(199,200,201, 0.3)",
     },
     toolBar: {
-      backgroundColor: "#ffffff",
+      backgroundColor: "#f9f9f8",
       text: "#555352",
       subText: "#9b9b9b",
       hover: "rgba(199,200,201, 0.35)",
     },
     navBar: {
       backgroundColor: "rgba(255, 255, 255, 0.4)",
+      text: "#555352",
+      subText: "#9b9b9b",
+      hover: "rgba(199,200,201, 0.35)",
     },
   },
   dark: {
@@ -31,6 +34,9 @@ export const designPageColor = {
     },
     navBar: {
       backgroundColor: "rgba(55, 56, 56, 0.3)",
+      text: "#ffffff",
+      subText: "#9b9b9b",
+      hover: "rgba(199,200,201, 0.5)",
     },
   },
 };

@@ -2,21 +2,20 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Box, Show, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, useBreakpointValue, VStack } from "@chakra-ui/react";
 import { useDesignColorMode } from "@/context/colorModeContext";
-import { DesignProvider } from "@/context/DesignContext";
 import { useAuth } from "@/hooks/useAuth";
 import useSingleBoard from "@/hooks/useSingleBoard";
-import Canvas from "@/components/_Design/Canvas";
-import TopToolBar from "@/components/_Design/TopToolBar";
 import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
-import LeftToolBar from "@/components/_Design/LeftToolBar";
-import DesignNavBar from "@/components/_Design/DesignNavBar";
+import DesignEditor from "@/components/_Design/DesignEditor";
+import Image from "next/image";
 
 const DesignPage = () => {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
+  //偵測螢幕寬度
+  const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   const boardId = params.id as string;
   const { board, fetching, error } = useSingleBoard(boardId);
@@ -64,39 +63,51 @@ const DesignPage = () => {
 
   return (
     <>
-      <DesignProvider>
-        <Show above="md">
-          <Box
-            w="100%"
-            h="100vh"
-            overflow="hidden"
-            bg={bgColor}
-            color={textColor}
-            position="relative"
-          >
-            <DesignNavBar />
-            <TopToolBar />
-            <LeftToolBar />
-            {/* 成功獲取到設計資料才渲染畫布 */}
-            {board && <Canvas board={board} />}
-          </Box>
-        </Show>
-      </DesignProvider>
-      <Show below="md">
+      {isDesktop ? (
+        // <DesignProvider>
+        <Box
+          w="100%"
+          h="100vh"
+          overflow="hidden"
+          position="relative"
+          bg={bgColor}
+        >
+          {board && <DesignEditor board={board} />}
+        </Box>
+      ) : (
+        // </DesignProvider>
         <VStack
           w="100%"
           h="100vh"
           justify="center"
           align="center"
-          bg={bgColor}
-          color={textColor}
+          spacing={4}
+          bg="#ecebeb"
+          color="brand.dark"
         >
-          <Text fontSize="xl" fontWeight="bold">
-            請使用桌面版瀏覽器以獲得最佳設計體驗
-          </Text>
-          <Text>您當前的設備螢幕太小，無法提供完整的設計功能。</Text>
+          <Box
+            width={{ base: "150px", md: "250px" }}
+            height={{ base: "150px", md: "250px" }}
+            position="relative"
+          >
+            <Image
+              src="/warning.svg"
+              alt="warning"
+              fill
+              style={{ objectFit: "contain" }}
+              priority
+            />
+          </Box>
+          <Box w="90%" textAlign="center">
+            <Text fontSize={{ base: "md", md: "22px" }} fontWeight="bold">
+              請使用桌面版瀏覽器以獲得最佳設計體驗
+            </Text>
+            <Text fontSize={{ base: "12px", md: "md" }}>
+              您當前的設備螢幕太小，無法提供完整的設計功能
+            </Text>
+          </Box>
         </VStack>
-      </Show>
+      )}
     </>
   );
 };
