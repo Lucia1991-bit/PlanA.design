@@ -5,6 +5,30 @@ export const MIN_ZOOM = 0.7;
 export const MAX_ZOOM_LEVEL = 4;
 export const INTERACTION_DELAY = 300;
 
+export const selectionDependentTools = [
+  "fill",
+  "font",
+  "filter",
+  "opacity",
+  "remove-bg",
+  "stroke-color",
+  "stroke-width",
+];
+
+export type ActiveTool =
+  | "select"
+  | "draw"
+  | "text"
+  | "material"
+  | "furniture"
+  | "fill"
+  | "stroke-color"
+  | "stroke-width"
+  | "font"
+  | "opacity"
+  | "filter"
+  | "settings";
+
 export interface DesignHookProps {
   defaultState?: string;
   // clearSelectionCallback?: () => void;

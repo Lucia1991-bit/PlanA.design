@@ -17,7 +17,11 @@ export const designPageColor = {
       backgroundColor: "rgba(255, 255, 255, 0.4)",
       text: "#555352",
       subText: "#9b9b9b",
-      hover: "rgba(199,200,201, 0.35)",
+      hover: "rgba(199,200,201, 0.5)",
+    },
+    tooltip: {
+      backgroundColor: "#555352",
+      text: "#ffffff",
     },
   },
   dark: {
@@ -30,13 +34,17 @@ export const designPageColor = {
       backgroundColor: "#4c4c4c",
       text: "#ffffff",
       subText: "#9b9b9b",
-      hover: "rgba(199,200,201, 0.5)",
+      hover: "rgba(199,200,201, 0.35)",
     },
     navBar: {
       backgroundColor: "rgba(55, 56, 56, 0.3)",
       text: "#ffffff",
       subText: "#9b9b9b",
-      hover: "rgba(199,200,201, 0.5)",
+      hover: "rgba(199,200,201, 0.35)",
+    },
+    tooltip: {
+      backgroundColor: "#ffffff",
+      text: "#555352",
     },
   },
 };

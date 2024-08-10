@@ -80,11 +80,18 @@ const Board = ({ board }: BoardProps) => {
             alignItems="center"
             height="70px"
             maxHeight="75px"
+            minHeight="70px"
+            py="2"
           >
             <Text
-              fontSize={{ base: "15px", lg: "17px" }}
+              fontSize={{ base: "15px", lg: "16px" }}
               fontWeight="500"
               color="primary.dark"
+              whiteSpace="nowrap"
+              overflow="hidden"
+              textOverflow="ellipsis"
+              width="100%" // 確保文本佔滿整個寬度
+              mb="1" // 添加底部邊距
             >
               {board.fileName}
             </Text>

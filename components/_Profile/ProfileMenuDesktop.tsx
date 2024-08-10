@@ -62,6 +62,13 @@ const ProfileMenuDesktop = ({
   const textColor = isDesignPage ? color.toolBar.text : "brand.dark";
   const hoverBgColor = isDesignPage ? color.toolBar.hover : "brand.light";
 
+  // 根據是不是設計頁面調整頭像大小
+  const avatarSize = isDesignPage ? "32px" : "38px";
+
+  // 根據是不是設計頁面調整 menu offset
+  const menuOffset: [number, number] = isDesignPage ? [0, 15] : [0, 5];
+
+  //動畫效果
   const animationStyles = {
     opacity: 0,
     animation: `${fadeIn} 0.35s ease-out forwards, ${slideUp} 0.4s ease-out forwards`,
@@ -74,18 +81,19 @@ const ProfileMenuDesktop = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Menu isOpen={isOpen} placement="bottom" isLazy>
+      <Menu isOpen={isOpen} placement="bottom" offset={menuOffset} isLazy>
         <MenuButton
           as={IconButton}
           borderRadius="50%"
           bg="transparent"
           variant="solid"
-          boxShadow="md"
+          width={avatarSize}
+          height={avatarSize}
           icon={
             <Avatar
               src={user?.photoURL || defaultAvatarSrc}
-              width="38px "
-              height="38px"
+              width={avatarSize}
+              height={avatarSize}
             />
           }
           _focus={{ boxShadow: "none", outline: "none" }}
@@ -122,8 +130,8 @@ const ProfileMenuDesktop = ({
               px={6}
               icon={<AddIcon />}
               fontSize="15px"
-              _hover={{ bg: "brand.light" }}
-              _focus={{ bg: "brand.light" }}
+              _hover={{ bg: hoverBgColor }}
+              _focus={{ bg: hoverBgColor }}
               onClick={() => router.push("/dashboard")}
               sx={animationStyles}
               style={{ animationDelay: "0.2s, 0.2s" }}
@@ -136,8 +144,8 @@ const ProfileMenuDesktop = ({
               px={6}
               icon={<PiSignOutBold size="17px" />}
               fontSize="15px"
-              _hover={{ bg: "brand.light" }}
-              _focus={{ bg: "brand.light" }}
+              _hover={{ bg: hoverBgColor }}
+              _focus={{ bg: hoverBgColor }}
               onClick={signOut}
               sx={animationStyles}
               style={{ animationDelay: "0.3s, 0.3s" }}

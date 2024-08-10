@@ -14,7 +14,6 @@ const DesignPage = () => {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const params = useParams();
-  //偵測螢幕寬度
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   const boardId = params.id as string;
@@ -44,7 +43,6 @@ const DesignPage = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      // 設置一個最小的加載時間，例如 1.5 秒
       const timer = setTimeout(() => {
         setShowLoading(false);
       }, 1500);
@@ -58,13 +56,16 @@ const DesignPage = () => {
   }
 
   if (error) {
-    return <div>發生錯誤</div>;
+    return <ErrorDisplay message="發生錯誤，請稍後再試" />;
+  }
+
+  if (!board) {
+    return <ErrorDisplay message="找不到設計板，請確認網址是否正確" />;
   }
 
   return (
     <>
       {isDesktop ? (
-        // <DesignProvider>
         <Box
           w="100%"
           h="100vh"
@@ -72,44 +73,67 @@ const DesignPage = () => {
           position="relative"
           bg={bgColor}
         >
-          {board && <DesignEditor board={board} />}
+          <DesignEditor board={board} />
         </Box>
       ) : (
-        // </DesignProvider>
-        <VStack
-          w="100%"
-          h="100vh"
-          justify="center"
-          align="center"
-          spacing={4}
-          bg="#ecebeb"
-          color="brand.dark"
-        >
-          <Box
-            width={{ base: "150px", md: "250px" }}
-            height={{ base: "150px", md: "250px" }}
-            position="relative"
-          >
-            <Image
-              src="/warning.svg"
-              alt="warning"
-              fill
-              style={{ objectFit: "contain" }}
-              priority
-            />
-          </Box>
-          <Box w="90%" textAlign="center">
-            <Text fontSize={{ base: "md", md: "22px" }} fontWeight="bold">
-              請使用桌面版瀏覽器以獲得最佳設計體驗
-            </Text>
-            <Text fontSize={{ base: "12px", md: "md" }}>
-              您當前的設備螢幕太小，無法提供完整的設計功能
-            </Text>
-          </Box>
-        </VStack>
+        <MobileWarning />
       )}
     </>
   );
 };
+
+interface ErrorDisplayProps {
+  message: string;
+}
+
+const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
+  <VStack
+    w="100%"
+    h="100vh"
+    justify="center"
+    align="center"
+    spacing={4}
+    bg="#ecebeb"
+    color="brand.dark"
+  >
+    <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
+      {message}
+    </Text>
+  </VStack>
+);
+
+const MobileWarning = () => (
+  <VStack
+    w="100%"
+    h="100vh"
+    justify="center"
+    align="center"
+    spacing={4}
+    bg="#ecebeb"
+    color="brand.dark"
+  >
+    <Box
+      width={{ base: "150px", md: "250px" }}
+      height={{ base: "150px", md: "250px" }}
+      position="relative"
+    >
+      <Image
+        src="/warning.svg"
+        alt="warning"
+        fill
+        style={{ objectFit: "contain" }}
+        priority
+      />
+    </Box>
+    <Box w="90%" textAlign="center">
+      <Text fontSize={{ base: "md", md: "22px" }} fontWeight="bold">
+        請使用桌面版瀏覽器以獲得最佳設計體驗
+      </Text>
+      <Text fontSize={{ base: "12px", md: "md" }}>
+        您當前的設備螢幕太小，無法提供完整的設計功能
+      </Text>
+    </Box>
+  </VStack>
+);
 
 export default DesignPage;

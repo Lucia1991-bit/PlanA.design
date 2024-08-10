@@ -52,6 +52,10 @@ export const useBoardOperations = () => {
 
   //新增設計
   const createBoard = async () => {
+    if (!user) {
+      showToast("請先登入", "error");
+      return;
+    }
     setIsLoading(true);
     try {
       const newBoardData: NewBoard = {
@@ -77,9 +81,13 @@ export const useBoardOperations = () => {
 
   //檔案重新命名
   const renameBoard = async (boardId: string, newName: string) => {
+    if (!user) {
+      showToast("請先登入", "error");
+      return;
+    }
     setIsLoading(true);
     try {
-      await updateBoard(boardId, { fileName: newName });
+      await updateBoard(user.uid, boardId, { fileName: newName });
       showToast("檔案重新命名成功", "success");
       setIsLoading(false);
     } catch (error) {
@@ -90,9 +98,13 @@ export const useBoardOperations = () => {
 
   //刪除檔案
   const removeBoard = async (boardId: string) => {
+    if (!user) {
+      showToast("請先登入", "error");
+      return;
+    }
     setIsLoading(true);
     try {
-      await deleteBoard(boardId);
+      await deleteBoard(user.uid, boardId);
       showToast("檔案刪除成功", "success");
       setIsLoading(false);
     } catch (error) {

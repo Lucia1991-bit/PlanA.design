@@ -1,91 +1,48 @@
-import React, { useState } from "react";
+import React from "react";
 import useDesignColor from "@/hooks/useDesignColor";
-import { Text, VStack, useDisclosure, Button, Box } from "@chakra-ui/react";
-import ToolDrawer from "./ToolDrawer";
-import FurnitureLibrary from "./FurnitureLibrary";
-import MaterialsLibrary from "./MaterialsLibrary";
+import { VStack } from "@chakra-ui/react";
+import { ActiveTool } from "@/types/DesignType";
+import LeftToolBarItem from "./LeftToolBarItem";
 
-const LeftToolBar = () => {
+interface LeftToolBarProps {
+  activeTool: ActiveTool;
+  onChangeActiveTool: (tool: ActiveTool) => void;
+  isSidePanelOpen: boolean;
+}
+
+const LeftToolBar = ({
+  activeTool,
+  onChangeActiveTool,
+  isSidePanelOpen,
+}: LeftToolBarProps) => {
   const color = useDesignColor();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [activeDrawer, setActiveDrawer] = useState<
-    "materials" | "furniture" | null
-  >(null);
-
-  const handleDrawerToggle = (drawer: "materials" | "furniture") => {
-    if (activeDrawer === drawer && isOpen) {
-      onClose();
-      setActiveDrawer(null);
-    } else {
-      setActiveDrawer(drawer);
-      onOpen();
-    }
-  };
 
   return (
-    <>
-      <VStack
-        width="70px"
-        height="200px"
-        bgColor={color.toolBar.backgroundColor}
-        boxShadow="lg"
-        borderRadius="5px"
-        position="absolute"
-        top="50%"
-        left="10px"
-        transform="translateY(-50%)"
-        zIndex="2"
-        borderWidth="0.5px"
-        borderColor={color.toolBar.hover}
-        alignItems="center"
-        justifyContent="space-around"
-      >
-        <Button
-          w="50px"
-          fontWeight="500"
-          color={color.toolBar.text}
-          _hover={{ bg: color.toolBar.hover }}
-          onClick={() => handleDrawerToggle("materials")}
-          variant="ghost"
-        >
-          <Text>材質庫</Text>
-        </Button>
-        <Button
-          w="50px"
-          fontWeight="500"
-          color={color.toolBar.text}
-          _hover={{ bg: color.toolBar.hover }}
-          onClick={() => handleDrawerToggle("furniture")}
-          variant="ghost"
-        >
-          <Text>家具庫</Text>
-        </Button>
-      </VStack>
-
-      <ToolDrawer
-        isOpen={isOpen}
-        onClose={() => {
-          onClose();
-          setActiveDrawer(null);
-        }}
-        placement="left"
-        size="sm"
-        contentProps={{
-          mt: "200px",
-          ml: "80px",
-          height: "calc(100% - 300px)",
-          borderRadius: "md",
-          boxShadow: "lg",
-          bg: color.toolBar.backgroundColor,
-          color: color.toolBar.text,
-          borderWidth: "0.5px",
-          borderColor: color.toolBar.hover,
-        }}
-      >
-        {activeDrawer === "materials" && <MaterialsLibrary />}
-        {activeDrawer === "furniture" && <FurnitureLibrary />}
-      </ToolDrawer>
-    </>
+    <VStack
+      width="70px"
+      height="calc(100vh - 200px)"
+      bgColor={color.toolBar.backgroundColor}
+      borderRadius={isSidePanelOpen ? "8px 0 0 8px" : "8px"}
+      borderWidth={isSidePanelOpen ? "0.5px 0 0.5px 0.5px" : "0.5px"}
+      position="fixed"
+      top="50%"
+      left="10px"
+      transform="translateY(-50%)"
+      zIndex="2"
+      borderColor={color.toolBar.hover}
+      boxShadow="lg"
+      alignItems="center"
+      justifyContent="space-around"
+      transition="border-radius 0.3s ease-in-out"
+    >
+      <LeftToolBarItem
+        icon="/icons/material.png"
+        label="材質庫"
+        isActive={activeTool === "material"}
+        onClick={() => onChangeActiveTool("material")}
+      />
+      {/* 添加其他工具按鈕 */}
+    </VStack>
   );
 };
 
