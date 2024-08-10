@@ -26,20 +26,32 @@ const LeftToolBar = ({
       borderWidth={isSidePanelOpen ? "0.5px 0 0.5px 0.5px" : "0.5px"}
       position="fixed"
       top="50%"
-      left="10px"
+      left="0"
       transform="translateY(-50%)"
       zIndex="2"
       borderColor={color.toolBar.hover}
-      boxShadow="lg"
+      boxShadow={
+        isSidePanelOpen
+          ? "-5px 0 10px -5px rgba(0,0,0,0.1), 0 -5px 10px -5px rgba(0,0,0,0.1), 0 5px 10px -5px rgba(0,0,0,0.1)"
+          : "lg"
+      }
       alignItems="center"
-      justifyContent="space-around"
+      justifyContent="flex-start"
       transition="border-radius 0.3s ease-in-out"
+      py={5}
+      spacing="0"
     >
       <LeftToolBarItem
         icon="/icons/material.png"
         label="材質庫"
         isActive={activeTool === "material"}
         onClick={() => onChangeActiveTool("material")}
+      />
+      <LeftToolBarItem
+        icon="/icons/furniture.png"
+        label="家具庫"
+        isActive={activeTool === "furniture"}
+        onClick={() => onChangeActiveTool("furniture")}
       />
       {/* 添加其他工具按鈕 */}
     </VStack>

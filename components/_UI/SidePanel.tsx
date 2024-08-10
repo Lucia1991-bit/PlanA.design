@@ -13,7 +13,7 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, children }) => {
   return (
     <Box
       position="fixed"
-      left="80px"
+      left="70px"
       top="50%"
       opacity={isOpen ? "1" : "0"}
       transform={`translateY(-50%) translateX(${isOpen ? "0" : "-100%"})`}
@@ -23,10 +23,10 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, children }) => {
       borderRadius="0 8px 8px 0"
       borderWidth="0.5px "
       borderColor={color.toolBar.hover}
-      boxShadow="md"
+      boxShadow="4px 0 10px -5px rgba(0,0,0,0.1), 0 4px 10px -5px rgba(0,0,0,0.1), 0 -4px 10px -5px rgba(0,0,0,0.1)"
       zIndex="1"
       overflow="hidden"
-      transition="opacity 0.3s ease-in-out, transform 0.3s ease-in-out"
+      transition="opacity 0.5s ease-in-out, transform 0.5s ease-in-out"
     >
       {children}
     </Box>

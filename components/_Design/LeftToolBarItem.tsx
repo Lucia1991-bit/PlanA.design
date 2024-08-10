@@ -23,7 +23,7 @@ const LeftToolBarItem = ({
       variant="ghost"
       onClick={onClick}
       width="full"
-      height="80px"
+      height="100px"
       aspectRatio="1"
       padding="0"
       display="flex"
@@ -33,8 +33,8 @@ const LeftToolBarItem = ({
       color={color.toolBar.text}
       _hover={{ bg: color.toolBar.hover }}
     >
-      <VStack width="100%" height="100%" spacing={2} p={2}>
-        <Box width="100%" height={iconSize} position="relative" flex="1">
+      <VStack width="100%" height="100%" spacing={1} p={2}>
+        <Box width="80%" height={iconSize} position="relative" flex="1">
           <Image
             priority
             src={icon}

@@ -10,11 +10,11 @@ const SidePanelHeader = ({ title, description }: SidePanelHeaderProps) => {
   const color = useDesignColor();
 
   return (
-    <Box width="100%">
+    <Box width="100%" px={3}>
       <Text fontWeight="600" fontSize="18px" color={color.toolBar.text}>
         {title}
       </Text>
-      <Text fontSize="12px" color={color.toolBar.subText}>
+      <Text fontSize="13px" color={color.toolBar.subText}>
         {description}
       </Text>
     </Box>
