@@ -1,11 +1,16 @@
-import { HStack, IconButton, Switch, Text, Tooltip } from "@chakra-ui/react";
+import { IconButton, Tooltip } from "@chakra-ui/react";
 import { useDesignColorMode } from "@/context/colorModeContext";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
+import { useCallback } from "react";
 
 const ColorModeSwitch = () => {
   const { designColorMode, toggleDesignColorMode } = useDesignColorMode();
-  const color = useDesignColor();
+  const color = useDesignPageColor();
+
+  const handleColorModeToggle = useCallback(() => {
+    toggleDesignColorMode();
+  }, [toggleDesignColorMode]);
 
   return (
     <Tooltip
@@ -18,7 +23,7 @@ const ColorModeSwitch = () => {
       <IconButton
         aria-label="Toggle color mode"
         icon={designColorMode === "dark" ? <SunIcon /> : <MoonIcon />}
-        onClick={toggleDesignColorMode}
+        onClick={handleColorModeToggle}
         size="md"
         fontSize="lg"
         variant="ghost"

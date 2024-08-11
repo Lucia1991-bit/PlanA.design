@@ -18,7 +18,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { PiSignOutBold } from "react-icons/pi";
 import { motion, stagger } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignColor from "@/hooks/useDesignPageColor";
 
 interface ProfileMenuDesktopProps {
   defaultAvatarSrc: string;

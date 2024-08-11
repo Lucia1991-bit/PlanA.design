@@ -7,7 +7,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useBoardOperations } from "@/hooks/useBoardOperations ";
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 interface RenameProjectButtonProps {
   boardId: string;
@@ -23,7 +23,7 @@ const RenameProjectButton: React.FC<RenameProjectButtonProps> = ({
   const { renameBoard, isLoading } = useBoardOperations();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const color = useDesignColor();
+  const color = useDesignPageColor();
 
   useOutsideClick({
     ref: inputRef,

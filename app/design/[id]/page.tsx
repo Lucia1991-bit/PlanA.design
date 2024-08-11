@@ -63,23 +63,7 @@ const DesignPage = () => {
     return <ErrorDisplay message="找不到設計板，請確認網址是否正確" />;
   }
 
-  return (
-    <>
-      {isDesktop ? (
-        <Box
-          w="100%"
-          h="100vh"
-          overflow="hidden"
-          position="relative"
-          bg={bgColor}
-        >
-          <DesignEditor board={board} />
-        </Box>
-      ) : (
-        <MobileWarning />
-      )}
-    </>
-  );
+  return <>{isDesktop ? <DesignEditor board={board} /> : <MobileWarning />}</>;
 };
 
 interface ErrorDisplayProps {

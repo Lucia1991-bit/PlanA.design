@@ -16,20 +16,33 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import useDesignColor from "@/hooks/useDesignColor";
 import Image from "next/image";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
+import { Design } from "@/types/DesignType";
+
+interface FurnitureLibraryProps {
+  design: Design | undefined;
+}
 
 // 預定義類別
 const CATEGORIES = ["客廳", "房間", "餐廳", "浴室", "家飾"];
 
-const FurnitureLibrary = () => {
+const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-  const color = useDesignColor();
+  const color = useDesignPageColor();
 
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);
     // 預取下一個類別的資料
+  };
+
+  const handleAddFurniture = (imageUrl: string) => {
+    if (design && design.addFurniture) {
+      design.addFurniture(imageUrl);
+    } else {
+      console.error("Design or addFurniture function is undefined");
+    }
   };
 
   return (
@@ -107,6 +120,11 @@ const FurnitureLibrary = () => {
                   {Array.from({ length: 20 }).map((_, index) => (
                     <Box key={index} position="relative">
                       <Button
+                        onClick={() =>
+                          handleAddFurniture(
+                            "/furniture/尺寸放大地毯W140D200.png"
+                          )
+                        }
                         bg={color.toolBar.hover}
                         borderRadius="md"
                         width="100%"
@@ -121,12 +139,14 @@ const FurnitureLibrary = () => {
                         border={`0.5px solid #c7c8c8`}
                         position="relative"
                       >
-                        <Image
-                          fill
-                          src="/furniture/四人沙發Ｗ230D105.png"
-                          alt={`Furniture item ${index + 1}`}
-                          style={{ objectFit: "contain" }}
-                        />
+                        <Box w="100%" h="100%" position="absolute">
+                          <Image
+                            fill
+                            src="/furniture/四人沙發Ｗ230D105.png"
+                            alt={`Furniture item ${index + 1}`}
+                            style={{ objectFit: "contain" }}
+                          />
+                        </Box>
                         <Box
                           className="hover-text"
                           position="absolute"

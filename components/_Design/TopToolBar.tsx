@@ -6,10 +6,10 @@ import {
   LuDownload,
   LuMousePointerClick,
 } from "react-icons/lu";
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 const TopToolBar = () => {
-  const color = useDesignColor();
+  const color = useDesignPageColor();
   return (
     <HStack
       width="28%"

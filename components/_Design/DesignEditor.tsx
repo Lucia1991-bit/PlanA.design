@@ -20,10 +20,12 @@ const toolsWithSidebar: ActiveTool[] = [
   "draw",
   "text",
 ];
+
 const shouldOpenSidebar = (tool: ActiveTool) => toolsWithSidebar.includes(tool);
 
 const DesignEditor = ({ board }: DesignEditorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
@@ -50,11 +52,18 @@ const DesignEditor = ({ board }: DesignEditorProps) => {
   });
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !containerRef.current) {
+      return;
+    }
     const canvas = new fabric.Canvas(canvasRef.current, {
       preserveObjectStacking: true,
     });
-    initCanvas({ initialCanvas: canvas });
+
+    initCanvas({
+      initialCanvas: canvas,
+      initialContainer: containerRef.current!,
+    });
+
     return () => {
       canvas.dispose();
     };
@@ -75,9 +84,18 @@ const DesignEditor = ({ board }: DesignEditorProps) => {
       />
       <SidePanel isOpen={isSidePanelOpen}>
         {activeTool === "material" && <MaterialsLibrary />}
-        {activeTool === "furniture" && <FurnitureLibrary />}
+        {activeTool === "furniture" && <FurnitureLibrary design={design} />}
       </SidePanel>
-      <canvas ref={canvasRef} style={{ zIndex: "0" }} />
+      <Box
+        w="100%"
+        h="100vh"
+        overflow="hidden"
+        position="relative"
+        border="10px solid purple"
+        ref={containerRef}
+      >
+        <canvas ref={canvasRef} style={{ zIndex: "0" }} />
+      </Box>
     </Box>
   );
 };

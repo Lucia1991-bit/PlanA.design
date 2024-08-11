@@ -6,7 +6,7 @@ interface CanvasEventProps {
   canvas: fabric.Canvas | null;
 }
 
-const useCanvasEvent = ({ canvas }: CanvasEventProps) => {
+const useCanvasEvents = ({ canvas }: CanvasEventProps) => {
   const isDraggingRef = useRef(false);
   const lastPosXRef = useRef(0);
   const lastPosYRef = useRef(0);
@@ -110,4 +110,4 @@ const useCanvasEvent = ({ canvas }: CanvasEventProps) => {
   }, [canvas]);
 };
 
-export default useCanvasEvent;
+export default useCanvasEvents;

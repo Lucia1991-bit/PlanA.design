@@ -1,6 +1,6 @@
 import React from "react";
-import useDesignColor from "@/hooks/useDesignColor";
 import { VStack } from "@chakra-ui/react";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 import { ActiveTool } from "@/types/DesignType";
 import LeftToolBarItem from "./LeftToolBarItem";
 
@@ -15,7 +15,7 @@ const LeftToolBar = ({
   onChangeActiveTool,
   isSidePanelOpen,
 }: LeftToolBarProps) => {
-  const color = useDesignColor();
+  const color = useDesignPageColor();
 
   return (
     <VStack
@@ -41,6 +41,12 @@ const LeftToolBar = ({
       py={5}
       spacing="0"
     >
+      <LeftToolBarItem
+        icon="/icons/material.png"
+        label="繪製牆體"
+        isActive={activeTool === "draw"}
+        onClick={() => onChangeActiveTool("draw")}
+      />
       <LeftToolBarItem
         icon="/icons/material.png"
         label="材質庫"

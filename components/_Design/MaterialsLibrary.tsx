@@ -15,9 +15,8 @@ import {
   Tabs,
   VStack,
 } from "@chakra-ui/react";
-import useDesignColor from "@/hooks/useDesignColor";
-import image from "next/image";
 import Image from "next/image";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 // 預定義類別
 const CATEGORIES = ["石材", "木地板", "磁磚", "戶外"];
@@ -25,7 +24,7 @@ const CATEGORIES = ["石材", "木地板", "磁磚", "戶外"];
 const MaterialsLibrary = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-  const color = useDesignColor();
+  const color = useDesignPageColor();
 
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);

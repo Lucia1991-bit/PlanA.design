@@ -1,4 +1,4 @@
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignColor from "@/hooks/useDesignPageColor";
 import { Box, Text, VStack } from "@chakra-ui/react";
 
 interface SidePanelHeaderProps {

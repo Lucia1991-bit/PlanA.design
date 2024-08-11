@@ -1,6 +1,6 @@
-import useDesignColor from "@/hooks/useDesignColor";
 import { Box, Button, Text, VStack } from "@chakra-ui/react";
 import Image from "next/image";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 interface LeftToolBarItemProps {
   icon: string; //圖片 url
@@ -17,7 +17,7 @@ const LeftToolBarItem = ({
   onClick,
   iconSize = "30px",
 }: LeftToolBarItemProps) => {
-  const color = useDesignColor();
+  const color = useDesignPageColor();
   return (
     <Button
       variant="ghost"

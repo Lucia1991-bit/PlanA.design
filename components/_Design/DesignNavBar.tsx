@@ -19,7 +19,7 @@ import {
   LuUndo2,
 } from "react-icons/lu";
 import ProfileMenu from "../_Profile/ProfileMenu";
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 import Logo from "./Logo";
 import ColorModeSwitch from "./ColorModeSwitch";
 import RenameProjectButton from "@/components/_Design/RenameProjectButton";
@@ -38,7 +38,7 @@ const DesignNavBar = ({
   activeTool,
   onChangeActiveTool,
 }: DesignNavBarProps) => {
-  const color = useDesignColor();
+  const color = useDesignPageColor();
 
   return (
     <HStack

@@ -1,5 +1,5 @@
 import React from "react";
-import useDesignColor from "@/hooks/useDesignColor";
+import useDesignColor from "@/hooks/useDesignPageColor";
 import { Box } from "@chakra-ui/react";
 
 interface SidePanelProps {

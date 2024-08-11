@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "upload-materials": "tsx script/uploadMaterial.ts"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
@@ -17,6 +18,7 @@
     "@tanstack/react-query": "^5.51.23",
     "@tanstack/react-query-devtools": "^5.51.23",
     "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
     "fabric": "^5.3.0-browser",
     "firebase": "^10.12.4",
     "firebase-admin": "^12.3.1",
@@ -28,16 +30,19 @@
     "react-dom": "^18",
     "react-icons": "^5.2.1",
     "react-spinners": "^0.14.1",
+    "react-use": "^17.5.1",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@types/fabric": "^5.3.0",
     "@types/lodash": "^4.17.7",
-    "@types/node": "^20",
+    "@types/node": "^20.14.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.17.0",
+    "typescript": "^5.5.4"
   }
 }

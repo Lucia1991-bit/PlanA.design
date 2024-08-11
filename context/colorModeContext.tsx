@@ -1,7 +1,14 @@
 "use client";
 
 // designColorMode.tsx
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { useColorMode, useColorModeValue } from "@chakra-ui/react";
 
 type DesignColorMode = "light" | "dark";
@@ -30,24 +37,32 @@ export const DesignColorModeProvider: React.FC<{
     }
   }, []);
 
-  const toggleDesignColorMode = () => {
-    const newMode = designColorMode === "light" ? "dark" : "light";
-    setDesignColorMode(newMode);
-    localStorage.setItem("design-color-mode", newMode);
-  };
+  const toggleDesignColorMode = useCallback(() => {
+    setDesignColorMode((prevMode) => {
+      const newMode = prevMode === "light" ? "dark" : "light";
+      localStorage.setItem("design-color-mode", newMode);
+      return newMode;
+    });
+  }, []);
 
-  const useDesignColorModeValue = <T,>(lightValue: T, darkValue: T): T => {
-    return designColorMode === "light" ? lightValue : darkValue;
-  };
+  const useDesignColorModeValue = useCallback(
+    <T,>(lightValue: T, darkValue: T): T => {
+      return designColorMode === "light" ? lightValue : darkValue;
+    },
+    [designColorMode]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      designColorMode,
+      toggleDesignColorMode,
+      useDesignColorModeValue,
+    }),
+    [designColorMode, toggleDesignColorMode, useDesignColorModeValue]
+  );
 
   return (
-    <DesignColorModeContext.Provider
-      value={{
-        designColorMode,
-        toggleDesignColorMode,
-        useDesignColorModeValue,
-      }}
-    >
+    <DesignColorModeContext.Provider value={contextValue}>
       {children}
     </DesignColorModeContext.Provider>
   );
