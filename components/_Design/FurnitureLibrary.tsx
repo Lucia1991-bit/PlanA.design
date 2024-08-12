@@ -5,9 +5,6 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
-  HStack,
-  Select,
   SimpleGrid,
   Spinner,
   Tab,
@@ -17,6 +14,7 @@ import {
   Tabs,
   Text,
   VStack,
+  Select,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
@@ -28,40 +26,28 @@ interface FurnitureLibraryProps {
   design: Design | undefined;
 }
 
-const getPublicImageUrl = async (imagePath: string) => {
-  const storage = getStorage();
-  const imageRef = ref(storage, imagePath);
-  try {
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error("Error getting download URL:", error);
-    return null;
-  }
-};
-
 const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [fetchType, setFetchType] = useState<"room" | "category">("room");
-
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const { data, isLoading, isError, error, prefetchNext, categories } =
     useFurniture(fetchType, activeTabIndex);
 
   const color = useDesignPageColor();
 
-  //獲取 Tab改變
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);
-    // 預取下一個類別的資料
     prefetchNext(index);
   };
 
-  //獲取 Select類別改變
   const handleFetchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFetchType(e.target.value as "room" | "category");
-    setActiveTabIndex(0); // 當切換類別時，重置選擇的索引
+    setActiveTabIndex(0);
+  };
+
+  const handleImageError = (furniture: any) => {
+    console.error(`Failed to load image for furniture: ${furniture.name}`);
+    // 可以在這裡實現fallback機制，例如顯示一個預設圖片
   };
 
   return (
@@ -191,6 +177,8 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                             alt={furniture.name}
                             style={{ objectFit: "contain" }}
                             sizes="(max-width: 768px) 100vw, 50vw"
+                            onError={() => handleImageError(furniture)}
+                            unoptimized // 添加這行以禁用 Next.js 的自動優化
                           />
                         </Box>
                         <Box
