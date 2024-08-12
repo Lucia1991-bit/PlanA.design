@@ -14,7 +14,7 @@ const ColorModeSwitch = () => {
 
   return (
     <Tooltip
-      label="切換色彩模式"
+      label="切換色彩主題"
       placement="bottom"
       offset={[0, 15]}
       bg={color.tooltip.backgroundColor}
