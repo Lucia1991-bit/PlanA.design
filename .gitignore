@@ -10,6 +10,11 @@
 /script
 **/script/
 
+# Firebase admin
+firebaseAdmin.ts
+**/firebaseAdmin.ts
+
+
 # testing
 /coverage
 
