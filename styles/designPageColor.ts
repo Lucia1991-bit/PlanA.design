@@ -12,6 +12,8 @@ export const designPageColor = {
       text: "#555352",
       subText: "#9b9b9b",
       hover: "rgba(199,200,201, 0.35)",
+      furniture_hover: "rgba(85,83,82, 0.65)",
+      furniture_text: "#ffffff",
     },
     navBar: {
       backgroundColor: "rgba(255, 255, 255, 0.4)",
@@ -35,6 +37,8 @@ export const designPageColor = {
       text: "#ffffff",
       subText: "#9b9b9b",
       hover: "rgba(199,200,201, 0.35)",
+      furniture_hover: "rgba(255,255,255,0.6)",
+      furniture_text: "#555352",
     },
     navBar: {
       backgroundColor: "rgba(55, 56, 56, 0.3)",

@@ -83,8 +83,12 @@ const DesignEditor = ({ board }: DesignEditorProps) => {
         isSidePanelOpen={isSidePanelOpen}
       />
       <SidePanel isOpen={isSidePanelOpen}>
-        {activeTool === "material" && <MaterialsLibrary />}
-        {activeTool === "furniture" && <FurnitureLibrary design={design} />}
+        {activeTool === "material" && (
+          <MaterialsLibrary design={design} closeSidePanel={closeSidePanel} />
+        )}
+        {activeTool === "furniture" && (
+          <FurnitureLibrary design={design} closeSidePanel={closeSidePanel} />
+        )}
       </SidePanel>
       <Box
         w="100%"

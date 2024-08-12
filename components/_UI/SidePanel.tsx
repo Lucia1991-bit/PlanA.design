@@ -25,7 +25,6 @@ const SidePanel: React.FC<SidePanelProps> = ({ isOpen, children }) => {
       borderColor={color.toolBar.hover}
       boxShadow="4px 0 10px -5px rgba(0,0,0,0.1), 0 4px 10px -5px rgba(0,0,0,0.1), 0 -4px 10px -5px rgba(0,0,0,0.1)"
       zIndex="1"
-      overflow="hidden"
       transition="opacity 0.5s ease-in-out, transform 0.5s ease-in-out"
     >
       {children}

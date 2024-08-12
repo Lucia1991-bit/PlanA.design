@@ -119,7 +119,7 @@ const AuthForm = () => {
 
       setTimeout(() => {
         closeAuthModal();
-        router.push(isSignUp ? "/dashboard" : "/");
+        router.push("/dashboard");
       }, 500);
     } catch (error) {
       const errorMessage = handleFirebaseError(error as AuthError);
