@@ -44,7 +44,7 @@ const FurnitureLibrary = ({
     // 設置最小顯示時間為 1000 毫秒（1 秒）
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 500);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [isLoading]);

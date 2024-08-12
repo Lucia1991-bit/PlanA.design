@@ -15,7 +15,7 @@ import {
 const fetchFurnitureByRoom = async (
   roomCategory: string
 ): Promise<FurnitureType[]> => {
-  const furnitureRef = collection(db, "furniture");
+  const furnitureRef = collection(db, "furniture2");
   const q = query(
     furnitureRef,
     where("room_category", "==", roomCategory),
@@ -31,11 +31,11 @@ const fetchFurnitureByRoom = async (
 const fetchFurnitureByCategory = async (
   category: string
 ): Promise<FurnitureType[]> => {
-  const furnitureRef = collection(db, "furniture");
+  const furnitureRef = collection(db, "furniture2");
   const q = query(
     furnitureRef,
     where("category", "==", category),
-    orderBy("name")
+    orderBy("room_category")
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(

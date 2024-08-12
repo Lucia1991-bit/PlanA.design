@@ -70,46 +70,54 @@ const SidePanelCloseButton: React.FC<SidePanelCloseButtonProps> = ({
       cursor="pointer"
       onClick={onClick}
     >
-      <svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 110 387"
-        xmlns="http://www.w3.org/2000/svg"
-        transform="translateY(-50%)"
+      <Box
+        position="absolute"
+        width={width}
+        height={height}
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
       >
-        <defs>
-          <filter id={filterId} x="0" y="-10%" width="200%" height="120%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation={shadowBlur} />
-            <feOffset
-              dx={shadowOffsetX}
-              dy={shadowOffsetY}
-              result="offsetblur"
-            />
-            <feFlood floodColor={shadowColor} result="color" />
-            <feComposite
-              in="color"
-              in2="offsetblur"
-              operator="in"
-              result="shadow"
-            />
-            <feComponentTransfer>
-              <feFuncA type="linear" slope={shadowOpacity} />
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode in="shadow" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        <path
-          d="M86.1,77.7l-65.5-59c0,0,0,0,0,0L0,0v39.2v299.1v39.2l20.6-18.6c0,0,0,0,0,0l5.7-5.2l17.7-16l0,0l42-37.9
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 110 387"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <filter id={filterId} x="0" y="-10%" width="200%" height="120%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation={shadowBlur} />
+              <feOffset
+                dx={shadowOffsetX}
+                dy={shadowOffsetY}
+                result="offsetblur"
+              />
+              <feFlood floodColor={shadowColor} result="color" />
+              <feComposite
+                in="color"
+                in2="offsetblur"
+                operator="in"
+                result="shadow"
+              />
+              <feComponentTransfer>
+                <feFuncA type="linear" slope={shadowOpacity} />
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode in="shadow" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path
+            d="M86.1,77.7l-65.5-59c0,0,0,0,0,0L0,0v39.2v299.1v39.2l20.6-18.6c0,0,0,0,0,0l5.7-5.2l17.7-16l0,0l42-37.9
           c4.5-4.1,7.4-12,7.4-20.6v-181C93.5,89.6,90.7,81.7,86.1,77.7z"
-          fill={color}
-          stroke={borderColor}
-          strokeWidth={borderWidth}
-          filter={`url(#${filterId})`}
-        />
-      </svg>
+            fill={color}
+            stroke={borderColor}
+            strokeWidth={borderWidth}
+            filter={`url(#${filterId})`}
+          />
+        </svg>
+      </Box>
       <Box
         position="absolute"
         top="50%"
