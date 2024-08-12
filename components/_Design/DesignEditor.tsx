@@ -4,7 +4,7 @@ import { BoardType } from "@/types/BoardType";
 import useDesign from "@/hooks/useDesign";
 import DesignNavBar from "./DesignNavBar";
 import LeftToolBar from "./LeftToolBar";
-import { ActiveTool } from "@/types/DesignType";
+import { ActiveTool, Design } from "@/types/DesignType";
 import MaterialsLibrary from "./MaterialsLibrary";
 import SidePanel from "@/components/_UI/SidePanel";
 import FurnitureLibrary from "./FurnitureLibrary";

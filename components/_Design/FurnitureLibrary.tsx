@@ -64,16 +64,6 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
     setActiveTabIndex(0); // 當切換類別時，重置選擇的索引
   };
 
-  //將家具組件加進畫布
-  const handleAddFurniture = (imageUrl: string) => {
-    if (design && design.addFurniture) {
-      console.log(imageUrl);
-      design.addFurniture(imageUrl);
-    } else {
-      console.error("Design or addFurniture function is undefined");
-    }
-  };
-
   return (
     <VStack width="100%" height="100%" alignItems="stretch" spacing={2} p={4}>
       <SidePanelHeader title="家具庫" description="請選擇家具組件" />
@@ -179,7 +169,7 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                   {data?.map((furniture) => (
                     <Box key={furniture.id} position="relative">
                       <Button
-                        onClick={() => handleAddFurniture(furniture.imageUrl)}
+                        onClick={() => design?.addFurniture(furniture.imageUrl)}
                         bg={color.toolBar.hover}
                         borderRadius="md"
                         width="100%"

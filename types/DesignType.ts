@@ -87,7 +87,7 @@ export interface Design {
   // onPaste: () => void;
   // changeImageFilter: (value: string) => void;
   addFurniture: (imageUrl: string) => void;
-  addPatternPath: (imageUrl: string) => void;
+  // addPatternPath: (imageUrl: string) => void;
   // delete: () => void;
   // changeFontSize: (value: number) => void;
   // getActiveFontSize: () => number;

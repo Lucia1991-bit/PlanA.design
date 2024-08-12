@@ -9,6 +9,7 @@ import {
   DesignHookProps,
   GLOBAL_SCALE,
   BuildDesignProps,
+  Design,
 } from "@/types/DesignType";
 import useDesignColor from "./useDesignPageColor";
 import useCanvasEvents from "./useCanvasEvents";
@@ -19,7 +20,7 @@ import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
 
 //所有設計功能的邏輯
-const buildDesign = ({ canvas }: BuildDesignProps) => {
+const buildDesign = ({ canvas }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
     return {
@@ -43,6 +44,7 @@ const buildDesign = ({ canvas }: BuildDesignProps) => {
   };
 
   return {
+    canvas,
     addFurniture: (imageUrl: string) => {
       fabric.Image.fromURL(
         imageUrl,
