@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "upload-materials": "tsx script/uploadMaterial.ts"
+    "upload-materials": "tsx script/uploadMaterial.ts",
+    "upload-furniture": "tsx script/uploadFurniture.ts"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",

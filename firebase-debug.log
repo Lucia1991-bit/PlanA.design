@@ -1,0 +1,17 @@
+[debug] [2024-08-12T12:12:51.768Z] ----------------------------------------------------------------------
+[debug] [2024-08-12T12:12:51.769Z] Command:       /opt/homebrew/Cellar/node/22.0.0/bin/node /opt/homebrew/bin/firebase login
+[debug] [2024-08-12T12:12:51.769Z] CLI Version:   13.15.1
+[debug] [2024-08-12T12:12:51.769Z] Platform:      darwin
+[debug] [2024-08-12T12:12:51.769Z] Node Version:  v22.0.0
+[debug] [2024-08-12T12:12:51.769Z] Time:          Mon Aug 12 2024 20:12:51 GMT+0800 (Taipei Standard Time)
+[debug] [2024-08-12T12:12:51.769Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-08-12T12:12:51.770Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you.
+ 
+[debug] [2024-08-12T12:12:52.272Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2024-08-12T12:12:52.273Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[warn] ⚠  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2024-08-12T12:12:52.275Z] Failed to fetch MOTD Error: EACCES: permission denied, mkdir '/Users/Lucia/.config/configstore'
+You don't have access to this file.
+

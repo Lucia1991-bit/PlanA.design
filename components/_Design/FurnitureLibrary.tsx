@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import SidePanelHeader from "../_UI/SidePanelHeader";
 import {
   Box,
@@ -6,6 +7,7 @@ import {
   Flex,
   Grid,
   HStack,
+  Select,
   SimpleGrid,
   Spinner,
   Tab,
@@ -19,26 +21,53 @@ import {
 import Image from "next/image";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import { Design } from "@/types/DesignType";
+import { useFurniture } from "@/hooks/useFurniture";
+import { ROOM_CATEGORIES, FURNITURE_CATEGORIES } from "@/types/FurnitureType";
 
 interface FurnitureLibraryProps {
   design: Design | undefined;
 }
 
-// 預定義類別
-const CATEGORIES = ["客廳", "房間", "餐廳", "浴室", "家飾"];
+const getPublicImageUrl = async (imagePath: string) => {
+  const storage = getStorage();
+  const imageRef = ref(storage, imagePath);
+  try {
+    const url = await getDownloadURL(imageRef);
+    return url;
+  } catch (error) {
+    console.error("Error getting download URL:", error);
+    return null;
+  }
+};
 
 const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [fetchType, setFetchType] = useState<"room" | "category">("room");
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const { data, isLoading, isError, error, prefetchNext, categories } =
+    useFurniture(fetchType, activeTabIndex);
 
   const color = useDesignPageColor();
 
+  //獲取 Tab改變
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);
     // 預取下一個類別的資料
+    prefetchNext(index);
   };
 
+  //獲取 Select類別改變
+  const handleFetchTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFetchType(e.target.value as "room" | "category");
+    setActiveTabIndex(0); // 當切換類別時，重置選擇的索引
+  };
+
+  //將家具組件加進畫布
   const handleAddFurniture = (imageUrl: string) => {
     if (design && design.addFurniture) {
+      console.log(imageUrl);
       design.addFurniture(imageUrl);
     } else {
       console.error("Design or addFurniture function is undefined");
@@ -48,6 +77,27 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
   return (
     <VStack width="100%" height="100%" alignItems="stretch" spacing={2} p={4}>
       <SidePanelHeader title="家具庫" description="請選擇家具組件" />
+      <Select
+        value={fetchType}
+        onChange={handleFetchTypeChange}
+        my={2}
+        fontSize="sm"
+        size="sm"
+        borderColor={color.toolBar.hover}
+        color={color.toolBar.text}
+        _focus={{
+          bg: color.toolBar.hover,
+          borderColor: color.toolBar.text,
+          boxShadow: "none",
+          outline: "none",
+        }}
+        _active={{
+          boxShadow: "none",
+        }}
+      >
+        <option value="room">按房間類別</option>
+        <option value="category">按家具類別</option>
+      </Select>
       <Tabs
         isFitted
         isLazy
@@ -59,7 +109,7 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
         borderColor="rgba(199,200,201, 0.35)"
       >
         <TabList whiteSpace="nowrap">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <Tab
               key={category}
               fontSize="14px"
@@ -79,7 +129,7 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
           ))}
         </TabList>
         <TabPanels flex={1} overflow="hidden">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <TabPanel
               key={category}
               height="100%"
@@ -99,7 +149,7 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                 },
               }}
             >
-              {false ? (
+              {isLoading ? (
                 <Flex
                   w="100%"
                   h="100%"
@@ -107,6 +157,15 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                   alignItems="center"
                 >
                   <Spinner color={color.toolBar.subText} />
+                </Flex>
+              ) : isError ? (
+                <Flex
+                  w="100%"
+                  h="100%"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Text>發生錯誤，請稍後再試</Text>
                 </Flex>
               ) : (
                 <SimpleGrid
@@ -117,14 +176,10 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                   py={5}
                   px={1}
                 >
-                  {Array.from({ length: 20 }).map((_, index) => (
-                    <Box key={index} position="relative">
+                  {data?.map((furniture) => (
+                    <Box key={furniture.id} position="relative">
                       <Button
-                        onClick={() =>
-                          handleAddFurniture(
-                            "/furniture/尺寸放大地毯W140D200.png"
-                          )
-                        }
+                        onClick={() => handleAddFurniture(furniture.imageUrl)}
                         bg={color.toolBar.hover}
                         borderRadius="md"
                         width="100%"
@@ -142,9 +197,10 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                         <Box w="100%" h="100%" position="absolute">
                           <Image
                             fill
-                            src="/furniture/四人沙發Ｗ230D105.png"
-                            alt={`Furniture item ${index + 1}`}
+                            src={furniture.imageUrl}
+                            alt={furniture.name}
                             style={{ objectFit: "contain" }}
+                            sizes="(max-width: 768px) 100vw, 50vw"
                           />
                         </Box>
                         <Box
@@ -159,7 +215,8 @@ const FurnitureLibrary = ({ design }: FurnitureLibraryProps) => {
                           transition="opacity 0.15s ease-in-out"
                           p={2}
                         >
-                          <Text fontSize="10px">四人沙發 W230D105</Text>
+                          <Text fontSize="10px">{furniture.name} </Text>
+                          <Text fontSize="10px">{furniture.size}</Text>
                         </Box>
                       </Button>
                     </Box>

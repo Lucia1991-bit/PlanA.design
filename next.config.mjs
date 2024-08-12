@@ -8,6 +8,11 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/datj4og4i/image/upload/**",
       },
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+        pathname: "/plan-a-design-app.appspot.com/**",
+      },
     ],
   },
 };
