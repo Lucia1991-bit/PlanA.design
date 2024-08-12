@@ -11,7 +11,7 @@
 **/script/
 
 # Firebase admin
-firebaseAdmin.ts
+/lib/firebaseAdmin.ts
 **/firebaseAdmin.ts
 
 
