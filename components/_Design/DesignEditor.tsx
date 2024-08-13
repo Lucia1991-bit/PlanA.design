@@ -9,6 +9,7 @@ import MaterialsLibrary from "./MaterialsLibrary";
 import SidePanel from "@/components/_UI/SidePanel";
 import FurnitureLibrary from "./FurnitureLibrary";
 import { Box, Divider } from "@chakra-ui/react";
+import DrawWallSidePanel from "./DrawWallSidePanel";
 
 interface DesignEditorProps {
   board: BoardType;
@@ -83,6 +84,9 @@ const DesignEditor = ({ board }: DesignEditorProps) => {
         isSidePanelOpen={isSidePanelOpen}
       />
       <SidePanel isOpen={isSidePanelOpen}>
+        {activeTool === "draw" && (
+          <DrawWallSidePanel design={design} closeSidePanel={closeSidePanel} />
+        )}
         {activeTool === "material" && (
           <MaterialsLibrary design={design} closeSidePanel={closeSidePanel} />
         )}

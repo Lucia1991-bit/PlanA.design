@@ -9,7 +9,8 @@
     "lint": "next lint",
     "upload-materials": "tsx script/uploadMaterial.ts",
     "upload-furniture": "tsx script/uploadFurniture.ts",
-    "upload-furniture2": "tsx script/uploadFurnitureCloudinary.ts"
+    "upload-furniture2": "tsx script/uploadFurnitureCloudinary.ts",
+    "upload-materials2": "tsx script/uploadMaterialsCloudinary.ts"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",

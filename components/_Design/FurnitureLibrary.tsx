@@ -20,7 +20,6 @@ import Image from "next/image";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import { Design } from "@/types/DesignType";
 import { useFurniture } from "@/hooks/useFurniture";
-import { ROOM_CATEGORIES, FURNITURE_CATEGORIES } from "@/types/FurnitureType";
 import SidePanelCloseButton from "@/components/_UI/SidePanelCloseButton";
 
 interface FurnitureLibraryProps {
@@ -40,17 +39,19 @@ const FurnitureLibrary = ({
     useFurniture(fetchType, activeTabIndex);
 
   const color = useDesignPageColor();
+
   useEffect(() => {
     // 設置最小顯示時間為 1000 毫秒（1 秒）
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 600);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, [isLoading]);
 
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);
+    // 預取下一個類別的資料
     prefetchNext(index);
   };
 
@@ -169,65 +170,62 @@ const FurnitureLibrary = ({
                 ) : (
                   <SimpleGrid columns={2} spacing={4} w="100%" py={5} px={1}>
                     {data?.map((furniture) => (
-                      <Box key={furniture.id} position="relative">
-                        <Button
-                          onClick={() =>
-                            design?.addFurniture(furniture.imageUrl)
-                          }
-                          bg={color.toolBar.hover}
-                          borderRadius="md"
-                          width="100%"
-                          height="115px"
-                          overflow="hidden"
-                          _hover={{
-                            "& > .hover-text": { opacity: 1 },
-                            boxShadow: "md",
-                            transform: "scale(1.1)",
-                          }}
-                          transition="all 0.15s ease-in-out"
-                          border={`0.5px solid #c7c8c8`}
-                          position="relative"
+                      <Button
+                        key={furniture.id}
+                        onClick={() => design?.addFurniture(furniture.imageUrl)}
+                        bg={color.toolBar.hover}
+                        borderRadius="md"
+                        width="100%"
+                        height="115px"
+                        overflow="hidden"
+                        _hover={{
+                          "& > .hover-text": { opacity: 1 },
+                          boxShadow: "md",
+                          transform: "scale(1.1)",
+                        }}
+                        transition="all 0.15s ease-in-out"
+                        border={`0.5px solid #c7c8c8`}
+                        position="relative"
+                      >
+                        <Box w="100%" h="100%" position="absolute">
+                          <Image
+                            fill
+                            src={furniture.imageUrl}
+                            alt={furniture.name}
+                            style={{ objectFit: "contain" }}
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            onError={() => handleImageError(furniture)}
+                            unoptimized // 添加這行以禁用 Next.js 的自動優化
+                          />
+                        </Box>
+                        <Box
+                          className="hover-text"
+                          position="absolute"
+                          bottom="0"
+                          left="0"
+                          right="0"
+                          bg={color.toolBar.furniture_hover}
+                          color="white"
+                          opacity={0}
+                          transition="opacity 0.15s ease-in-out"
+                          p={2}
                         >
-                          <Box w="100%" h="100%" position="absolute">
-                            <Image
-                              fill
-                              src={furniture.imageUrl}
-                              alt={furniture.name}
-                              style={{ objectFit: "contain" }}
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                              onError={() => handleImageError(furniture)}
-                              unoptimized // 添加這行以禁用 Next.js 的自動優化
-                            />
-                          </Box>
-                          <Box
-                            className="hover-text"
-                            position="absolute"
-                            bottom="0"
-                            left="0"
-                            right="0"
-                            bg={color.toolBar.furniture_hover}
-                            color="white"
-                            opacity={0}
-                            transition="opacity 0.15s ease-in-out"
-                            p={2}
+                          <Text
+                            color={color.toolBar.furniture_text}
+                            fontSize="12px"
+                            zIndex={1}
                           >
-                            <Text
-                              color={color.toolBar.furniture_text}
-                              fontSize="12px"
-                              zIndex={1}
-                            >
-                              {furniture.name}{" "}
-                            </Text>
-                            <Text
-                              color={color.toolBar.furniture_text}
-                              fontSize="10px"
-                              zIndex={1}
-                            >
-                              {furniture.size}
-                            </Text>
-                          </Box>
-                        </Button>
-                      </Box>
+                            {furniture.name}{" "}
+                          </Text>
+                          <Text
+                            color={color.toolBar.furniture_text}
+                            fontSize="10px"
+                            zIndex={1}
+                          >
+                            {furniture.size}
+                          </Text>
+                        </Box>
+                      </Button>
                     ))}
                   </SimpleGrid>
                 )}

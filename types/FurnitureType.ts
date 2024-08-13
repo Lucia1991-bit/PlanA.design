@@ -8,5 +8,6 @@ export interface FurnitureType {
   category: string;
   room_category: string;
   imageUrl: string;
+  thumbnailUrl: string;
   size: string;
 }

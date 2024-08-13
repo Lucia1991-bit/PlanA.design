@@ -25,6 +25,10 @@ export const designPageColor = {
       backgroundColor: "#555352",
       text: "#ffffff",
     },
+    wall: {
+      fill: "#8c8c8c",
+      stroke: "#000",
+    },
   },
   dark: {
     canvas: {
@@ -49,6 +53,10 @@ export const designPageColor = {
     tooltip: {
       backgroundColor: "#ffffff",
       text: "#555352",
+    },
+    wall: {
+      fill: "#8c8c8c",
+      stroke: "#000",
     },
   },
 };

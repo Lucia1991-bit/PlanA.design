@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SidePanelHeader from "../_UI/SidePanelHeader";
 import {
   Box,
@@ -13,15 +13,14 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
   VStack,
 } from "@chakra-ui/react";
 import Image from "next/image";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import SidePanelCloseButton from "../_UI/SidePanelCloseButton";
 import { Design } from "@/types/DesignType";
-
-// 預定義類別
-const CATEGORIES = ["石材", "木地板", "磁磚", "戶外"];
+import { useMaterials } from "@/hooks/useMaterials";
 
 interface MaterialsLibraryProps {
   design: Design | undefined;
@@ -33,12 +32,26 @@ const MaterialsLibrary = ({
   closeSidePanel,
 }: MaterialsLibraryProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [showLoading, setShowLoading] = useState(true);
+
+  const { data, isLoading, isError, error, prefetchNext, categories } =
+    useMaterials(activeTabIndex);
 
   const color = useDesignPageColor();
+
+  useEffect(() => {
+    // 設置最小顯示時間為 800 毫秒
+    const timer = setTimeout(() => {
+      setShowLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);
     // 預取下一個類別的資料
+    prefetchNext(index);
   };
 
   return (
@@ -63,7 +76,7 @@ const MaterialsLibrary = ({
           borderColor="rgba(199,200,201, 0.35)"
         >
           <TabList whiteSpace="nowrap">
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <Tab
                 key={category}
                 fontSize="14px"
@@ -83,7 +96,7 @@ const MaterialsLibrary = ({
             ))}
           </TabList>
           <TabPanels flex={1} overflow="hidden">
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <TabPanel
                 key={category}
                 height="100%"
@@ -103,7 +116,7 @@ const MaterialsLibrary = ({
                   },
                 }}
               >
-                {false ? (
+                {isLoading || showLoading ? (
                   <Flex
                     w="100%"
                     h="100%"
@@ -112,25 +125,43 @@ const MaterialsLibrary = ({
                   >
                     <Spinner color={color.toolBar.subText} />
                   </Flex>
+                ) : isError ? (
+                  <Flex
+                    w="100%"
+                    h="100%"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Text>發生錯誤，請稍後再試</Text>
+                  </Flex>
                 ) : (
                   <SimpleGrid columns={2} spacing={4} w="100%" py={5} px={1}>
-                    {/* 模擬內容 */}
-                    {Array.from({ length: 20 }).map((_, index) => (
+                    {data?.map((material) => (
                       <Button
-                        key={index}
-                        bg="transparent"
+                        key={material.id}
+                        bg={color.toolBar.hover}
                         borderRadius="md"
                         width="100%"
                         height="115px"
                         overflow="hidden"
                         _hover={{
-                          boxShadow: "lg",
+                          boxShadow: "md",
                           transform: "scale(1.1)",
-                          transition: "transform 0.15s ease-in-out",
                         }}
-                        border={`0.5px solid ${color.toolBar.hover}`}
+                        transition="all 0.15s ease-in-out"
+                        border={`0.5px solid #c7c8c8`}
+                        position="relative"
                       >
-                        <Image fill src="/wood1.jpg" alt="marble1" />
+                        <Box w="100%" h="100%" position="absolute">
+                          <Image
+                            fill
+                            src={material.small_imageUrl}
+                            alt={material.name}
+                            style={{ objectFit: "contain" }}
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            unoptimized // 添加這行以禁用 Next.js 的自動優化
+                          />
+                        </Box>
                       </Button>
                     ))}
                   </SimpleGrid>

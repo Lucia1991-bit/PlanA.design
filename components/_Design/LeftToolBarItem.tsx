@@ -40,6 +40,7 @@ const LeftToolBarItem = ({
             src={icon}
             alt={label}
             fill
+            sizes="(max-width: 768px) 24px, 30px"
             style={{ objectFit: "contain" }}
           />
         </Box>

@@ -67,7 +67,7 @@ export const useFurniture = (fetchType: FetchType, index: number) => {
     // 這裡可以添加更多錯誤處理邏輯，如錯誤報告服務
   }
 
-  // 預取下一個分類的數據
+  // 預取下一個分類的資料
   const prefetchNext = (nextIndex: number) => {
     const nextCategory =
       fetchType === "room"
