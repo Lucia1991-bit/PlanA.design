@@ -63,6 +63,7 @@ export const updateBoard = async (
     await updateDoc(boardRef, dataToUpdate);
   } catch (error) {
     console.error("Error updating board:", error);
+    console.log("儲存畫布發生錯誤");
     throw error;
   }
 };

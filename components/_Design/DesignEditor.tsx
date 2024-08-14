@@ -57,12 +57,17 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
 
   const { initCanvas, design } = useDesign({
     defaultState: board.fabricData,
+    saveDesign,
   });
 
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current) {
+    const canvasElement = canvasRef.current;
+    const containerElement = containerRef.current;
+
+    if (!canvasElement || !containerElement) {
       return;
     }
+
     const canvas = new fabric.Canvas(canvasRef.current, {
       preserveObjectStacking: true,
     });
@@ -73,9 +78,11 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
     });
 
     return () => {
-      canvas.dispose();
+      if (canvas) {
+        canvas.dispose();
+      }
     };
-  }, [board, initCanvas]);
+  }, [initCanvas]);
 
   return (
     <Box position="relative">
@@ -85,6 +92,9 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
         boardName={board.fileName}
         activeTool={activeTool}
         onChangeActiveTool={onChangeActiveTool}
+        saveDesign={saveDesign}
+        isUpdating={isUpdating}
+        error={error}
       />
       <LeftToolBar
         activeTool={activeTool}
@@ -107,7 +117,6 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
         h="100vh"
         overflow="hidden"
         position="relative"
-        border="10px solid purple"
         ref={containerRef}
       >
         <canvas ref={canvasRef} style={{ zIndex: "0" }} />

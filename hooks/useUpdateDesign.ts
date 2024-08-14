@@ -11,7 +11,7 @@ export const useUpdateDesign = ({ userId, boardId }: UseUpdateDesignProps) => {
   const [error, setError] = useState<string | null>(null);
 
   const saveDesign = useCallback(
-    async (fabricData: string) => {
+    async (fabricData: string): Promise<void> => {
       setIsUpdating(true);
       setError(null);
 

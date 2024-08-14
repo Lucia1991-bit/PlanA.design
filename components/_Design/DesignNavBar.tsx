@@ -1,8 +1,10 @@
 import {
+  Box,
   Button,
   Divider,
   HStack,
   IconButton,
+  keyframes,
   Menu,
   MenuButton,
   MenuItem,
@@ -12,18 +14,21 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import {
+  LuLoader,
   LuDownload,
   LuMousePointerClick,
   LuRedo2,
   LuSave,
   LuUndo2,
 } from "react-icons/lu";
+import { BsCloudCheck, BsCloudSlash } from "react-icons/bs";
 import ProfileMenu from "../_Profile/ProfileMenu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import Logo from "./Logo";
 import ColorModeSwitch from "./ColorModeSwitch";
 import RenameProjectButton from "@/components/_Design/RenameProjectButton";
 import { ActiveTool, Design } from "@/types/DesignType";
+import { useCallback, useEffect, useState } from "react";
 
 interface DesignNavBarProps {
   boardId: string;
@@ -31,7 +36,21 @@ interface DesignNavBarProps {
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
   design: Design | undefined;
+  saveDesign: (fabricData: string) => void;
+  isUpdating: boolean;
+  error: string | null;
 }
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const SpinningLoader = () => (
+  <Box animation={`${spin} 2s linear infinite`}>
+    <LuLoader size={20} />
+  </Box>
+);
 
 const DesignNavBar = ({
   boardId,
@@ -39,8 +58,28 @@ const DesignNavBar = ({
   activeTool,
   onChangeActiveTool,
   design,
+  isUpdating,
+  saveDesign,
+  error,
 }: DesignNavBarProps) => {
   const color = useDesignPageColor();
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
+
+  const handleSave = useCallback(() => {
+    setHasSaved(true);
+    design?.onSave();
+  }, [design]);
+
+  useEffect(() => {
+    if (hasSaved && !isUpdating && !error) {
+      setSaveSuccess(true);
+      const timer = setTimeout(() => setSaveSuccess(false), 3000);
+      return () => clearTimeout(timer);
+    } else if (error) {
+      setSaveSuccess(false);
+    }
+  }, [isUpdating, error, hasSaved]);
 
   return (
     <HStack
@@ -151,10 +190,37 @@ const DesignNavBar = ({
               icon={<LuSave fontSize="20px" />}
               bg="transparent"
               _hover={{ bg: color.toolBar.hover }}
+              onClick={handleSave}
+              isDisabled={isUpdating}
             />
           </Tooltip>
+          <Divider
+            orientation="vertical"
+            height="30px"
+            borderColor={color.navBar.text}
+          />
+          {isUpdating && (
+            <HStack ml={4} color={color.toolBar.subText}>
+              <SpinningLoader />
+              <Text fontSize="12px">存檔中...</Text>
+            </HStack>
+          )}
 
-          <Tooltip
+          {!isUpdating && error && (
+            <HStack ml={4} color={color.toolBar.subText}>
+              <BsCloudSlash size="20px" />
+              <Text fontSize="12px">存檔失敗</Text>
+            </HStack>
+          )}
+
+          {!isUpdating && !error && saveSuccess && (
+            <HStack ml={4} color={color.toolBar.subText}>
+              <BsCloudCheck size="20px" />
+              <Text fontSize="12px">存檔完成</Text>
+            </HStack>
+          )}
+
+          {/* <Tooltip
             label="匯出"
             placement="bottom"
             bg={color.tooltip.backgroundColor}
@@ -169,7 +235,7 @@ const DesignNavBar = ({
               bg="transparent"
               _hover={{ bg: color.toolBar.hover }}
             />
-          </Tooltip>
+          </Tooltip> */}
           {/* 匯出選項 */}
           {/* <Menu>
             <Tooltip

@@ -1,12 +1,14 @@
 import { OBJECT_STATE } from "@/types/DesignType";
 import { fabric } from "fabric";
 import { useCallback, useRef, useState } from "react";
+import debounce from "lodash/debounce";
 
 interface useHistoryProps {
   canvas: fabric.Canvas | null;
   gridRef: React.MutableRefObject<fabric.Group | null>;
   updateGridColor: () => void;
   updateCanvasColor: () => void;
+  saveDesign: (fabricData: string) => Promise<void>;
 }
 
 export const useHistory = ({
@@ -14,6 +16,7 @@ export const useHistory = ({
   gridRef,
   updateGridColor,
   updateCanvasColor,
+  saveDesign,
 }: useHistoryProps) => {
   // 當前歷史記錄的索引
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -29,6 +32,7 @@ export const useHistory = ({
     [historyIndex]
   );
 
+  //保存到歷史紀錄
   const save = useCallback(() => {
     if (!canvas || skipSave.current || isInSaveOperation.current) return;
 
@@ -59,9 +63,48 @@ export const useHistory = ({
     setHistoryIndex(canvasHistory.current.length - 1);
 
     isInSaveOperation.current = false;
+  }, [canvas, gridRef]);
 
-    //TODO:存進資料庫
-  }, [canvas, gridRef, historyIndex]);
+  //使用debounce自動保存到資料庫
+
+  //手動保存到資料庫
+  const saveToDatabase = useCallback(async () => {
+    if (!canvas || isInSaveOperation.current) return;
+    isInSaveOperation.current = true;
+
+    const grid = gridRef.current;
+    let gridStackPosition = grid ? canvas.getObjects().indexOf(grid) : -1;
+
+    try {
+      if (grid) {
+        canvas.remove(grid);
+      }
+
+      const currentState = canvas.toJSON(OBJECT_STATE);
+      const json = JSON.stringify(currentState);
+
+      console.log("儲存前:", canvas);
+
+      await saveDesign(json);
+
+      console.log("設計已成功保存到數據庫");
+
+      if (canvas) {
+        console.log("儲存後:", canvas);
+        if (grid) {
+          canvas.add(grid);
+          if (gridStackPosition > -1) {
+            canvas.moveTo(grid, gridStackPosition);
+          }
+        }
+        canvas.renderAll();
+      }
+      isInSaveOperation.current = false;
+    } catch (error) {
+      console.error("保存設計時發生錯誤:", error);
+      // 可以在這裡添加錯誤處理邏輯，例如顯示錯誤消息給用戶
+    }
+  }, [canvas, gridRef, saveDesign]);
 
   // 恢復到指定的歷史狀態
   const restoreState = useCallback(
@@ -119,5 +162,6 @@ export const useHistory = ({
     redo,
     setHistoryIndex,
     canvasHistory,
+    saveToDatabase,
   };
 };

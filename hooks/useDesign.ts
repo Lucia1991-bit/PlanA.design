@@ -20,6 +20,7 @@ import { useDesignColorMode } from "@/context/colorModeContext";
 import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useHistory } from "./useHistory";
+import { useLoadState } from "./useLoadDesign";
 
 //所有設計功能的邏輯
 const buildDesign = ({
@@ -29,6 +30,7 @@ const buildDesign = ({
   redo,
   canRedo,
   canUndo,
+  saveToDatabase,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -58,6 +60,10 @@ const buildDesign = ({
     canRedo,
     onUndo: () => undo(),
     onRedo: () => redo(),
+    onSave: () => {
+      console.log("onSave called in buildDesign");
+      return saveToDatabase();
+    },
     addFurniture: (imageUrl: string) => {
       fabric.Image.fromURL(
         imageUrl,
@@ -86,8 +92,9 @@ const buildDesign = ({
   };
 };
 
-const useDesign = ({ defaultState }: DesignHookProps) => {
+const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const initialState = useRef(defaultState);
+  const canvasRef = useRef<fabric.Canvas | null>(null);
   const gridRef = useRef<fabric.Group | null>(null);
 
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
@@ -96,6 +103,7 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
   // const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
   // const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
+  const getCanvas = useCallback(() => canvasRef.current, []);
 
   const { designColorMode } = useDesignColorMode();
 
@@ -256,14 +264,22 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
 
   const { copy, paste, deleteObjects } = useClipboard({ canvas });
 
-  const { save, canRedo, canUndo, undo, redo, setHistoryIndex, canvasHistory } =
-    useHistory({
-      canvas,
-      gridRef,
-      updateGridColor,
-      updateCanvasColor,
-      // saveDesign,
-    });
+  const {
+    save,
+    canRedo,
+    canUndo,
+    undo,
+    redo,
+    setHistoryIndex,
+    canvasHistory,
+    saveToDatabase,
+  } = useHistory({
+    canvas,
+    gridRef,
+    updateGridColor,
+    updateCanvasColor,
+    saveDesign,
+  });
 
   //處理畫布事件
   useCanvasEvents({
@@ -287,6 +303,17 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
     updateGridPosition,
   });
 
+  //加載存檔資料
+  useLoadState({
+    canvas,
+    initialState: useRef(initialState.current),
+    canvasHistory,
+    setHistoryIndex,
+    gridRef,
+    updateGridColor,
+    updateCanvasColor,
+  });
+
   //改變畫布及網格顏色
   // const { updateColors } = useCanvasAndGridColor({ canvas, gridRef });
 
@@ -299,6 +326,8 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
       initialCanvas: fabric.Canvas;
       initialContainer: HTMLDivElement;
     }) => {
+      canvasRef.current = initialCanvas;
+
       fabric.Object.prototype.set({
         cornerColor: "#FFF",
         cornerStyle: "circle",
@@ -356,7 +385,7 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
       canvas.requestRenderAll();
 
       // 在畫布準備好後保存初始狀態
-      saveInitialState();
+      // saveInitialState();
 
       // const updatePatternScale = (
       //   path: fabric.Path,
@@ -442,11 +471,19 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
 
   const design = useMemo(() => {
     if (canvas) {
-      return buildDesign({ canvas, save, undo, redo, canUndo, canRedo });
+      return buildDesign({
+        canvas,
+        save,
+        undo,
+        redo,
+        canUndo,
+        canRedo,
+        saveToDatabase,
+      });
     }
 
     return undefined;
-  }, [canvas, save, undo, redo, canUndo, canRedo]);
+  }, [canvas, save, undo, redo, canUndo, canRedo, saveToDatabase]);
 
   return { initCanvas, design };
 };

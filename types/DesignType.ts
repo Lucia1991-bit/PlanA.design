@@ -67,7 +67,7 @@ export type ActiveTool =
 
 export interface DesignHookProps {
   defaultState?: string;
-  // saveDesign: (fabricData: string) => void;
+  saveDesign: (fabricData: string) => Promise<void>;
   // clearSelectionCallback?: () => void;
   // saveCallback?: (values: {
   //   json: string;
@@ -80,6 +80,7 @@ export type BuildDesignProps = {
   undo: () => void;
   redo: () => void;
   save: (skip?: boolean) => void;
+  saveToDatabase: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
   // autoZoom: () => void;
@@ -105,6 +106,7 @@ export interface Design {
   // saveSvg: () => void;
   // saveJson: () => void;
   // loadJson: (json: string) => void;
+  onSave: () => void;
   onUndo: () => void;
   onRedo: () => void;
   canUndo: () => boolean;
