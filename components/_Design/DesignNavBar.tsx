@@ -23,13 +23,14 @@ import useDesignPageColor from "@/hooks/useDesignPageColor";
 import Logo from "./Logo";
 import ColorModeSwitch from "./ColorModeSwitch";
 import RenameProjectButton from "@/components/_Design/RenameProjectButton";
-import { ActiveTool } from "@/types/DesignType";
+import { ActiveTool, Design } from "@/types/DesignType";
 
 interface DesignNavBarProps {
   boardId: string;
   boardName: string;
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
+  design: Design | undefined;
 }
 
 const DesignNavBar = ({
@@ -37,6 +38,7 @@ const DesignNavBar = ({
   boardName,
   activeTool,
   onChangeActiveTool,
+  design,
 }: DesignNavBarProps) => {
   const color = useDesignPageColor();
 
@@ -95,12 +97,19 @@ const DesignNavBar = ({
             offset={[0, 15]}
           >
             <IconButton
+              isDisabled={!design?.canUndo()}
               color={color.toolBar.text}
               size="md"
               aria-label={"undo"}
               icon={<LuUndo2 fontSize="20px" />}
               bg="transparent"
               _hover={{ bg: color.toolBar.hover }}
+              onClick={() => design?.onUndo()}
+              _disabled={{
+                opacity: 0.4,
+                cursor: "default",
+                _hover: { bg: "transparent" },
+              }}
             />
           </Tooltip>
 
@@ -112,12 +121,19 @@ const DesignNavBar = ({
             offset={[0, 15]}
           >
             <IconButton
+              isDisabled={!design?.canRedo()}
               color={color.toolBar.text}
               size="md"
               aria-label={"redo"}
               icon={<LuRedo2 fontSize="20px" />}
               bg="transparent"
               _hover={{ bg: color.toolBar.hover }}
+              _disabled={{
+                opacity: 0.4,
+                cursor: "default",
+                _hover: { bg: "transparent" },
+              }}
+              onClick={() => design?.onRedo()}
             />
           </Tooltip>
 

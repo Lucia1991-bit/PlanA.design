@@ -7,7 +7,15 @@ interface LeftToolBarItemProps {
   label: string;
   isActive?: boolean;
   onClick: () => void;
-  iconSize?: string;
+  iconWidth?: string;
+  iconHeight?: string;
+  buttonWidth?: string;
+  buttonHeight?: string;
+  mt?: string;
+  borderRadius?: string;
+  imageFlex?: string;
+  textFlex?: string;
+  spacing?: string;
 }
 
 const LeftToolBarItem = ({
@@ -15,26 +23,39 @@ const LeftToolBarItem = ({
   label,
   isActive,
   onClick,
-  iconSize = "30px",
+  buttonWidth = "full",
+  buttonHeight = "100px",
+  borderRadius = "0",
+  mt = "0",
+  imageFlex = "1",
+  textFlex = "0.4",
+  iconWidth = "80%",
+  iconHeight = "30px",
+  spacing = "4px",
 }: LeftToolBarItemProps) => {
   const color = useDesignPageColor();
   return (
     <Button
       variant="ghost"
       onClick={onClick}
-      width="full"
-      height="100px"
+      width={buttonWidth}
+      height={buttonHeight}
       aspectRatio="1"
       padding="0"
       display="flex"
       flexDirection="column"
-      borderRadius="0"
+      borderRadius={borderRadius}
       bg={isActive ? color.toolBar.hover : "transparent"}
       color={color.toolBar.text}
       _hover={{ bg: color.toolBar.hover }}
     >
-      <VStack width="100%" height="100%" spacing={1} p={2}>
-        <Box width="80%" height={iconSize} position="relative" flex="1">
+      <VStack width="100%" height="100%" spacing={spacing} p={2}>
+        <Box
+          width={iconWidth}
+          height={iconHeight}
+          position="relative"
+          flex={imageFlex}
+        >
           <Image
             priority
             src={icon}
@@ -44,7 +65,7 @@ const LeftToolBarItem = ({
             style={{ objectFit: "contain" }}
           />
         </Box>
-        <Text fontSize="xs" flex="0.5">
+        <Text fontSize="xs" flex={textFlex} mt={mt}>
           {label}
         </Text>
       </VStack>

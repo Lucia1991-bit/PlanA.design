@@ -43,7 +43,7 @@ const LeftToolBar = ({
     >
       <LeftToolBarItem
         icon="/icons/drawWall.svg"
-        label="繪製牆體"
+        label="開始建造"
         isActive={activeTool === "draw"}
         onClick={() => onChangeActiveTool("draw")}
       />

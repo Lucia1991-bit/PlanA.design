@@ -60,16 +60,25 @@ const DesignPage = () => {
   }
 
   if (!board) {
-    return <ErrorDisplay message="找不到設計板，請確認網址是否正確" />;
+    return <ErrorDisplay message="找不到設計資料，請確認網址是否正確" />;
   }
 
-  return <>{isDesktop ? <DesignEditor board={board} /> : <MobileWarning />}</>;
+  return (
+    <>
+      {isDesktop ? (
+        <DesignEditor board={board} userId={user?.uid} />
+      ) : (
+        <MobileWarning />
+      )}
+    </>
+  );
 };
 
 interface ErrorDisplayProps {
   message: string;
 }
 
+//TODO:錯誤畫面
 const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
   <VStack
     w="100%"
@@ -80,6 +89,7 @@ const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
     bg="#ecebeb"
     color="brand.dark"
   >
+    {/* 想加圖片+回首頁的按鈕 */}
     <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
       {message}
     </Text>

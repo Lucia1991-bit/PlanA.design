@@ -8,6 +8,36 @@ export const INTERACTION_DELAY = 300;
 //整體縮放比例
 export const GLOBAL_SCALE = 0.4;
 
+//canvas物件狀態
+export const OBJECT_STATE = [
+  "name",
+  "gradientAngle",
+  "selectable",
+  "hasControls",
+  "linkData",
+  "editable",
+  "extensionType",
+  "extension",
+  "left",
+  "top",
+  "width",
+  "height",
+  "scaleX",
+  "scaleY",
+  "angle",
+  "strokeWidth",
+  "strokeUniform",
+  "fill",
+  "opacity",
+  "visible",
+  "clipTo",
+  "transformMatrix",
+  "objectCaching",
+  "evented",
+  "originX",
+  "originY",
+];
+
 export const selectionDependentTools = [
   "fill",
   "font",
@@ -20,10 +50,13 @@ export const selectionDependentTools = [
 
 export type ActiveTool =
   | "select"
-  | "draw"
+  | "wall"
   | "text"
   | "material"
   | "furniture"
+  | "draw"
+  | "door"
+  | "window"
   | "fill"
   | "stroke-color"
   | "stroke-width"
@@ -34,6 +67,7 @@ export type ActiveTool =
 
 export interface DesignHookProps {
   defaultState?: string;
+  // saveDesign: (fabricData: string) => void;
   // clearSelectionCallback?: () => void;
   // saveCallback?: (values: {
   //   json: string;
@@ -43,11 +77,11 @@ export interface DesignHookProps {
 }
 
 export type BuildDesignProps = {
-  // undo: () => void;
-  // redo: () => void;
-  // save: (skip?: boolean) => void;
-  // canUndo: () => boolean;
-  // canRedo: () => boolean;
+  undo: () => void;
+  redo: () => void;
+  save: (skip?: boolean) => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
   // autoZoom: () => void;
   // copy: () => void;
   // paste: () => void;
@@ -71,10 +105,10 @@ export interface Design {
   // saveSvg: () => void;
   // saveJson: () => void;
   // loadJson: (json: string) => void;
-  // onUndo: () => void;
-  // onRedo: () => void;
-  // canUndo: () => boolean;
-  // canRedo: () => boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
   // autoZoom: () => void;
   // zoomIn: () => void;
   // zoomOut: () => void;
@@ -87,6 +121,7 @@ export interface Design {
   // onPaste: () => void;
   // changeImageFilter: (value: string) => void;
   addFurniture: (imageUrl: string) => void;
+  addDoorWindow: (imageUrl: string) => void;
   // addPatternPath: (imageUrl: string) => void;
   // delete: () => void;
   // changeFontSize: (value: number) => void;

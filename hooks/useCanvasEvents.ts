@@ -4,15 +4,20 @@ import { MIN_ZOOM, MAX_ZOOM_LEVEL } from "@/types/DesignType";
 
 interface CanvasEventProps {
   canvas: fabric.Canvas | null;
+  save: () => void;
 }
 
-const useCanvasEvents = ({ canvas }: CanvasEventProps) => {
+const useCanvasEvents = ({ canvas, save }: CanvasEventProps) => {
   const isDraggingRef = useRef(false);
   const lastPosXRef = useRef(0);
   const lastPosYRef = useRef(0);
 
   useEffect(() => {
     if (!canvas) return;
+
+    canvas.on("object:added", () => save());
+    canvas.on("object:removed", () => save());
+    canvas.on("object:modified", () => save());
 
     const handleWheel = (opt: fabric.IEvent) => {
       const e = opt.e as WheelEvent;
@@ -79,10 +84,30 @@ const useCanvasEvents = ({ canvas }: CanvasEventProps) => {
       canvas.setCursor("default");
     };
 
+    //控制物件旋轉角度(一次轉幾度)
+    const rotationStep = 5; // 可以根據需要調整
+    const handleObjectRotate = (event: fabric.IEvent) => {
+      //TODO:之後統一管理選取的物件
+      const targetObject = event.target as fabric.Object;
+      if (!targetObject) return;
+
+      let currentAngle = targetObject.angle || 0;
+
+      //將角度轉換為最接近的值
+      const snappedAngle =
+        Math.round(currentAngle / rotationStep) * rotationStep;
+      // 如果轉換後的角度與當前角度不同，則更新物件的角度
+      if (snappedAngle !== currentAngle) {
+        targetObject.set("angle", snappedAngle);
+        canvas.requestRenderAll();
+      }
+    };
+
     canvas.on("mouse:wheel", handleWheel);
     canvas.on("mouse:down", handleMouseDown);
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
+    canvas.on("object:rotating", handleObjectRotate);
 
     // canvas.on("object:added", save);
     // canvas.on("object:removed", save);
@@ -99,6 +124,10 @@ const useCanvasEvents = ({ canvas }: CanvasEventProps) => {
       canvas.off("mouse:down", handleMouseDown);
       canvas.off("mouse:move", handleMouseMove);
       canvas.off("mouse:up", handleMouseUp);
+      canvas.off("object:rotating", handleObjectRotate);
+      canvas.off("object:added");
+      canvas.off("object:removed");
+      canvas.off("object:modified");
 
       // canvas.off("object:added", save);
       // canvas.off("object:removed", save);

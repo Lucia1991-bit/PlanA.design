@@ -10,9 +10,11 @@ import SidePanel from "@/components/_UI/SidePanel";
 import FurnitureLibrary from "./FurnitureLibrary";
 import { Box, Divider } from "@chakra-ui/react";
 import DrawWallSidePanel from "./DrawWallSidePanel";
+import { useUpdateDesign } from "@/hooks/useUpdateDesign";
 
 interface DesignEditorProps {
   board: BoardType;
+  userId: string | undefined;
 }
 
 const toolsWithSidebar: ActiveTool[] = [
@@ -24,11 +26,16 @@ const toolsWithSidebar: ActiveTool[] = [
 
 const shouldOpenSidebar = (tool: ActiveTool) => toolsWithSidebar.includes(tool);
 
-const DesignEditor = ({ board }: DesignEditorProps) => {
+const DesignEditor = ({ board, userId }: DesignEditorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+
+  const { saveDesign, isUpdating, error } = useUpdateDesign({
+    userId: userId as string,
+    boardId: board.id,
+  });
 
   const onChangeActiveTool = useCallback(
     (tool: ActiveTool) => {
@@ -73,6 +80,7 @@ const DesignEditor = ({ board }: DesignEditorProps) => {
   return (
     <Box position="relative">
       <DesignNavBar
+        design={design}
         boardId={board.id}
         boardName={board.fileName}
         activeTool={activeTool}

@@ -10,6 +10,7 @@ import {
   GLOBAL_SCALE,
   BuildDesignProps,
   Design,
+  OBJECT_STATE,
 } from "@/types/DesignType";
 import useDesignColor from "./useDesignPageColor";
 import useCanvasEvents from "./useCanvasEvents";
@@ -18,9 +19,17 @@ import useCanvasAndGridColor from "./useCanvasAndGridColor";
 import { useDesignColorMode } from "@/context/colorModeContext";
 import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
+import { useHistory } from "./useHistory";
 
 //所有設計功能的邏輯
-const buildDesign = ({ canvas }: BuildDesignProps): Design => {
+const buildDesign = ({
+  canvas,
+  save,
+  undo,
+  redo,
+  canRedo,
+  canUndo,
+}: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
     return {
@@ -45,6 +54,10 @@ const buildDesign = ({ canvas }: BuildDesignProps): Design => {
 
   return {
     canvas,
+    canUndo,
+    canRedo,
+    onUndo: () => undo(),
+    onRedo: () => redo(),
     addFurniture: (imageUrl: string) => {
       fabric.Image.fromURL(
         imageUrl,
@@ -58,6 +71,17 @@ const buildDesign = ({ canvas }: BuildDesignProps): Design => {
         },
         { crossOrigin: "anonymous" }
       );
+    },
+    addDoorWindow: (imageUrl: string) => {
+      fabric.loadSVGFromURL(imageUrl, (objects, options) => {
+        const svg = fabric.util.groupSVGElements(objects, options);
+        svg.scale(1.8);
+        svg.objectCaching = false;
+        centerObjectOnCanvas(canvas, svg);
+        canvas.add(svg);
+        canvas.setActiveObject(svg);
+        canvas.renderAll();
+      });
     },
   };
 };
@@ -77,20 +101,6 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
 
   //獲取 light模式及dark模式顏色
   const color = useDesignColor();
-
-  const { copy, paste, deleteObjects } = useClipboard({ canvas });
-
-  //處理畫布事件
-  useCanvasEvents({
-    canvas,
-  });
-
-  useHotkeys({
-    canvas,
-    copy,
-    paste,
-    deleteObjects,
-  });
 
   //創建網格線
   const createGrid = useCallback((width: number, height: number) => {
@@ -213,18 +223,6 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
     canvas.requestRenderAll();
   }, [canvas]);
 
-  // 畫布尺寸隨視窗縮放改變
-  const { resizeCanvas } = useAutoResize({
-    canvas,
-    container,
-    gridRef,
-    createGrid,
-    updateGridPosition,
-  });
-
-  //改變畫布及網格顏色
-  // const { updateColors } = useCanvasAndGridColor({ canvas, gridRef });
-
   const updateGridColor = useCallback(() => {
     if (!gridRef.current || !canvas) {
       console.warn("Canvas is not initialized yet");
@@ -255,6 +253,42 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
       canvas.renderAll();
     });
   }, [canvas, designColorMode]);
+
+  const { copy, paste, deleteObjects } = useClipboard({ canvas });
+
+  const { save, canRedo, canUndo, undo, redo, setHistoryIndex, canvasHistory } =
+    useHistory({
+      canvas,
+      gridRef,
+      updateGridColor,
+      updateCanvasColor,
+      // saveDesign,
+    });
+
+  //處理畫布事件
+  useCanvasEvents({
+    canvas,
+    save,
+  });
+
+  useHotkeys({
+    canvas,
+    copy,
+    paste,
+    deleteObjects,
+  });
+
+  // 畫布尺寸隨視窗縮放改變
+  const { resizeCanvas } = useAutoResize({
+    canvas,
+    container,
+    gridRef,
+    createGrid,
+    updateGridPosition,
+  });
+
+  //改變畫布及網格顏色
+  // const { updateColors } = useCanvasAndGridColor({ canvas, gridRef });
 
   //初始化畫布
   const initCanvas = useCallback(
@@ -299,13 +333,30 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
     [createGrid]
   );
 
+  // 新增：保存初始狀態的函數
+  const saveInitialState = useCallback(() => {
+    if (canvas && gridRef.current) {
+      const grid = gridRef.current;
+      canvas.remove(grid);
+      const currentState = JSON.stringify(canvas.toJSON(OBJECT_STATE));
+      canvas.add(grid);
+      canvas.sendToBack(grid);
+
+      canvasHistory.current = [currentState];
+      setHistoryIndex(0);
+      // 調用 save 來確保初始狀態被正確記錄
+    }
+  }, [canvas, gridRef, canvasHistory, setHistoryIndex, save]);
+
   useEffect(() => {
-    console.log("useDesign裡的useEffect");
     if (isCanvasReady && canvas) {
       updateGridPosition();
       updateCanvasColor();
       updateGridColor();
       canvas.requestRenderAll();
+
+      // 在畫布準備好後保存初始狀態
+      saveInitialState();
 
       // const updatePatternScale = (
       //   path: fabric.Path,
@@ -391,11 +442,11 @@ const useDesign = ({ defaultState }: DesignHookProps) => {
 
   const design = useMemo(() => {
     if (canvas) {
-      return buildDesign({ canvas });
+      return buildDesign({ canvas, save, undo, redo, canUndo, canRedo });
     }
 
     return undefined;
-  }, [canvas]);
+  }, [canvas, save, undo, redo, canUndo, canRedo]);
 
   return { initCanvas, design };
 };
