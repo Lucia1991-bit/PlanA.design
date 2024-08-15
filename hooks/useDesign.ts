@@ -21,6 +21,7 @@ import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useHistory } from "./useHistory";
 import { useLoadState } from "./useLoadDesign";
+import { useDrawWall } from "./useDrawWall";
 
 //所有設計功能的邏輯
 const buildDesign = ({
@@ -31,6 +32,11 @@ const buildDesign = ({
   canRedo,
   canUndo,
   saveToDatabase,
+  isDrawingMode,
+  setIsDrawingMode,
+  startDrawWall,
+  finishDrawWall,
+  polygon,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -89,6 +95,11 @@ const buildDesign = ({
         canvas.renderAll();
       });
     },
+    isDrawingMode,
+    setIsDrawingMode,
+    startDrawWall,
+    finishDrawWall,
+    polygon,
   };
 };
 
@@ -101,8 +112,10 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
+
   // const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
   // const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
+
   const getCanvas = useCallback(() => canvasRef.current, []);
 
   const { designColorMode } = useDesignColorMode();
@@ -281,10 +294,25 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     saveDesign,
   });
 
+  const {
+    isDrawingMode,
+    setIsDrawingMode,
+    startDrawWall,
+    startDrawing,
+    draw,
+    endDrawing,
+    finishDrawWall,
+    polygon,
+  } = useDrawWall({ canvas, gridRef, save });
+
   //處理畫布事件
   useCanvasEvents({
     canvas,
     save,
+    isDrawingMode,
+    onStartDrawing: startDrawing,
+    onDrawing: draw,
+    onEndDrawing: endDrawing,
   });
 
   useHotkeys({
@@ -292,6 +320,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     copy,
     paste,
     deleteObjects,
+    isDrawingMode,
+    finishDrawWall,
   });
 
   // 畫布尺寸隨視窗縮放改變
@@ -479,11 +509,29 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         canUndo,
         canRedo,
         saveToDatabase,
+        isDrawingMode,
+        setIsDrawingMode,
+        startDrawWall,
+        finishDrawWall,
+        polygon,
       });
     }
 
     return undefined;
-  }, [canvas, save, undo, redo, canUndo, canRedo, saveToDatabase]);
+  }, [
+    canvas,
+    save,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    saveToDatabase,
+    isDrawingMode,
+    setIsDrawingMode,
+    startDrawWall,
+    finishDrawWall,
+    polygon,
+  ]);
 
   return { initCanvas, design };
 };

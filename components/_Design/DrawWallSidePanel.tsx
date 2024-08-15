@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, Divider, HStack, VStack } from "@chakra-ui/react";
 import SidePanelHeader from "../_UI/SidePanelHeader";
 import SidePanelCloseButton from "../_UI/SidePanelCloseButton";
@@ -17,7 +17,20 @@ const DrawWallSidePanel = ({
   closeSidePanel,
 }: DrawWallSidePanelProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [isDrawing, setIsDrawing] = useState(false);
   const color = useDesignPageColor();
+
+  useEffect(() => {
+    setIsDrawing(design?.isDrawingMode || false);
+  }, [design?.isDrawingMode]);
+
+  const handleDrawWallClick = () => {
+    if (isDrawing) {
+      design?.finishDrawWall();
+    } else {
+      design?.startDrawWall();
+    }
+  };
 
   return (
     <>
@@ -41,7 +54,9 @@ const DrawWallSidePanel = ({
             icon="/icons/wall.svg"
             iconWidth="90%"
             label="垂直牆"
-            onClick={() => console.log("click")}
+            textFlex="0.1"
+            onClick={handleDrawWallClick}
+            isActive={isDrawing}
           />
         </HStack>
         <Divider borderColor={color.toolBar.subText} />
@@ -54,6 +69,7 @@ const DrawWallSidePanel = ({
             icon="/icons/doorIcon.svg"
             iconWidth="90%"
             label="單開門"
+            textFlex="0.1"
             onClick={() => design?.addDoorWindow("/door2.svg")}
           />
           <LeftToolBarItem
@@ -63,6 +79,7 @@ const DrawWallSidePanel = ({
             icon="/icons/windowIcon3.svg"
             iconWidth="90%"
             label="普通窗"
+            textFlex="0.1"
             onClick={() => design?.addDoorWindow("/window2.svg")}
           />
         </HStack>

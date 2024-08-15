@@ -83,6 +83,11 @@ export type BuildDesignProps = {
   saveToDatabase: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  isDrawingMode: boolean;
+  setIsDrawingMode: (mode: boolean) => void;
+  startDrawWall: () => void;
+  finishDrawWall: () => void;
+  polygon: fabric.Polygon | null;
   // autoZoom: () => void;
   // copy: () => void;
   // paste: () => void;
@@ -111,6 +116,11 @@ export interface Design {
   onRedo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  isDrawingMode: boolean;
+  setIsDrawingMode: (mode: boolean) => void;
+  startDrawWall: () => void;
+  finishDrawWall: () => void;
+  polygon: fabric.Polygon | null;
   // autoZoom: () => void;
   // zoomIn: () => void;
   // zoomOut: () => void;

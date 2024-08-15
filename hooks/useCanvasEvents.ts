@@ -1,30 +1,50 @@
 import { fabric } from "fabric";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { MIN_ZOOM, MAX_ZOOM_LEVEL } from "@/types/DesignType";
 
 interface CanvasEventProps {
   canvas: fabric.Canvas | null;
   save: () => void;
+  isDrawingMode: boolean;
+  onStartDrawing: (event: fabric.IEvent) => void;
+  onDrawing: (event: fabric.IEvent) => void;
+  onEndDrawing: () => void;
 }
 
-const useCanvasEvents = ({ canvas, save }: CanvasEventProps) => {
+const useCanvasEvents = ({
+  canvas,
+  save,
+  isDrawingMode,
+  onStartDrawing,
+  onDrawing,
+  onEndDrawing,
+}: CanvasEventProps) => {
   const isDraggingRef = useRef(false);
   const lastPosXRef = useRef(0);
   const lastPosYRef = useRef(0);
 
-  useEffect(() => {
+  const updateCursor = useCallback(() => {
     if (!canvas) return;
+    if (isDrawingMode) {
+      canvas.defaultCursor = "crosshair";
+    } else {
+      canvas.defaultCursor = "default";
+    }
+    canvas.requestRenderAll();
+  }, [canvas, isDrawingMode]);
 
-    canvas.on("object:added", () => save());
-    canvas.on("object:removed", () => save());
-    canvas.on("object:modified", () => save());
+  useEffect(() => {
+    updateCursor();
+  }, [isDrawingMode, updateCursor]);
 
-    const handleWheel = (opt: fabric.IEvent) => {
+  const handleWheel = useCallback(
+    (opt: fabric.IEvent) => {
+      if (!canvas) return;
       const e = opt.e as WheelEvent;
       e.preventDefault();
       e.stopPropagation();
 
-      const delta = (opt.e as WheelEvent).deltaY;
+      const delta = e.deltaY;
       let zoom = canvas.getZoom();
       zoom *= 0.999 ** delta;
       zoom = Math.min(Math.max(MIN_ZOOM, zoom), MAX_ZOOM_LEVEL);
@@ -33,20 +53,36 @@ const useCanvasEvents = ({ canvas, save }: CanvasEventProps) => {
       canvas.zoomToPoint(point, zoom);
 
       canvas.renderAll();
-    };
+    },
+    [canvas]
+  );
 
-    const handleMouseDown = (opt: fabric.IEvent) => {
+  const handleMouseDown = useCallback(
+    (opt: fabric.IEvent) => {
+      if (!canvas) return;
       const evt = opt.e as MouseEvent;
+
       if (evt.altKey === true) {
         isDraggingRef.current = true;
         lastPosXRef.current = evt.clientX;
         lastPosYRef.current = evt.clientY;
         canvas.selection = false;
+        canvas.discardActiveObject();
+        canvas.requestRenderAll();
+        canvas.setCursor("grabbing");
+      } else if (isDrawingMode) {
+        onStartDrawing(opt);
       }
-    };
+    },
+    [canvas, isDrawingMode, onStartDrawing]
+  );
 
-    const handleMouseMove = (opt: fabric.IEvent) => {
-      if (isDraggingRef.current) {
+  const handleMouseMove = useCallback(
+    (opt: fabric.IEvent) => {
+      if (!canvas) return;
+      const evt = opt.e as MouseEvent;
+
+      if (isDraggingRef.current || evt.altKey) {
         const e = opt.e as MouseEvent;
         const vpt = canvas.viewportTransform;
         if (!vpt) return;
@@ -75,68 +111,88 @@ const useCanvasEvents = ({ canvas, save }: CanvasEventProps) => {
 
         canvas.requestRenderAll();
         canvas.setCursor("grabbing");
+      } else if (isDrawingMode) {
+        onDrawing(opt);
+      } else {
+        updateCursor();
       }
-    };
+    },
+    [canvas, isDrawingMode, onDrawing, updateCursor]
+  );
 
-    const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
+    if (!canvas) return;
+    if (isDraggingRef.current) {
       isDraggingRef.current = false;
-      canvas.selection = true;
-      canvas.setCursor("default");
-    };
+      updateCursor();
+    } else if (isDrawingMode) {
+      onEndDrawing();
+    }
+    canvas.selection = !isDrawingMode;
+    canvas.requestRenderAll();
+  }, [canvas, isDrawingMode, onEndDrawing, updateCursor]);
 
-    //控制物件旋轉角度(一次轉幾度)
-    const rotationStep = 5; // 可以根據需要調整
-    const handleObjectRotate = (event: fabric.IEvent) => {
-      //TODO:之後統一管理選取的物件
+  const handleObjectRotate = useCallback(
+    (event: fabric.IEvent) => {
+      if (!canvas) return;
       const targetObject = event.target as fabric.Object;
       if (!targetObject) return;
 
+      const rotationStep = 5;
       let currentAngle = targetObject.angle || 0;
 
-      //將角度轉換為最接近的值
       const snappedAngle =
         Math.round(currentAngle / rotationStep) * rotationStep;
-      // 如果轉換後的角度與當前角度不同，則更新物件的角度
       if (snappedAngle !== currentAngle) {
         targetObject.set("angle", snappedAngle);
         canvas.requestRenderAll();
       }
-    };
+    },
+    [canvas]
+  );
 
+  useEffect(() => {
+    if (!canvas) return;
+
+    canvas.on("object:added", save);
+    canvas.on("object:removed", save);
+    canvas.on("object:modified", save);
     canvas.on("mouse:wheel", handleWheel);
     canvas.on("mouse:down", handleMouseDown);
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
     canvas.on("object:rotating", handleObjectRotate);
 
-    // canvas.on("object:added", save);
-    // canvas.on("object:removed", save);
-    // canvas.on("object:modified", save);
-    // canvas.on("selection:created", (e) => setSelectedObjects(e.selected || []));
-    // canvas.on("selection:updated", (e) => setSelectedObjects(e.selected || []));
-    // canvas.on("selection:cleared", () => {
-    //   setSelectedObjects([]);
-    //   clearSelectionCallback?.();
-    // });
-
     return () => {
+      canvas.off("object:added", save);
+      canvas.off("object:removed", save);
+      canvas.off("object:modified", save);
       canvas.off("mouse:wheel", handleWheel);
       canvas.off("mouse:down", handleMouseDown);
       canvas.off("mouse:move", handleMouseMove);
       canvas.off("mouse:up", handleMouseUp);
       canvas.off("object:rotating", handleObjectRotate);
-      canvas.off("object:added");
-      canvas.off("object:removed");
-      canvas.off("object:modified");
-
-      // canvas.off("object:added", save);
-      // canvas.off("object:removed", save);
-      // canvas.off("object:modified", save);
-      // canvas.off("selection:created");
-      // canvas.off("selection:updated");
-      // canvas.off("selection:cleared");
     };
-  }, [canvas]);
+  }, [
+    canvas,
+    save,
+    handleWheel,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleObjectRotate,
+  ]);
+
+  useEffect(() => {
+    if (canvas) {
+      canvas.selection = !isDrawingMode;
+      if (isDrawingMode) {
+        canvas.discardActiveObject();
+        canvas.requestRenderAll();
+      }
+      updateCursor();
+    }
+  }, [canvas, isDrawingMode, updateCursor]);
 };
 
 export default useCanvasEvents;

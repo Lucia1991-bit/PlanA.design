@@ -67,16 +67,15 @@ const SidePanelCloseButton: React.FC<SidePanelCloseButtonProps> = ({
       bottom={bottom}
       width={width}
       height={height}
-      cursor="pointer"
       onClick={onClick}
     >
       <Box
         position="absolute"
         width={width}
-        height={height}
         top="50%"
         left="50%"
         transform="translate(-50%, -50%)"
+        cursor="pointer"
       >
         <svg
           width="100%"
@@ -124,6 +123,7 @@ const SidePanelCloseButton: React.FC<SidePanelCloseButtonProps> = ({
         left="50%"
         transform="translate(-70%, -50%)"
         animation={animation}
+        cursor="pointer"
       >
         <FaChevronLeft color={arrowColor} />
       </Box>

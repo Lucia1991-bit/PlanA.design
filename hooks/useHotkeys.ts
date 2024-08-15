@@ -6,6 +6,8 @@ interface UseHotkeysProps {
   copy: () => void;
   paste: () => void;
   deleteObjects: () => void;
+  isDrawingMode: boolean;
+  finishDrawWall: () => void;
 }
 
 export const useHotkeys = ({
@@ -13,6 +15,8 @@ export const useHotkeys = ({
   copy,
   paste,
   deleteObjects,
+  isDrawingMode,
+  finishDrawWall,
 }: UseHotkeysProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -23,6 +27,15 @@ export const useHotkeys = ({
       );
 
       if (isInput) return;
+
+      if (event.key === "Escape") {
+        if (isDrawingMode) {
+          event.preventDefault();
+          console.log("快捷鍵結束繪製");
+          finishDrawWall();
+        }
+        return;
+      }
 
       if (isDeleteKey && canvas) {
         event.preventDefault();
@@ -39,7 +52,7 @@ export const useHotkeys = ({
         paste();
       }
     },
-    [canvas, copy, paste, deleteObjects]
+    [canvas, copy, paste, deleteObjects, isDrawingMode, finishDrawWall]
   );
 
   useEvent("keydown", handleKeyDown);
