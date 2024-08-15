@@ -18,7 +18,6 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
 
   const color = useDesignPageColor();
 
-  // 鎖點網格
   const snapToGrid = useCallback((x: number, y: number): [number, number] => {
     const gridSize = 8;
     return [
@@ -32,14 +31,11 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     setIsDrawingMode(true);
   }, []);
 
-  // 啟動繪製模式
   const startDrawing = useCallback(
     (o: fabric.IEvent) => {
-      setIsDrawingMode(true);
-
       if (!canvas || !isDrawingMode) return;
       const evt = o.e as MouseEvent;
-      if (evt.altKey) return; // 如果按下 Alt 鍵，不開始繪製
+      if (evt.altKey) return;
 
       const pointer = canvas.getPointer(o.e);
       const [x, y] = snapToGrid(pointer.x, pointer.y);
@@ -56,12 +52,11 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     [canvas, isDrawingMode, snapToGrid, color.wall.fill]
   );
 
-  // 限制只能畫水平或垂直線
   const draw = useCallback(
     (o: fabric.IEvent) => {
       if (!isDrawingMode || !startPoint || !currentLine || !canvas) return;
       const evt = o.e as MouseEvent;
-      if (evt.altKey) return; // 如果按下 Alt 鍵，不繼續繪製
+      if (evt.altKey) return;
 
       const pointer = canvas.getPointer(o.e);
       let [endX, endY] = snapToGrid(pointer.x, pointer.y);
@@ -78,7 +73,6 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     [isDrawingMode, startPoint, currentLine, canvas, snapToGrid]
   );
 
-  // 結束繪製動作
   const endDrawing = useCallback(() => {
     if (!isDrawingMode || !startPoint || !currentLine || !canvas) return;
 
@@ -87,13 +81,11 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     setPoints(newPoints);
     setLines((prevLines) => [...prevLines, currentLine]);
 
-    // 檢查是否形成封閉的區域
     if (
       newPoints.length > 2 &&
       Math.abs(endPoint.x - newPoints[0].x) < 20 &&
       Math.abs(endPoint.y - newPoints[0].y) < 20
     ) {
-      // 創建並添加新的多邊形
       if (polygon) canvas.remove(polygon);
       const newPolygon = new fabric.Polygon(newPoints, {
         fill: "rgba(0,0,0,0.5)",
@@ -104,14 +96,12 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
       setPolygon(newPolygon);
     }
 
-    // 將終點設置為新的起點，為可能下一次繪製做準備
     setStartPoint(endPoint);
     setCurrentLine(null);
 
     save();
   }, [isDrawingMode, startPoint, currentLine, canvas, points, polygon, save]);
 
-  // 結束繪製並填入預設材質
   const finishDrawWall = useCallback(() => {
     setIsDrawingMode(false);
     if (!canvas || !polygon) {
@@ -133,7 +123,6 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
       canvas.renderAll();
     });
 
-    // 全部重置為下一次繪製
     setLines([]);
     setPoints([]);
     setPolygon(null);
