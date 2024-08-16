@@ -1,9 +1,11 @@
 import { fabric } from "fabric";
 import { useEffect, useRef, useCallback } from "react";
 import { MIN_ZOOM, MAX_ZOOM_LEVEL } from "@/types/DesignType";
+import { set } from "lodash";
 
 interface CanvasEventProps {
   canvas: fabric.Canvas | null;
+  setSelectedObjects: (objects: fabric.Object[]) => void;
   save: () => void;
   isDrawingMode: boolean;
   onStartDrawing: (event: fabric.IEvent) => void;
@@ -18,6 +20,7 @@ const useCanvasEvents = ({
   onStartDrawing,
   onDrawing,
   onEndDrawing,
+  setSelectedObjects,
 }: CanvasEventProps) => {
   // 用於追踪畫布是否正在被拖動
   const isDraggingRef = useRef(false);
@@ -172,6 +175,45 @@ const useCanvasEvents = ({
     }
   }, [isDrawingMode, save]);
 
+  //處理物件選取事件
+  const handleSelection = useCallback(
+    (event: fabric.IEvent) => {
+      if (!canvas) return;
+
+      const selected = event.selected;
+      if (!selected || selected.length === 0) return;
+
+      const hasWallLine = selected.some(
+        (obj: fabric.Object) => obj.name === "wallLine"
+      );
+      if (!hasWallLine) return;
+
+      const activeObject = canvas.getActiveObject();
+      if (!activeObject) return;
+
+      const applyRestrictions = (
+        obj: fabric.Object | fabric.ActiveSelection
+      ) => {
+        obj.set({
+          lockMovementX: true,
+          lockMovementY: true,
+          lockRotation: true,
+          lockScalingX: true,
+          lockScalingY: true,
+          hasControls: false,
+          hasBorders: true,
+        });
+      };
+
+      applyRestrictions(activeObject);
+      activeObject.setCoords();
+      canvas.requestRenderAll();
+
+      setSelectedObjects(selected);
+    },
+    [canvas, setSelectedObjects]
+  );
+
   // 設置和清理畫布事件監聽器
   useEffect(() => {
     if (!canvas) return;
@@ -180,6 +222,12 @@ const useCanvasEvents = ({
     canvas.on("object:added", handleObjectModification);
     canvas.on("object:removed", handleObjectModification);
     canvas.on("object:modified", handleObjectModification);
+
+    canvas.on("selection:created", handleSelection);
+    canvas.on("selection:updated", handleSelection);
+    canvas.on("selection:cleared", () => {
+      console.log("選擇已清除");
+    });
 
     // 為其他畫布事件添加監聽
     canvas.on("mouse:wheel", handleWheel);
@@ -193,6 +241,11 @@ const useCanvasEvents = ({
       canvas.off("object:added", handleObjectModification);
       canvas.off("object:removed", handleObjectModification);
       canvas.off("object:modified", handleObjectModification);
+
+      canvas.off("selection:created", handleSelection);
+      canvas.off("selection:updated", handleSelection);
+      canvas.off("selection:cleared");
+
       canvas.off("mouse:wheel", handleWheel);
       canvas.off("mouse:down", handleMouseDown);
       canvas.off("mouse:move", handleMouseMove);

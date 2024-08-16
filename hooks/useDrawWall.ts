@@ -30,7 +30,6 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
 
   // 開始繪製牆面
   const startDrawWall = useCallback(() => {
-    console.log("啟動繪製模式");
     setIsDrawingMode(true);
   }, []);
 
@@ -48,9 +47,51 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
       const newLine = new fabric.Line([x, y, x, y], {
         stroke: color.wall.fill,
         strokeWidth: 29,
-        selectable: false,
+        selectable: true,
+        evented: true,
+        hasBorders: true,
+        hasControls: true,
+        lockMovementX: true,
+        lockMovementY: true,
+        lockRotation: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        cornerColor: "#FFF",
+        cornerStyle: "circle",
+        borderColor: "#3b82f6",
+        borderScaleFactor: 1.5,
+        transparentCorners: false,
+        borderOpacityWhenMoving: 1,
+        cornerStrokeColor: "#3b82f6",
+        name: "wallLine",
       });
+
+      newLine.setControlsVisibility({
+        mt: false,
+        mb: false, // 隱藏頂部和底部中間的控制點
+        ml: false,
+        mr: false, // 只顯示左右中間的控制點
+        tl: false,
+        tr: false,
+        bl: false,
+        br: false, // 隱藏角落的控制點
+        mtr: false,
+      });
+
       canvas.add(newLine);
+
+      //確保牆體一直在底層
+      newLine.sendToBack();
+
+      //但要再網格線之上
+      const gridObject = canvas
+        .getObjects()
+        .find((obj) => obj.name === "designGrid");
+      if (gridObject) {
+        canvas.moveTo(newLine, canvas.getObjects().indexOf(gridObject) + 1);
+      }
+
+      canvas.setActiveObject(newLine);
       setCurrentLine(newLine);
     },
     [canvas, isDrawingMode, snapToGrid, color.wall.fill]

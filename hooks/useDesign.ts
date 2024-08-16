@@ -311,6 +311,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   //處理畫布事件
   useCanvasEvents({
     canvas,
+    setSelectedObjects,
     save,
     isDrawingMode,
     onStartDrawing: startDrawing,
