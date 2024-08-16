@@ -32,7 +32,7 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
-  const { saveDesign, isUpdating, error } = useUpdateDesign({
+  const { saveDesign, isUpdating, error, hasSaved } = useUpdateDesign({
     userId: userId as string,
     boardId: board.id,
   });
@@ -95,6 +95,7 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
         saveDesign={saveDesign}
         isUpdating={isUpdating}
         error={error}
+        hasSaved={hasSaved}
       />
       <LeftToolBar
         activeTool={activeTool}

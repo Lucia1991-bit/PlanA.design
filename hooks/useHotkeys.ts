@@ -8,6 +8,9 @@ interface UseHotkeysProps {
   deleteObjects: () => void;
   isDrawingMode: boolean;
   finishDrawWall: () => void;
+  undo: () => void;
+  redo: () => void;
+  saveToDatabase: () => void;
 }
 
 export const useHotkeys = ({
@@ -17,6 +20,9 @@ export const useHotkeys = ({
   deleteObjects,
   isDrawingMode,
   finishDrawWall,
+  undo,
+  redo,
+  saveToDatabase,
 }: UseHotkeysProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -27,6 +33,8 @@ export const useHotkeys = ({
       );
 
       if (isInput) return;
+
+      console.log(`按鍵被按下：${event.key}, Ctrl鍵：${isCtrlKey}`);
 
       if (event.key === "Escape") {
         if (isDrawingMode) {
@@ -42,6 +50,22 @@ export const useHotkeys = ({
         deleteObjects();
       }
 
+      if (isCtrlKey && event.key.toLowerCase() === "z" && canvas) {
+        event.preventDefault();
+        console.log("執行撤銷操作");
+        undo();
+      }
+
+      if (isCtrlKey && event.key === "y" && canvas) {
+        event.preventDefault();
+        redo();
+      }
+
+      if (isCtrlKey && event.key === "s" && canvas) {
+        event.preventDefault();
+        saveToDatabase();
+      }
+
       if (isCtrlKey && event.key === "c" && canvas) {
         event.preventDefault();
         copy();
@@ -52,7 +76,17 @@ export const useHotkeys = ({
         paste();
       }
     },
-    [canvas, copy, paste, deleteObjects, isDrawingMode, finishDrawWall]
+    [
+      canvas,
+      copy,
+      paste,
+      deleteObjects,
+      isDrawingMode,
+      finishDrawWall,
+      undo,
+      redo,
+      saveToDatabase,
+    ]
   );
 
   useEvent("keydown", handleKeyDown);

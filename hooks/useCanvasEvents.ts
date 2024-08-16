@@ -19,10 +19,13 @@ const useCanvasEvents = ({
   onDrawing,
   onEndDrawing,
 }: CanvasEventProps) => {
+  // 用於追踪畫布是否正在被拖動
   const isDraggingRef = useRef(false);
+  // 用於存儲上一次鼠標位置，用於計算拖動距離
   const lastPosXRef = useRef(0);
   const lastPosYRef = useRef(0);
 
+  // 更新鼠標樣式
   const updateCursor = useCallback(() => {
     if (!canvas) return;
     if (isDrawingMode) {
@@ -33,10 +36,12 @@ const useCanvasEvents = ({
     canvas.requestRenderAll();
   }, [canvas, isDrawingMode]);
 
+  // 當繪製模式改變時更新鼠標樣式
   useEffect(() => {
     updateCursor();
   }, [isDrawingMode, updateCursor]);
 
+  // 處理滾輪縮放
   const handleWheel = useCallback(
     (opt: fabric.IEvent) => {
       if (!canvas) return;
@@ -57,12 +62,14 @@ const useCanvasEvents = ({
     [canvas]
   );
 
+  // 處理鼠標按下事件
   const handleMouseDown = useCallback(
     (opt: fabric.IEvent) => {
       if (!canvas) return;
       const evt = opt.e as MouseEvent;
 
       if (evt.altKey === true) {
+        // Alt 鍵按下時進入拖動模式
         isDraggingRef.current = true;
         lastPosXRef.current = evt.clientX;
         lastPosYRef.current = evt.clientY;
@@ -71,18 +78,21 @@ const useCanvasEvents = ({
         canvas.requestRenderAll();
         canvas.setCursor("grabbing");
       } else if (isDrawingMode) {
+        // 在繪製模式下開始繪製
         onStartDrawing(opt);
       }
     },
     [canvas, isDrawingMode, onStartDrawing]
   );
 
+  // 處理鼠標移動事件
   const handleMouseMove = useCallback(
     (opt: fabric.IEvent) => {
       if (!canvas) return;
       const evt = opt.e as MouseEvent;
 
-      if (isDraggingRef.current || evt.altKey) {
+      if (isDraggingRef.current && evt.altKey) {
+        // 處理畫布拖動
         const e = opt.e as MouseEvent;
         const vpt = canvas.viewportTransform;
         if (!vpt) return;
@@ -112,26 +122,30 @@ const useCanvasEvents = ({
         canvas.requestRenderAll();
         canvas.setCursor("grabbing");
       } else if (isDrawingMode) {
+        // 在繪製模式下繼續繪製
         onDrawing(opt);
-      } else {
-        updateCursor();
       }
     },
     [canvas, isDrawingMode, onDrawing, updateCursor]
   );
 
+  // 處理鼠標釋放事件
   const handleMouseUp = useCallback(() => {
     if (!canvas) return;
     if (isDraggingRef.current) {
       isDraggingRef.current = false;
       updateCursor();
+      if (!isDrawingMode) {
+        save(); // 在非繪製模式下，拖動結束後保存狀態
+      }
     } else if (isDrawingMode) {
-      onEndDrawing();
+      onEndDrawing(); // 在繪製模式下，結束當前繪製
     }
     canvas.selection = !isDrawingMode;
     canvas.requestRenderAll();
-  }, [canvas, isDrawingMode, onEndDrawing, updateCursor]);
+  }, [canvas, isDrawingMode, onEndDrawing, updateCursor, save]);
 
+  // 處理物件旋轉，實現旋轉吸附
   const handleObjectRotate = useCallback(
     (event: fabric.IEvent) => {
       if (!canvas) return;
@@ -151,22 +165,34 @@ const useCanvasEvents = ({
     [canvas]
   );
 
+  // 處理物件修改（添加、刪除、修改）
+  const handleObjectModification = useCallback(() => {
+    if (!isDrawingMode) {
+      save(); // 只在非繪製模式下保存狀態
+    }
+  }, [isDrawingMode, save]);
+
+  // 設置和清理畫布事件監聽器
   useEffect(() => {
     if (!canvas) return;
 
-    canvas.on("object:added", save);
-    canvas.on("object:removed", save);
-    canvas.on("object:modified", save);
+    // 為物件操作添加事件監聽
+    canvas.on("object:added", handleObjectModification);
+    canvas.on("object:removed", handleObjectModification);
+    canvas.on("object:modified", handleObjectModification);
+
+    // 為其他畫布事件添加監聽
     canvas.on("mouse:wheel", handleWheel);
     canvas.on("mouse:down", handleMouseDown);
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
     canvas.on("object:rotating", handleObjectRotate);
 
+    // 清理函數
     return () => {
-      canvas.off("object:added", save);
-      canvas.off("object:removed", save);
-      canvas.off("object:modified", save);
+      canvas.off("object:added", handleObjectModification);
+      canvas.off("object:removed", handleObjectModification);
+      canvas.off("object:modified", handleObjectModification);
       canvas.off("mouse:wheel", handleWheel);
       canvas.off("mouse:down", handleMouseDown);
       canvas.off("mouse:move", handleMouseMove);
@@ -175,7 +201,7 @@ const useCanvasEvents = ({
     };
   }, [
     canvas,
-    save,
+    handleObjectModification,
     handleWheel,
     handleMouseDown,
     handleMouseMove,
@@ -183,11 +209,12 @@ const useCanvasEvents = ({
     handleObjectRotate,
   ]);
 
+  // 當繪製模式改變時更新畫布狀態
   useEffect(() => {
     if (canvas) {
-      canvas.selection = !isDrawingMode;
+      canvas.selection = !isDrawingMode; // 在繪製模式下禁用選擇
       if (isDrawingMode) {
-        canvas.discardActiveObject();
+        canvas.discardActiveObject(); // 在進入繪製模式時取消當前選中的物件
         canvas.requestRenderAll();
       }
       updateCursor();

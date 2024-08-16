@@ -39,6 +39,7 @@ interface DesignNavBarProps {
   saveDesign: (fabricData: string) => void;
   isUpdating: boolean;
   error: string | null;
+  hasSaved: boolean;
 }
 
 const spin = keyframes`
@@ -61,25 +62,9 @@ const DesignNavBar = ({
   isUpdating,
   saveDesign,
   error,
+  hasSaved,
 }: DesignNavBarProps) => {
   const color = useDesignPageColor();
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [hasSaved, setHasSaved] = useState(false);
-
-  const handleSave = useCallback(() => {
-    setHasSaved(true);
-    design?.onSave();
-  }, [design]);
-
-  useEffect(() => {
-    if (hasSaved && !isUpdating && !error) {
-      setSaveSuccess(true);
-      const timer = setTimeout(() => setSaveSuccess(false), 3000);
-      return () => clearTimeout(timer);
-    } else if (error) {
-      setSaveSuccess(false);
-    }
-  }, [isUpdating, error, hasSaved]);
 
   return (
     <HStack
@@ -190,8 +175,13 @@ const DesignNavBar = ({
               icon={<LuSave fontSize="20px" />}
               bg="transparent"
               _hover={{ bg: color.toolBar.hover }}
-              onClick={handleSave}
+              onClick={design?.onSave}
               isDisabled={isUpdating}
+              _disabled={{
+                opacity: 0.4,
+                cursor: "default",
+                _hover: { bg: "transparent" },
+              }}
             />
           </Tooltip>
           <Divider
@@ -213,7 +203,7 @@ const DesignNavBar = ({
             </HStack>
           )}
 
-          {!isUpdating && !error && saveSuccess && (
+          {!isUpdating && !error && hasSaved && (
             <HStack ml={4} color={color.toolBar.subText}>
               <BsCloudCheck size="20px" />
               <Text fontSize="12px">存檔完成</Text>

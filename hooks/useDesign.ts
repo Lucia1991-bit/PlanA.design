@@ -275,8 +275,10 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     });
   }, [canvas, designColorMode]);
 
+  //畫布的物件互動操作
   const { copy, paste, deleteObjects } = useClipboard({ canvas });
 
+  //管理畫布歷史紀錄及存檔
   const {
     save,
     canRedo,
@@ -294,6 +296,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     saveDesign,
   });
 
+  //繪製牆體
   const {
     isDrawingMode,
     setIsDrawingMode,
@@ -315,6 +318,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     onEndDrawing: endDrawing,
   });
 
+  //畫布操作快捷鍵
   useHotkeys({
     canvas,
     copy,
@@ -322,6 +326,9 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     deleteObjects,
     isDrawingMode,
     finishDrawWall,
+    undo,
+    redo,
+    saveToDatabase,
   });
 
   // 畫布尺寸隨視窗縮放改變
@@ -343,9 +350,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     updateGridColor,
     updateCanvasColor,
   });
-
-  //改變畫布及網格顏色
-  // const { updateColors } = useCanvasAndGridColor({ canvas, gridRef });
 
   //初始化畫布
   const initCanvas = useCallback(
@@ -393,19 +397,19 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   );
 
   // 新增：保存初始狀態的函數
-  const saveInitialState = useCallback(() => {
-    if (canvas && gridRef.current) {
-      const grid = gridRef.current;
-      canvas.remove(grid);
-      const currentState = JSON.stringify(canvas.toJSON(OBJECT_STATE));
-      canvas.add(grid);
-      canvas.sendToBack(grid);
+  // const saveInitialState = useCallback(() => {
+  //   if (canvas && gridRef.current) {
+  //     const grid = gridRef.current;
+  //     canvas.remove(grid);
+  //     const currentState = JSON.stringify(canvas.toJSON(OBJECT_STATE));
+  //     canvas.add(grid);
+  //     canvas.sendToBack(grid);
 
-      canvasHistory.current = [currentState];
-      setHistoryIndex(0);
-      // 調用 save 來確保初始狀態被正確記錄
-    }
-  }, [canvas, gridRef, canvasHistory, setHistoryIndex, save]);
+  //     canvasHistory.current = [currentState];
+  //     setHistoryIndex(0);
+  //     // 調用 save 來確保初始狀態被正確記錄
+  //   }
+  // }, [canvas, gridRef, canvasHistory, setHistoryIndex, save]);
 
   useEffect(() => {
     if (isCanvasReady && canvas) {
@@ -413,6 +417,9 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
       updateCanvasColor();
       updateGridColor();
       canvas.requestRenderAll();
+
+      // 保存初始狀態
+      save();
 
       // 在畫布準備好後保存初始狀態
       // saveInitialState();

@@ -83,14 +83,9 @@ export const useHistory = ({
       const currentState = canvas.toJSON(OBJECT_STATE);
       const json = JSON.stringify(currentState);
 
-      console.log("儲存前:", canvas);
-
       await saveDesign(json);
 
-      console.log("設計已成功保存到數據庫");
-
       if (canvas) {
-        console.log("儲存後:", canvas);
         if (grid) {
           canvas.add(grid);
           if (gridStackPosition > -1) {
@@ -113,27 +108,34 @@ export const useHistory = ({
 
       skipSave.current = true;
 
-      // 如果存在網格，暫時從畫布中移除
-      const grid = gridRef.current;
-      if (grid) {
-        canvas.remove(grid);
-      }
+      // 暫時存儲當前網格
+      const currentGrid = gridRef.current;
 
       // 從 JSON 加載畫布狀態
       canvas.loadFromJSON(JSON.parse(state), () => {
-        // 加載完成後，如果存在網格，將其添加回畫布
-        if (grid) {
-          canvas.add(grid);
-          canvas.sendToBack(grid);
+        // 檢查加載的狀態是否已經包含網格
+        const loadedGrid = canvas
+          .getObjects()
+          .find((obj) => obj.name === "designGrid") as fabric.Group | undefined;
+
+        if (loadedGrid) {
+          // 如果加載的狀態包含網格，使用加載的網格
+          gridRef.current = loadedGrid;
+        } else if (currentGrid) {
+          // 如果加載的狀態不包含網格，但之前有網格，則添加回之前的網格
+          canvas.add(currentGrid);
+          canvas.sendToBack(currentGrid);
         }
+
         // 更新網格和畫布顏色
         updateGridColor();
         updateCanvasColor();
+
         canvas.renderAll();
         skipSave.current = false;
       });
     },
-    [canvas, gridRef, updateGridColor]
+    [canvas, gridRef, updateGridColor, updateCanvasColor]
   );
 
   // 執行撤銷操作
