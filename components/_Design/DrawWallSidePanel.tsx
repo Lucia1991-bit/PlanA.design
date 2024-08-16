@@ -44,7 +44,7 @@ const DrawWallSidePanel = ({
       >
         <SidePanelHeader
           title="繪製牆體"
-          description="點擊後開始繪製，按Esc退出"
+          description={isDrawing ? "點擊或按Esc退出繪製模式" : "點擊後開始繪製"}
         />
         <HStack width="100%">
           <LeftToolBarItem
@@ -53,7 +53,7 @@ const DrawWallSidePanel = ({
             spacing="15px"
             icon="/icons/wall.svg"
             iconWidth="90%"
-            label="垂直牆"
+            label={isDrawing ? "退出繪製" : "開始繪製"}
             textFlex="0.1"
             onClick={handleDrawWallClick}
             isActive={isDrawing}

@@ -48,6 +48,7 @@ const LeftToolBarItem = ({
       bg={isActive ? color.toolBar.hover : "transparent"}
       color={color.toolBar.text}
       _hover={{ bg: color.toolBar.hover }}
+      _focus={{ outline: "none", boxShadow: "none" }}
     >
       <VStack width="100%" height="100%" spacing={spacing} p={2}>
         <Box
