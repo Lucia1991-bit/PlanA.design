@@ -316,7 +316,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     isDrawingMode,
     onStartDrawing: startDrawing,
     onDrawing: draw,
-    onEndDrawing: endDrawing,
   });
 
   //畫布操作快捷鍵

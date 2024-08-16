@@ -10,7 +10,6 @@ interface CanvasEventProps {
   isDrawingMode: boolean;
   onStartDrawing: (event: fabric.IEvent) => void;
   onDrawing: (event: fabric.IEvent) => void;
-  onEndDrawing: () => void;
 }
 
 const useCanvasEvents = ({
@@ -19,7 +18,6 @@ const useCanvasEvents = ({
   isDrawingMode,
   onStartDrawing,
   onDrawing,
-  onEndDrawing,
   setSelectedObjects,
 }: CanvasEventProps) => {
   // 用於追踪畫布是否正在被拖動
@@ -141,12 +139,10 @@ const useCanvasEvents = ({
       if (!isDrawingMode) {
         save(); // 在非繪製模式下，拖動結束後保存狀態
       }
-    } else if (isDrawingMode) {
-      onEndDrawing(); // 在繪製模式下，結束當前繪製
     }
     canvas.selection = !isDrawingMode;
     canvas.requestRenderAll();
-  }, [canvas, isDrawingMode, onEndDrawing, updateCursor, save]);
+  }, [canvas, isDrawingMode, updateCursor, save]);
 
   // 處理物件旋轉，實現旋轉吸附
   const handleObjectRotate = useCallback(

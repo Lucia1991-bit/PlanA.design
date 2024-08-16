@@ -7,10 +7,10 @@ interface UseHotkeysProps {
   paste: () => void;
   deleteObjects: () => void;
   isDrawingMode: boolean;
-  finishDrawWall: () => void;
   undo: () => void;
   redo: () => void;
   saveToDatabase: () => void;
+  finishDrawWall: () => void;
 }
 
 export const useHotkeys = ({

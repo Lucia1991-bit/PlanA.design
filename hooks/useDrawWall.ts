@@ -1,5 +1,5 @@
 import { fabric } from "fabric";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import useDesignPageColor from "./useDesignPageColor";
 
 interface UseDrawWallProps {
@@ -8,177 +8,201 @@ interface UseDrawWallProps {
   save: () => void;
 }
 
+type Point = fabric.Point;
+type Path = Point[];
+
 export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
-  // 狀態定義
-  const [isDrawingMode, setIsDrawingMode] = useState(false); // 是否處於繪製模式
-  const [startPoint, setStartPoint] = useState<fabric.Point | null>(null); // 當前線段的起點
-  const [currentLine, setCurrentLine] = useState<fabric.Line | null>(null); // 當前正在繪製的線段
-  const [lines, setLines] = useState<fabric.Line[]>([]); // 已繪製的所有線段
-  const [points, setPoints] = useState<fabric.Point[]>([]); // 所有點的集合
-  const [polygon, setPolygon] = useState<fabric.Polygon | null>(null); // 最終形成的多邊形
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [currentPath, setCurrentPath] = useState<Path>([]);
+  const [completedWalls, setCompletedWalls] = useState<fabric.Line[]>([]);
+  const [innerPolygon, setInnerPolygon] = useState<fabric.Polygon | null>(null);
 
-  const color = useDesignPageColor(); // 獲取設計頁面的顏色配置
+  const color = useDesignPageColor();
+  const currentLineRef = useRef<fabric.Line | null>(null);
 
-  // 將座標對齊網格
+  const WALL_THICKNESS = 29;
+  const GRID_SIZE = 8;
+
   const snapToGrid = useCallback((x: number, y: number): [number, number] => {
-    const gridSize = 8;
     return [
-      Math.round(x / gridSize) * gridSize,
-      Math.round(y / gridSize) * gridSize,
+      Math.round(x / GRID_SIZE) * GRID_SIZE,
+      Math.round(y / GRID_SIZE) * GRID_SIZE,
     ];
   }, []);
 
-  // 開始繪製牆面
   const startDrawWall = useCallback(() => {
     setIsDrawingMode(true);
-  }, []);
+    setCurrentPath([]);
+    setCompletedWalls([]);
+    if (innerPolygon && canvas) {
+      canvas.remove(innerPolygon);
+      setInnerPolygon(null);
+    }
+  }, [canvas, innerPolygon]);
 
-  // 開始繪製一個新的線段
   const startDrawing = useCallback(
-    (o: fabric.IEvent) => {
-      if (!canvas || !isDrawingMode) return;
-      const evt = o.e as MouseEvent;
-      if (evt.altKey) return; // 如果按下 Alt 鍵，不開始繪製
+    (event: fabric.IEvent) => {
+      if (!isDrawingMode || !canvas) return;
 
-      const pointer = canvas.getPointer(o.e);
-      const [x, y] = snapToGrid(pointer.x, pointer.y);
-      setStartPoint(new fabric.Point(x, y));
+      const pointer = canvas.getPointer(event.e);
+      let [x, y] = snapToGrid(pointer.x, pointer.y);
+
+      const newPoint = new fabric.Point(x, y);
+      setCurrentPath([newPoint]);
 
       const newLine = new fabric.Line([x, y, x, y], {
         stroke: color.wall.fill,
-        strokeWidth: 29,
-        selectable: true,
-        evented: true,
-        hasBorders: true,
-        hasControls: true,
-        lockMovementX: true,
-        lockMovementY: true,
-        lockRotation: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        cornerColor: "#FFF",
-        cornerStyle: "circle",
-        borderColor: "#3b82f6",
-        borderScaleFactor: 1.5,
-        transparentCorners: false,
-        borderOpacityWhenMoving: 1,
-        cornerStrokeColor: "#3b82f6",
+        strokeWidth: WALL_THICKNESS,
+        selectable: false,
+        evented: false,
         name: "wallLine",
       });
 
-      newLine.setControlsVisibility({
-        mt: false,
-        mb: false, // 隱藏頂部和底部中間的控制點
-        ml: false,
-        mr: false, // 只顯示左右中間的控制點
-        tl: false,
-        tr: false,
-        bl: false,
-        br: false, // 隱藏角落的控制點
-        mtr: false,
-      });
-
+      currentLineRef.current = newLine;
       canvas.add(newLine);
-
-      //確保牆體一直在底層
-      newLine.sendToBack();
-
-      //但要再網格線之上
-      const gridObject = canvas
-        .getObjects()
-        .find((obj) => obj.name === "designGrid");
-      if (gridObject) {
-        canvas.moveTo(newLine, canvas.getObjects().indexOf(gridObject) + 1);
-      }
-
-      canvas.setActiveObject(newLine);
-      setCurrentLine(newLine);
+      canvas.renderAll();
+      save();
     },
-    [canvas, isDrawingMode, snapToGrid, color.wall.fill]
+    [isDrawingMode, canvas, snapToGrid, color.wall.fill, save]
   );
 
-  // 繪製線段
   const draw = useCallback(
-    (o: fabric.IEvent) => {
-      if (!isDrawingMode || !startPoint || !currentLine || !canvas) return;
-      const evt = o.e as MouseEvent;
-      if (evt.altKey) return; // 如果按下 Alt 鍵，不繼續繪製
+    (event: fabric.IEvent) => {
+      if (
+        !isDrawingMode ||
+        !canvas ||
+        currentPath.length === 0 ||
+        !currentLineRef.current
+      )
+        return;
 
-      const pointer = canvas.getPointer(o.e);
-      let [endX, endY] = snapToGrid(pointer.x, pointer.y);
+      const pointer = canvas.getPointer(event.e);
+      let [x, y] = snapToGrid(pointer.x, pointer.y);
+      const startPoint = currentPath[0];
 
-      // 確保線條只能水平或垂直
-      if (Math.abs(endX - startPoint.x) > Math.abs(endY - startPoint.y)) {
-        endY = startPoint.y; // 水平線
+      if (Math.abs(x - startPoint.x) > Math.abs(y - startPoint.y)) {
+        y = startPoint.y;
       } else {
-        endX = startPoint.x; // 垂直線
+        x = startPoint.x;
       }
 
-      currentLine.set({ x2: endX, y2: endY });
+      currentLineRef.current.set({ x2: x, y2: y });
       canvas.renderAll();
     },
-    [isDrawingMode, startPoint, currentLine, canvas, snapToGrid]
+    [isDrawingMode, canvas, currentPath, snapToGrid]
   );
 
-  // 結束當前線段的繪製
-  const endDrawing = useCallback(() => {
-    if (!isDrawingMode || !startPoint || !currentLine || !canvas) return;
+  const isPointNear = useCallback(
+    (p1: Point, p2: Point, threshold: number): boolean => {
+      return p1.distanceFrom(p2) < threshold;
+    },
+    []
+  );
 
-    const endPoint = new fabric.Point(currentLine.x2!, currentLine.y2!);
-    const newPoints = [...points, endPoint];
-    setPoints(newPoints);
-    setLines((prevLines) => [...prevLines, currentLine]);
+  const calculateInnerPoints = useCallback((walls: fabric.Line[]): Point[] => {
+    return walls.flatMap((wall) => {
+      const angle = Math.atan2(wall.y2! - wall.y1!, wall.x2! - wall.x1!);
+      const offset = WALL_THICKNESS / 2;
+      const dx = Math.sin(angle) * offset;
+      const dy = -Math.cos(angle) * offset;
 
-    // 檢查是否形成封閉路徑
-    if (
-      newPoints.length > 2 &&
-      Math.abs(endPoint.x - newPoints[0].x) < 20 &&
-      Math.abs(endPoint.y - newPoints[0].y) < 20
-    ) {
-      if (polygon) canvas.remove(polygon);
-      const newPolygon = new fabric.Polygon(newPoints, {
-        fill: "rgba(0,0,0,0.5)",
+      return [
+        new fabric.Point(wall.x1! + dx, wall.y1! + dy),
+        new fabric.Point(wall.x2! + dx, wall.y2! + dy),
+      ];
+    });
+  }, []);
+
+  const checkClosedSpace = useCallback(
+    (walls: fabric.Line[]): boolean => {
+      if (walls.length < 3) return false;
+
+      const innerPoints = calculateInnerPoints(walls);
+      const firstPoint = innerPoints[0];
+      const lastPoint = innerPoints[innerPoints.length - 1];
+
+      return isPointNear(firstPoint, lastPoint, GRID_SIZE);
+    },
+    [calculateInnerPoints, isPointNear]
+  );
+
+  const endDrawing = useCallback(
+    (event: fabric.IEvent) => {
+      if (
+        !isDrawingMode ||
+        !canvas ||
+        currentPath.length === 0 ||
+        !currentLineRef.current
+      )
+        return;
+
+      const pointer = canvas.getPointer(event.e);
+      let [x, y] = snapToGrid(pointer.x, pointer.y);
+      const startPoint = currentPath[0];
+
+      if (Math.abs(x - startPoint.x) > Math.abs(y - startPoint.y)) {
+        y = startPoint.y;
+      } else {
+        x = startPoint.x;
+      }
+
+      currentLineRef.current.set({ x2: x, y2: y });
+      const newWalls = [...completedWalls, currentLineRef.current];
+      setCompletedWalls(newWalls);
+      setCurrentPath([...currentPath, new fabric.Point(x, y)]);
+
+      if (checkClosedSpace(newWalls)) {
+        createInnerPolygon(newWalls);
+      }
+
+      currentLineRef.current = null;
+      canvas.renderAll();
+    },
+    [
+      isDrawingMode,
+      canvas,
+      currentPath,
+      completedWalls,
+      snapToGrid,
+      checkClosedSpace,
+    ]
+  );
+
+  const createInnerPolygon = useCallback(
+    (walls: fabric.Line[]) => {
+      if (!canvas) return;
+
+      const innerPoints = calculateInnerPoints(walls);
+
+      if (innerPolygon) {
+        canvas.remove(innerPolygon);
+      }
+
+      const newInnerPolygon = new fabric.Polygon(innerPoints, {
+        fill: "rgba(0,0,0,0.2)",
+        stroke: "transparent",
         selectable: false,
+        evented: false,
+        name: "innerPolygon",
       });
-      canvas.add(newPolygon);
-      setPolygon(newPolygon);
-    }
 
-    setStartPoint(endPoint);
-    setCurrentLine(null);
-    save(); // 保存當前狀態
-  }, [isDrawingMode, startPoint, currentLine, canvas, points, polygon, save]);
+      canvas.add(newInnerPolygon);
+      setInnerPolygon(newInnerPolygon);
+      canvas.sendToBack(newInnerPolygon);
 
-  // 完成牆面繪製
+      canvas.renderAll();
+    },
+    [canvas, calculateInnerPoints, innerPolygon]
+  );
+
   const finishDrawWall = useCallback(() => {
     setIsDrawingMode(false);
-    if (!canvas || !polygon) {
-      console.log("請先完成封閉牆面");
-      return;
+    if (currentLineRef.current && canvas) {
+      canvas.remove(currentLineRef.current);
     }
-
-    // 為牆面添加材質
-    fabric.Image.fromURL("/wood1.jpg", (img) => {
-      const pattern = new fabric.Pattern({
-        source: img.getElement() as HTMLImageElement,
-        repeat: "repeat",
-      });
-      polygon.set({
-        fill: pattern,
-        stroke: "black",
-        strokeWidth: 2,
-        selectable: true,
-      });
-      canvas.renderAll();
-    });
-
-    // 重置狀態
-    setLines([]);
-    setPoints([]);
-    setPolygon(null);
-    console.log("結束繪製模式");
-    save(); // 保存最終狀態
-  }, [canvas, polygon, save]);
+    currentLineRef.current = null;
+    setCurrentPath([]);
+  }, [canvas]);
 
   return {
     isDrawingMode,
@@ -188,6 +212,6 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     draw,
     endDrawing,
     finishDrawWall,
-    polygon,
+    innerPolygon,
   };
 };
