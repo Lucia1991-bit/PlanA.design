@@ -1,5 +1,5 @@
 import { fabric } from "fabric";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import useDesignPageColor from "./useDesignPageColor";
 
 interface UseDrawWallProps {
@@ -13,7 +13,7 @@ type Path = Point[];
 
 export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const [currentPath, setCurrentPath] = useState<Path>([]);
+  const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
   const [completedWalls, setCompletedWalls] = useState<fabric.Line[]>([]);
   const [innerPolygon, setInnerPolygon] = useState<fabric.Polygon | null>(null);
 
@@ -31,6 +31,7 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
   }, []);
 
   const startDrawWall = useCallback(() => {
+    console.log("startDrawWall: 開始繪製牆壁模式");
     setIsDrawingMode(true);
     setCurrentPath([]);
     setCompletedWalls([]);
@@ -45,10 +46,15 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
       if (!isDrawingMode || !canvas) return;
 
       const pointer = canvas.getPointer(event.e);
-      let [x, y] = snapToGrid(pointer.x, pointer.y);
-
+      const [x, y] = snapToGrid(pointer.x, pointer.y);
       const newPoint = new fabric.Point(x, y);
-      setCurrentPath([newPoint]);
+
+      setCurrentPath((prev) => [...prev, newPoint]);
+
+      if (currentLineRef.current) {
+        currentLineRef.current.setCoords();
+        setCompletedWalls((prev) => [...prev, currentLineRef.current!]);
+      }
 
       const newLine = new fabric.Line([x, y, x, y], {
         stroke: color.wall.fill,
@@ -68,17 +74,11 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
 
   const draw = useCallback(
     (event: fabric.IEvent) => {
-      if (
-        !isDrawingMode ||
-        !canvas ||
-        currentPath.length === 0 ||
-        !currentLineRef.current
-      )
-        return;
+      if (!isDrawingMode || !canvas || !currentLineRef.current) return;
 
       const pointer = canvas.getPointer(event.e);
       let [x, y] = snapToGrid(pointer.x, pointer.y);
-      const startPoint = currentPath[0];
+      const startPoint = currentPath[currentPath.length - 1];
 
       if (Math.abs(x - startPoint.x) > Math.abs(y - startPoint.y)) {
         y = startPoint.y;
@@ -92,117 +92,61 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     [isDrawingMode, canvas, currentPath, snapToGrid]
   );
 
-  const isPointNear = useCallback(
-    (p1: Point, p2: Point, threshold: number): boolean => {
-      return p1.distanceFrom(p2) < threshold;
-    },
-    []
-  );
+  const finishDrawWall = useCallback(() => {
+    if (!canvas || !isDrawingMode) return;
 
-  const calculateInnerPoints = useCallback((walls: fabric.Line[]): Point[] => {
-    return walls.flatMap((wall) => {
-      const angle = Math.atan2(wall.y2! - wall.y1!, wall.x2! - wall.x1!);
-      const offset = WALL_THICKNESS / 2;
-      const dx = Math.sin(angle) * offset;
-      const dy = -Math.cos(angle) * offset;
+    setIsDrawingMode(false);
+    if (currentLineRef.current) {
+      setCompletedWalls((prev) => [...prev, currentLineRef.current!]);
+    }
+    currentLineRef.current = null;
 
-      return [
-        new fabric.Point(wall.x1! + dx, wall.y1! + dy),
-        new fabric.Point(wall.x2! + dx, wall.y2! + dy),
-      ];
-    });
-  }, []);
-
-  const checkClosedSpace = useCallback(
-    (walls: fabric.Line[]): boolean => {
-      if (walls.length < 3) return false;
-
-      const innerPoints = calculateInnerPoints(walls);
-      const firstPoint = innerPoints[0];
-      const lastPoint = innerPoints[innerPoints.length - 1];
-
-      return isPointNear(firstPoint, lastPoint, GRID_SIZE);
-    },
-    [calculateInnerPoints, isPointNear]
-  );
-
-  const endDrawing = useCallback(
-    (event: fabric.IEvent) => {
-      if (
-        !isDrawingMode ||
-        !canvas ||
-        currentPath.length === 0 ||
-        !currentLineRef.current
-      )
-        return;
-
-      const pointer = canvas.getPointer(event.e);
-      let [x, y] = snapToGrid(pointer.x, pointer.y);
-      const startPoint = currentPath[0];
-
-      if (Math.abs(x - startPoint.x) > Math.abs(y - startPoint.y)) {
-        y = startPoint.y;
-      } else {
-        x = startPoint.x;
-      }
-
-      currentLineRef.current.set({ x2: x, y2: y });
-      const newWalls = [...completedWalls, currentLineRef.current];
-      setCompletedWalls(newWalls);
-      setCurrentPath([...currentPath, new fabric.Point(x, y)]);
-
-      if (checkClosedSpace(newWalls)) {
-        createInnerPolygon(newWalls);
-      }
-
-      currentLineRef.current = null;
-      canvas.renderAll();
-    },
-    [
-      isDrawingMode,
-      canvas,
-      currentPath,
-      completedWalls,
-      snapToGrid,
-      checkClosedSpace,
-    ]
-  );
-
-  const createInnerPolygon = useCallback(
-    (walls: fabric.Line[]) => {
-      if (!canvas) return;
-
-      const innerPoints = calculateInnerPoints(walls);
+    // 創建多邊形（如果有至少3條線）
+    if (completedWalls.length >= 2) {
+      const points = completedWalls.map(
+        (line) => new fabric.Point(line.x1!, line.y1!)
+      );
+      points.push(
+        new fabric.Point(
+          completedWalls[completedWalls.length - 1].x2!,
+          completedWalls[completedWalls.length - 1].y2!
+        )
+      );
 
       if (innerPolygon) {
         canvas.remove(innerPolygon);
       }
 
-      const newInnerPolygon = new fabric.Polygon(innerPoints, {
+      const newInnerPolygon = new fabric.Polygon(points, {
         fill: "rgba(0,0,0,0.2)",
-        stroke: "transparent",
-        selectable: false,
-        evented: false,
-        name: "innerPolygon",
+        selectable: true,
+        evented: true,
+        hasBorders: true,
+        hasControls: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        lockRotation: true,
+        lockScalingX: true,
+        lockScalingY: true,
+        cornerColor: "#FFF",
+        cornerStyle: "circle",
+        borderColor: "#3b82f6",
+        borderScaleFactor: 1.5,
+        transparentCorners: false,
+        borderOpacityWhenMoving: 1,
+        cornerStrokeColor: "#3b82f6",
+        name: "room",
       });
 
       canvas.add(newInnerPolygon);
       setInnerPolygon(newInnerPolygon);
       canvas.sendToBack(newInnerPolygon);
-
-      canvas.renderAll();
-    },
-    [canvas, calculateInnerPoints, innerPolygon]
-  );
-
-  const finishDrawWall = useCallback(() => {
-    setIsDrawingMode(false);
-    if (currentLineRef.current && canvas) {
-      canvas.remove(currentLineRef.current);
     }
-    currentLineRef.current = null;
+
     setCurrentPath([]);
-  }, [canvas]);
+    canvas.renderAll();
+    save();
+  }, [canvas, isDrawingMode, completedWalls, innerPolygon, save]);
 
   return {
     isDrawingMode,
@@ -210,7 +154,6 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     startDrawWall,
     startDrawing,
     draw,
-    endDrawing,
     finishDrawWall,
     innerPolygon,
   };
