@@ -63,7 +63,7 @@ const RenameProjectButton: React.FC<RenameProjectButtonProps> = ({
   };
 
   const sharedStyles = {
-    width: "150px",
+    width: "180px",
     height: "35px",
     fontWeight: "500",
     fontSize: "18px",

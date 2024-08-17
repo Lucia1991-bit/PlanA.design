@@ -151,7 +151,7 @@ const useCanvasEvents = ({
       const targetObject = event.target as fabric.Object;
       if (!targetObject) return;
 
-      const rotationStep = 5;
+      const rotationStep = 10;
       let currentAngle = targetObject.angle || 0;
 
       const snappedAngle =
