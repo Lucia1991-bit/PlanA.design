@@ -50,6 +50,20 @@ export const useHistory = ({
 
     //將畫布中物件的狀態轉成 JSON
     const currentState = canvas.toJSON(OBJECT_STATE);
+
+    // 處理 Pattern
+    currentState.objects.forEach((obj: any) => {
+      if (obj.fill && obj.fill.source) {
+        obj.fill = {
+          type: "pattern",
+          source: obj.fill.sourceURL || obj.fill.source.src,
+          repeat: obj.fill.repeat,
+          scaleX: obj.fill.scaleX,
+          scaleY: obj.fill.scaleY,
+        };
+      }
+    });
+
     const json = JSON.stringify(currentState);
 
     //使用這個索引將網格插回原來的位置
@@ -81,6 +95,20 @@ export const useHistory = ({
       }
 
       const currentState = canvas.toJSON(OBJECT_STATE);
+
+      // 處理 Pattern
+      currentState.objects.forEach((obj: any) => {
+        if (obj.fill && obj.fill.source) {
+          obj.fill = {
+            type: "pattern",
+            source: obj.fill.sourceURL || obj.fill.source.src,
+            repeat: obj.fill.repeat,
+            scaleX: obj.fill.scaleX,
+            scaleY: obj.fill.scaleY,
+          };
+        }
+      });
+
       const json = JSON.stringify(currentState);
 
       await saveDesign(json);
@@ -111,8 +139,29 @@ export const useHistory = ({
       // 暫時存儲當前網格
       const currentGrid = gridRef.current;
 
+      // 解析狀態
+      const parsedState = JSON.parse(state);
+
+      // 處理 Pattern
+      if (parsedState.objects) {
+        parsedState.objects.forEach((obj: any) => {
+          if (obj.fill && obj.fill.type === "pattern") {
+            fabric.util.loadImage(obj.fill.source, (img) => {
+              obj.fill = new fabric.Pattern({
+                source: img,
+                repeat: obj.fill.repeat,
+                //@ts-ignore
+                scaleX: obj.fill.scaleX,
+                scaleY: obj.fill.scaleY,
+              });
+              (obj.fill as any).sourceURL = obj.fill.source;
+            });
+          }
+        });
+      }
+
       // 從 JSON 加載畫布狀態
-      canvas.loadFromJSON(JSON.parse(state), () => {
+      canvas.loadFromJSON(parsedState, () => {
         // 檢查加載的狀態是否已經包含網格
         const loadedGrid = canvas
           .getObjects()

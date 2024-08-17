@@ -1,29 +1,54 @@
 import { fabric } from "fabric";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState } from "react";
 import useDesignPageColor from "./useDesignPageColor";
 import { SUB_GRID_SIZE } from "@/types/DesignType";
+import { PatternOptions } from "./usePattern";
 
 interface UseDrawWallProps {
   canvas: fabric.Canvas | null;
   gridRef: React.MutableRefObject<fabric.Group | null>;
   save: () => void;
+  updateGridColor: () => void;
+  updateCanvasColor: () => void;
+  applyPattern: (
+    object: fabric.Object,
+    imageUrl: string,
+    options?: PatternOptions
+  ) => void;
+  adjustPatternScale: (
+    object: fabric.Object,
+    scaleX: number,
+    scaleY: number
+  ) => void;
 }
 
-type Point = fabric.Point;
-type Path = Point[];
-
-export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
+export const useDrawWall = ({
+  canvas,
+  gridRef,
+  save,
+  updateGridColor,
+  updateCanvasColor,
+  applyPattern,
+  adjustPatternScale,
+}: UseDrawWallProps) => {
+  // 狀態定義
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const isDrawingRef = useRef(false);
   const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
   const [completedWalls, setCompletedWalls] = useState<fabric.Line[]>([]);
-  const [innerPolygon, setInnerPolygon] = useState<fabric.Polygon | null>(null);
+  const [rooms, setRooms] = useState<fabric.Polygon[]>([]);
 
   const color = useDesignPageColor();
   const currentLineRef = useRef<fabric.Line | null>(null);
 
-  const WALL_THICKNESS = 29;
-  const GRID_SIZE = 8;
+  //預設地板材質圖片
+  const defaultPatternUrl =
+    "https://res.cloudinary.com/datj4og4i/image/upload/v1723533704/plan-a/material/%E6%9C%A8%E5%9C%B0%E6%9D%BF/wood25_small.jpg";
 
+  // 常量定義
+  const WALL_THICKNESS = 29;
+
+  // 鎖點網格
   const snapToGrid = useCallback(
     (x: number, y: number): [number, number] => {
       // 計算網格的起始位置
@@ -44,50 +69,48 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     [canvas]
   );
 
-  // 新增：確保設計元素在底層的輔助函數
+  // 確保網格、牆體、地板材質在底層
   const ensureDesignElementsAtBottom = useCallback(() => {
     if (!canvas || !gridRef.current) return;
 
-    // 將所有設計元素移到底層
-    const designElements = canvas
+    // 將所有元素按類型分組
+    const grid = gridRef.current;
+    const roomObjects = canvas
+      .getObjects()
+      .filter((obj) => obj.name === "room");
+    const wallObjects = canvas
+      .getObjects()
+      .filter((obj) => obj.name === "wallLine");
+    const otherObjects = canvas
       .getObjects()
       .filter(
-        (obj) =>
-          obj === gridRef.current ||
-          obj.name === "room" ||
-          obj.name === "wallLine"
+        (obj) => obj !== grid && obj.name !== "room" && obj.name !== "wallLine"
       );
-    designElements.forEach((obj) => canvas.sendToBack(obj));
 
-    // 將網格移到最底層
-    canvas.sendToBack(gridRef.current);
+    // 清空畫布
+    canvas.clear();
 
-    // 如果存在多邊形，將其移到網格之上
-    if (innerPolygon) {
-      canvas.bringForward(innerPolygon);
-    }
-
-    // 將所有牆體移到多邊形之上
-    canvas.getObjects().forEach((obj) => {
-      if (obj.name === "wallLine") {
-        canvas.bringForward(obj);
-      }
-    });
+    // 按正確的順序重新添加元素
+    canvas.add(grid); // 網格在最底層
+    updateGridColor();
+    updateCanvasColor();
+    roomObjects.forEach((room) => canvas.add(room)); // 房間在網格之上
+    wallObjects.forEach((wall) => canvas.add(wall)); // 牆體在房間之上
+    otherObjects.forEach((obj) => canvas.add(obj)); // 其他物件在最上層
 
     canvas.renderAll();
-  }, [canvas, gridRef, innerPolygon]);
+  }, [canvas, gridRef]);
 
+  // 開啟繪製模式
   const startDrawWall = useCallback(() => {
     console.log("startDrawWall: 開始繪製牆壁模式");
     setIsDrawingMode(true);
+    isDrawingRef.current = true;
     setCurrentPath([]);
     setCompletedWalls([]);
-    if (innerPolygon && canvas) {
-      canvas.remove(innerPolygon);
-      setInnerPolygon(null);
-    }
-  }, [canvas, innerPolygon]);
+  }, []);
 
+  // 開始繪製
   const startDrawing = useCallback(
     (event: fabric.IEvent) => {
       if (!isDrawingMode || !canvas) return;
@@ -105,7 +128,7 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
 
       const newLine = new fabric.Line([x, y, x, y], {
         stroke: color.wall.fill,
-        strokeWidth: 29,
+        strokeWidth: WALL_THICKNESS,
         selectable: true,
         evented: true,
         hasBorders: true,
@@ -143,12 +166,20 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
       canvas.renderAll();
       save();
     },
-    [isDrawingMode, canvas, snapToGrid, color.wall.fill, save]
+    [
+      isDrawingMode,
+      canvas,
+      snapToGrid,
+      color.wall.fill,
+      save,
+      ensureDesignElementsAtBottom,
+    ]
   );
 
+  // 繪製中
   const draw = useCallback(
     (event: fabric.IEvent) => {
-      if (!isDrawingMode || !canvas || !currentLineRef.current) return;
+      if (!isDrawingRef.current || !canvas || !currentLineRef.current) return;
 
       const pointer = canvas.getPointer(event.e);
       let [x, y] = snapToGrid(pointer.x, pointer.y);
@@ -166,33 +197,13 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     [isDrawingMode, canvas, currentPath, snapToGrid]
   );
 
-  const finishDrawWall = useCallback(() => {
-    if (!canvas || !isDrawingMode) return;
+  // 創建多邊形並應用圖案
+  const createPolygonWithPattern = useCallback(
+    (points: fabric.Point[]) => {
+      if (!canvas) return;
 
-    setIsDrawingMode(false);
-    if (currentLineRef.current) {
-      setCompletedWalls((prev) => [...prev, currentLineRef.current!]);
-    }
-    currentLineRef.current = null;
-
-    // 創建多邊形（如果有至少3條線）
-    if (completedWalls.length >= 2) {
-      const points = completedWalls.map(
-        (line) => new fabric.Point(line.x1!, line.y1!)
-      );
-      points.push(
-        new fabric.Point(
-          completedWalls[completedWalls.length - 1].x2!,
-          completedWalls[completedWalls.length - 1].y2!
-        )
-      );
-
-      if (innerPolygon) {
-        canvas.remove(innerPolygon);
-      }
-
-      const newInnerPolygon = new fabric.Polygon(points, {
-        fill: "red",
+      const newRoom = new fabric.Polygon(points, {
+        fill: "rgba(200, 200, 200, 0.4)",
         selectable: true,
         evented: true,
         hasBorders: true,
@@ -212,15 +223,55 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
         name: "room",
       });
 
-      canvas.add(newInnerPolygon);
-      setInnerPolygon(newInnerPolygon);
+      canvas.add(newRoom);
+      applyPattern(newRoom, defaultPatternUrl, { scaleX: 1, scaleY: 1 });
+      adjustPatternScale(newRoom, 10, 10);
+
+      setRooms((prevRooms) => [...prevRooms, newRoom]);
       ensureDesignElementsAtBottom();
+      canvas.renderAll();
+      save();
+
+      canvas.setActiveObject(newRoom);
+    },
+    [canvas, ensureDesignElementsAtBottom, save]
+  );
+
+  const TOLERANCE = 20; // 容許範圍，單位為像素
+
+  // 完成繪製
+  const finishDrawWall = useCallback(() => {
+    if (!canvas || !isDrawingRef.current) return;
+
+    setIsDrawingMode(false);
+    isDrawingRef.current = false;
+
+    //結束繪製後刪除掉多餘的線
+    if (currentLineRef.current) {
+      canvas.remove(currentLineRef.current);
+      currentLineRef.current = null;
+    }
+
+    // 創建多邊形（如果有至少3條線）
+    if (completedWalls.length >= 2) {
+      const points = completedWalls.map(
+        (line) => new fabric.Point(line.x1!, line.y1!)
+      );
+      points.push(
+        new fabric.Point(
+          completedWalls[completedWalls.length - 1].x2!,
+          completedWalls[completedWalls.length - 1].y2!
+        )
+      );
+
+      createPolygonWithPattern(points);
     }
 
     setCurrentPath([]);
+    setCompletedWalls([]);
     canvas.renderAll();
     save();
-  }, [canvas, isDrawingMode, completedWalls, innerPolygon, save]);
+  }, [canvas, isDrawingMode, completedWalls, createPolygonWithPattern, save]);
 
   return {
     isDrawingMode,
@@ -229,6 +280,7 @@ export const useDrawWall = ({ canvas, gridRef, save }: UseDrawWallProps) => {
     startDrawing,
     draw,
     finishDrawWall,
-    innerPolygon,
+    rooms,
+    createPolygonWithPattern,
   };
 };

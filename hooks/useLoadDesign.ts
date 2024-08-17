@@ -32,6 +32,24 @@ export const useLoadState = ({
         canvas.remove(grid);
       }
 
+      // 處理 Pattern
+      if (data.objects) {
+        data.objects.forEach((obj: any) => {
+          if (obj.fill && obj.fill.type === "pattern") {
+            fabric.util.loadImage(obj.fill.source, (img) => {
+              obj.fill = new fabric.Pattern({
+                source: img,
+                repeat: obj.fill.repeat,
+                //@ts-ignore
+                scaleX: obj.fill.scaleX,
+                scaleY: obj.fill.scaleY,
+              });
+              (obj.fill as any).sourceURL = obj.fill.source;
+            });
+          }
+        });
+      }
+
       canvas.loadFromJSON(data, () => {
         if (grid) {
           canvas.add(grid);

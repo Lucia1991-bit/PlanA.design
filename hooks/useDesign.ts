@@ -4,13 +4,10 @@ import {
   MAIN_GRID_SIZE,
   SUB_GRID_SIZE,
   MAX_ZOOM,
-  MIN_ZOOM,
-  MAX_ZOOM_LEVEL,
   DesignHookProps,
   GLOBAL_SCALE,
   BuildDesignProps,
   Design,
-  OBJECT_STATE,
 } from "@/types/DesignType";
 import useDesignColor from "./useDesignPageColor";
 import useCanvasEvents from "./useCanvasEvents";
@@ -22,6 +19,7 @@ import { useClipboard } from "@/hooks/useClipboard";
 import { useHistory } from "./useHistory";
 import { useLoadState } from "./useLoadDesign";
 import { useDrawWall } from "./useDrawWall";
+import { usePattern } from "./usePattern";
 
 //所有設計功能的邏輯
 const buildDesign = ({
@@ -36,7 +34,6 @@ const buildDesign = ({
   setIsDrawingMode,
   startDrawWall,
   finishDrawWall,
-  polygon,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -99,7 +96,6 @@ const buildDesign = ({
     setIsDrawingMode,
     startDrawWall,
     finishDrawWall,
-    polygon,
   };
 };
 
@@ -296,6 +292,9 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     saveDesign,
   });
 
+  //材質 pattern
+  const { applyPattern, adjustPatternScale } = usePattern({ canvas });
+
   //繪製牆體
   const {
     isDrawingMode,
@@ -303,10 +302,17 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     startDrawWall,
     startDrawing,
     draw,
-    endDrawing,
     finishDrawWall,
-    polygon,
-  } = useDrawWall({ canvas, gridRef, save });
+    rooms,
+  } = useDrawWall({
+    canvas,
+    gridRef,
+    save,
+    updateGridColor,
+    updateCanvasColor,
+    applyPattern,
+    adjustPatternScale,
+  });
 
   //處理畫布事件
   useCanvasEvents({
@@ -520,7 +526,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         setIsDrawingMode,
         startDrawWall,
         finishDrawWall,
-        polygon,
       });
     }
 
@@ -537,7 +542,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setIsDrawingMode,
     startDrawWall,
     finishDrawWall,
-    polygon,
   ]);
 
   return { initCanvas, design };

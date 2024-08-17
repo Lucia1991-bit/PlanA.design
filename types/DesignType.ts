@@ -36,6 +36,24 @@ export const OBJECT_STATE = [
   "evented",
   "originX",
   "originY",
+  // 新增的屬性
+  "lockMovementX",
+  "lockMovementY",
+  "lockRotation",
+  "lockScalingX",
+  "lockScalingY",
+  "hasBorders",
+  "cornerColor",
+  "cornerStyle",
+  "borderColor",
+  "borderScaleFactor",
+  "transparentCorners",
+  "borderOpacityWhenMoving",
+  "cornerStrokeColor",
+  "patternTransform",
+  "patternSourceType",
+  "source", // 這對於 Pattern 很重要
+  "repeat",
 ];
 
 export const selectionDependentTools = [
@@ -87,7 +105,6 @@ export type BuildDesignProps = {
   setIsDrawingMode: (mode: boolean) => void;
   startDrawWall: () => void;
   finishDrawWall: () => void;
-  polygon: fabric.Polygon | null;
   // autoZoom: () => void;
   // copy: () => void;
   // paste: () => void;
@@ -120,7 +137,6 @@ export interface Design {
   setIsDrawingMode: (mode: boolean) => void;
   startDrawWall: () => void;
   finishDrawWall: () => void;
-  polygon: fabric.Polygon | null;
   // autoZoom: () => void;
   // zoomIn: () => void;
   // zoomOut: () => void;
