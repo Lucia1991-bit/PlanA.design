@@ -34,6 +34,7 @@ const buildDesign = ({
   setIsDrawingMode,
   startDrawWall,
   finishDrawWall,
+  applyPattern,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -96,6 +97,7 @@ const buildDesign = ({
     setIsDrawingMode,
     startDrawWall,
     finishDrawWall,
+    applyPattern,
   };
 };
 
@@ -526,6 +528,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         setIsDrawingMode,
         startDrawWall,
         finishDrawWall,
+        applyPattern,
       });
     }
 
@@ -542,6 +545,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setIsDrawingMode,
     startDrawWall,
     finishDrawWall,
+    applyPattern,
   ]);
 
   return { initCanvas, design };

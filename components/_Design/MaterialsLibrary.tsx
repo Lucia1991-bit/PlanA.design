@@ -1,3 +1,4 @@
+import { fabric } from "fabric";
 import React, { useEffect, useState } from "react";
 import SidePanelHeader from "../_UI/SidePanelHeader";
 import {
@@ -14,6 +15,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import Image from "next/image";
@@ -33,6 +35,7 @@ const MaterialsLibrary = ({
 }: MaterialsLibraryProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [showLoading, setShowLoading] = useState(true);
+  const toast = useToast();
 
   const { data, isLoading, isError, error, prefetchNext, categories } =
     useMaterials(activeTabIndex);
@@ -52,6 +55,50 @@ const MaterialsLibrary = ({
     setActiveTabIndex(index);
     // 預取下一個類別的資料
     prefetchNext(index);
+  };
+
+  const isValidObject = (object: fabric.Object): boolean => {
+    // 檢查物件是否為 room 類型（多邊形）或名稱為 "room"
+    return object instanceof fabric.Polygon || object.name === "room";
+  };
+
+  const handleMaterialClick = (materialImageUrl: string) => {
+    if (design && design.canvas) {
+      const activeObject = design.canvas.getActiveObject();
+      if (activeObject) {
+        if (isValidObject(activeObject)) {
+          design.applyPattern(activeObject, materialImageUrl, {
+            scaleX: 1,
+            scaleY: 1,
+          });
+          // toast({
+          //   title: "材質已應用",
+          //   description: "新的材質已成功應用到選中的房間。",
+          //   status: "success",
+          //   duration: 3000,
+          //   isClosable: true,
+          // });
+        } else {
+          toast({
+            title: "無法應用材質",
+            description: "選中的物件不是有效的房間。請選擇一個房間物件。",
+            variant: "subtle",
+            status: "warning",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } else {
+        toast({
+          title: "請選擇房間",
+          description: "請先選擇一個房間，再應用材質。",
+          variant: "subtle",
+          status: "info",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
   };
 
   return (
@@ -151,6 +198,9 @@ const MaterialsLibrary = ({
                         transition="all 0.15s ease-in-out"
                         border={`0.5px solid #c7c8c8`}
                         position="relative"
+                        onClick={() =>
+                          handleMaterialClick(material.small_imageUrl)
+                        }
                       >
                         <Box w="100%" h="100%" position="absolute">
                           <Image

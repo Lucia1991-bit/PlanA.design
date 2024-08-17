@@ -22,7 +22,7 @@ export const useUpdateDesign = ({ userId, boardId }: UseUpdateDesignProps) => {
         setIsUpdating(false);
         setHasSaved(true);
 
-        // 可以設置一個定時器來重置 hasSaved 狀態
+        // 設置定時器來重置 hasSaved 狀態
         setTimeout(() => setHasSaved(false), 2000);
       } catch (error) {
         setError(
