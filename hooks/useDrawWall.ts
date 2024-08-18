@@ -46,7 +46,7 @@ export const useDrawWall = ({
     "https://res.cloudinary.com/datj4og4i/image/upload/v1723533704/plan-a/material/%E6%9C%A8%E5%9C%B0%E6%9D%BF/wood25_small.jpg";
 
   // 常量定義
-  const WALL_THICKNESS = 29;
+  const WALL_THICKNESS = 30;
 
   // 鎖點網格
   const snapToGrid = useCallback(
@@ -253,7 +253,7 @@ export const useDrawWall = ({
     }
 
     // 創建多邊形（如果有至少3條線）
-    if (completedWalls.length >= 2) {
+    if (completedWalls.length >= 4) {
       const points = completedWalls.map(
         (line) => new fabric.Point(line.x1!, line.y1!)
       );
