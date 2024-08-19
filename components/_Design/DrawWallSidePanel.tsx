@@ -44,9 +44,17 @@ const DrawWallSidePanel = ({
       >
         <SidePanelHeader
           title="繪製牆體"
-          description={isDrawing ? "點擊或按Esc退出繪製模式" : "點擊後開始繪製"}
+          description={
+            isDrawing
+              ? "請使用滑鼠左鍵點擊並拖曳以繪製牆體，拖曳到滿意的位置後再點擊一次繪製下一道牆"
+              : "點擊下方按鈕後進入繪製模式"
+          }
+          instruction={
+            isDrawing ? "完成繪製後按下方按鈕或Esc鍵退出繪製模式" : ""
+          }
+          image={isDrawing ? "/instruction.gif" : ""}
         />
-        <HStack width="100%">
+        <HStack width="100%" px={3}>
           <LeftToolBarItem
             buttonWidth="30%"
             borderRadius="5px"
@@ -61,7 +69,7 @@ const DrawWallSidePanel = ({
         </HStack>
         <Divider borderColor={color.toolBar.subText} />
         <SidePanelHeader title="放置門窗" description="請選擇門窗組件" />
-        <HStack width="100%">
+        <HStack width="100%" px={3}>
           <LeftToolBarItem
             buttonWidth="30%"
             borderRadius="5px"

@@ -160,20 +160,14 @@ export const useDrawWall = ({
         mtr: false,
       });
 
+      //創建一條新的線
       currentLineRef.current = newLine;
       canvas.add(newLine);
       ensureDesignElementsAtBottom();
       canvas.renderAll();
       save();
     },
-    [
-      isDrawingMode,
-      canvas,
-      snapToGrid,
-      color.wall.fill,
-      save,
-      ensureDesignElementsAtBottom,
-    ]
+    [isDrawingMode, canvas, snapToGrid, save, ensureDesignElementsAtBottom]
   );
 
   // 繪製中
@@ -191,7 +185,9 @@ export const useDrawWall = ({
         x = startPoint.x;
       }
 
+      //不斷改變線的終點，創造線條隨著滑鼠移動的效果
       currentLineRef.current.set({ x2: x, y2: y });
+      //TODO:可以改成requestRenderAll看看能不能提升效能
       canvas.renderAll();
     },
     [isDrawingMode, canvas, currentPath, snapToGrid]
@@ -252,7 +248,7 @@ export const useDrawWall = ({
       currentLineRef.current = null;
     }
 
-    // 創建多邊形（如果有至少3條線）
+    // 創建多邊形（如果有至少 4條線）
     if (completedWalls.length >= 4) {
       const points = completedWalls.map(
         (line) => new fabric.Point(line.x1!, line.y1!)
