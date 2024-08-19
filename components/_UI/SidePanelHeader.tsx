@@ -31,7 +31,9 @@ const SidePanelHeader = ({
       <Text fontSize="13px" color={color.toolBar.subText} mb="5px">
         {description}
       </Text>
-      {image && <Image src={image} width={300} height={100} alt="gif" />}
+      {image && (
+        <Image priority src={image} width={300} height={100} alt="gif" />
+      )}
       <Text fontSize="13px" color={color.toolBar.subText} mt="5px">
         {instruction}
       </Text>
