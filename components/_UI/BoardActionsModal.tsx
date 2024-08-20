@@ -96,7 +96,7 @@ const BoardActionsModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size={{ base: "sm", md: "md", lg: "lg" }}
+      size={{ base: "xs", sm: "sm", md: "md", lg: "lg" }}
       preserveScrollBarGap
     >
       <ModalOverlay />
@@ -106,7 +106,7 @@ const BoardActionsModal = ({
         onKeyDown={handleKeyDown}
         bg="brand.primary_light"
       >
-        <ModalHeader>{config.title}</ModalHeader>
+        <ModalHeader fontSize={{ base: "lg" }}>{config.title}</ModalHeader>
         <ModalCloseButton _focus={{ outline: "none", boxShadow: "none" }} />
         <ModalBody>
           <Text>{config.bodyText}</Text>

@@ -71,7 +71,7 @@ const NavBar = () => {
         bottom={0}
         opacity={isLoaded ? 1 : 0}
         height={
-          isScrolled ? "65px" : { base: "100px", md: "150px", lg: "200px" }
+          isScrolled ? "65px" : { base: "100px", md: "120px", lg: "200px" }
         }
         animation={isLoaded ? `${slideDown} 0.5s ease-out` : "none"}
         transition="all 0.3s ease-in-out"
@@ -103,11 +103,11 @@ const NavBar = () => {
               {/* LOGO在使用者往下滑時縮小 */}
               <Box
                 position="relative"
-                width={{ base: "120px", md: "150px", lg: "175px" }}
-                height={{ base: "50px", md: "65px", lg: "75px" }}
+                width={{ base: "90px", md: "120px", lg: "175px" }}
+                height={{ base: "38px", md: "65px", lg: "75px" }}
                 transform={
                   isScrolled
-                    ? { base: "scale(0.9)", lg: "scale(0.5)", xl: "scale(0.6)" }
+                    ? { base: "scale(1)", lg: "scale(0.5)", xl: "scale(0.6)" }
                     : "scale(1)"
                 }
               >

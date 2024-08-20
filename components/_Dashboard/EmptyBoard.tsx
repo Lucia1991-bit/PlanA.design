@@ -18,6 +18,7 @@ const EmptyBoard = () => {
       position="absolute"
       top="0"
       left="0"
+      py={{ base: 0, md: "80px" }}
     >
       <Box
         position="relative"

@@ -127,7 +127,7 @@ const HomePage = () => {
         </MotionBox>
         <Box
           position="absolute"
-          top={{ base: "23%", lg: "40%" }}
+          top={{ base: "25%", lg: "40%" }}
           left={{ base: "50%", lg: "6%" }}
           transform={{ base: "translateX(-50%)", lg: "none" }}
           width={{ base: "85%", lg: "1300px" }}
@@ -146,7 +146,7 @@ const HomePage = () => {
             animate="visible"
             whiteSpace="nowrap"
             fontWeight="200"
-            fontSize={{ base: "40px", md: "55px", lg: "70px", xl: "75px" }}
+            fontSize={{ base: "38px", md: "55px", lg: "70px", xl: "75px" }}
           >
             {"SHAPE A PLAN".split("").map((char, index) => (
               <motion.span key={index} variants={letterVariants}>
@@ -168,12 +168,12 @@ const HomePage = () => {
                 whiteSpace="nowrap"
                 fontWeight="300"
                 fontSize={{
-                  base: "45px",
+                  base: "40px",
                   md: "63px",
                   lg: "80px",
                   xl: "85px",
                 }}
-                mt="-20px"
+                mt="-15px"
                 color="brand.primary"
               >
                 {slogans[currentSlogan].split("").map((char, index) => (

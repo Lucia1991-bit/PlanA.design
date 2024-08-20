@@ -4,6 +4,7 @@ import SidePanelHeader from "../_UI/SidePanelHeader";
 import {
   Box,
   Button,
+  CloseButton,
   Flex,
   Grid,
   HStack,
@@ -23,6 +24,7 @@ import useDesignPageColor from "@/hooks/useDesignPageColor";
 import SidePanelCloseButton from "../_UI/SidePanelCloseButton";
 import { Design } from "@/types/DesignType";
 import { useMaterials } from "@/hooks/useMaterials";
+import { InfoIcon, WarningIcon } from "@chakra-ui/icons";
 
 interface MaterialsLibraryProps {
   design: Design | undefined;
@@ -71,36 +73,88 @@ const MaterialsLibrary = ({
             scaleX: 1,
             scaleY: 1,
           });
-          // toast({
-          //   title: "材質已應用",
-          //   description: "新的材質已成功應用到選中的房間。",
-          //   status: "success",
-          //   duration: 3000,
-          //   isClosable: true,
-          // });
         } else {
           toast({
             title: "無法應用材質",
-            description: "選中的物件不是有效的房間。請選擇一個房間物件。",
-            variant: "subtle",
+            description: "選中的物件不是有效的房間。請選擇一個房間物件",
             status: "warning",
-            duration: 3000,
+            duration: 2000,
             isClosable: true,
+            position: "top-right",
+            render: ({ title, description, onClose }) => (
+              <Box
+                color="brand.dark"
+                p={3}
+                bg="#f9f9f8"
+                borderRadius="md"
+                border="1px solid"
+                borderColor="brand.light"
+                borderLeft="4px solid"
+                borderLeftColor="orange.500"
+                boxShadow="md"
+                position="relative"
+                mt="110px"
+                mr="20px"
+              >
+                <Flex>
+                  <WarningIcon color="orange.500" mr={3} mt={1} />
+                  <Box>
+                    <Text fontWeight="bold">{title}</Text>
+                    <Text fontSize="sm" mt={1}>
+                      {description}
+                    </Text>
+                  </Box>
+                  <CloseButton ml="10px" size="sm" onClick={onClose} />
+                </Flex>
+              </Box>
+            ),
           });
         }
       } else {
         toast({
           title: "請選擇房間",
-          description: "請先選擇一個房間，再應用材質。",
-          variant: "subtle",
+          description: "請先選擇一個房間，再應用材質",
           status: "info",
-          duration: 3000,
+          duration: 2000,
           isClosable: true,
+          position: "top-right",
+          render: ({ title, description, onClose }) => (
+            <Box
+              color="brand.dark"
+              p={3}
+              bg="#f9f9f8"
+              borderRadius="md"
+              border="1px solid"
+              borderColor="brand.light"
+              borderLeft="4px solid"
+              borderLeftColor="blue.500"
+              boxShadow="md"
+              position="relative"
+              mt="110px"
+              mr="20px"
+            >
+              <Flex>
+                <InfoIcon color="blue.500" mr={3} mt={1} />
+                <Box>
+                  <Text fontWeight="bold">{title}</Text>
+                  <Text fontSize="sm" mt={1}>
+                    {description}
+                  </Text>
+                </Box>
+              </Flex>
+              <CloseButton
+                size="sm"
+                onClick={onClose}
+                position="absolute"
+                right={2}
+                top={2}
+              />
+            </Box>
+          ),
         });
       }
     }
   };
-
   return (
     <>
       <VStack
@@ -207,7 +261,7 @@ const MaterialsLibrary = ({
                             fill
                             src={material.small_imageUrl}
                             alt={material.name}
-                            style={{ objectFit: "contain" }}
+                            style={{ objectFit: "cover" }}
                             sizes="(max-width: 768px) 100vw, 50vw"
                             unoptimized // 添加這行以禁用 Next.js 的自動優化
                           />

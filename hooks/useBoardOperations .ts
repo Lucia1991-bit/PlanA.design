@@ -8,6 +8,7 @@ import {
 } from "@/operations/BoardOperation";
 import { useToast } from "@chakra-ui/react";
 import { NewBoard } from "@/types/BoardType";
+import { useCustomToast } from "./useCustomToast";
 
 const images = [
   "/boards/placeholders/1.svg",
@@ -33,22 +34,7 @@ export const useBoardOperations = () => {
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
   //動作完成後的 Toast通知
-  const showToast = (title: string, status: "success" | "error") => {
-    toast({
-      title,
-      status,
-      duration: 2000,
-      position: "top-right",
-      isClosable: true,
-      variant: "left-accent",
-      containerStyle: {
-        marginTop: "20px",
-        marginRight: "20px",
-        maxWidth: { base: "100px", lg: "200px" },
-        fontSize: { base: "14px", lg: "16px" },
-      },
-    });
-  };
+  const showToast = useCustomToast();
 
   //新增設計
   const createBoard = async () => {
@@ -69,9 +55,7 @@ export const useBoardOperations = () => {
       if (newBoardId) {
         setIsLoading(false);
         // showToast("新增成功", "success");
-        setTimeout(() => {
-          route.push(`/design/${newBoardId}`);
-        }, 200);
+        route.push(`/design/${newBoardId}`);
       }
     } catch (error) {
       showToast("新增失敗，請稍後再試", "error");

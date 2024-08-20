@@ -5,6 +5,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  border,
   Box,
   Button,
   FormControl,
@@ -24,6 +25,7 @@ import { AuthError } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import OAuth from "@/components/_Auth/OAuth";
+import { bg } from "date-fns/locale";
 
 type AlertStatus = "error" | "success";
 
@@ -117,10 +119,8 @@ const AuthForm = () => {
       setPassword("");
       setIsLoading(false);
 
-      setTimeout(() => {
-        closeAuthModal();
-        router.push("/dashboard");
-      }, 500);
+      closeAuthModal();
+      router.push("/dashboard");
     } catch (error) {
       const errorMessage = handleFirebaseError(error as AuthError);
       handleAlert({
@@ -186,6 +186,16 @@ const AuthForm = () => {
               fontSize: { base: "14px", md: "15px", lg: "16px" },
               color: "#b5b5b5",
             }}
+            sx={{
+              "&:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 1000px white inset !important",
+                WebkitTextFillColor: "inherit !important",
+                caretColor: "inherit !important",
+              },
+              "&:-webkit-autofill:focus": {
+                WebkitBoxShadow: "0 0 0 1000px white inset !important",
+              },
+            }}
           />
         </InputGroup>
       </FormControl>
@@ -213,6 +223,16 @@ const AuthForm = () => {
             _placeholder={{
               fontSize: { base: "14px", md: "15px", lg: "16px" },
               color: "#b5b5b5",
+            }}
+            sx={{
+              "&:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 1000px white inset !important",
+                WebkitTextFillColor: "inherit !important",
+                caretColor: "inherit !important",
+              },
+              "&:-webkit-autofill:focus": {
+                WebkitBoxShadow: "0 0 0 1000px white inset !important",
+              },
             }}
           />
         </InputGroup>
