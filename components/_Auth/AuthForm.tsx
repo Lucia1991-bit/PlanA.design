@@ -73,20 +73,11 @@ const AuthForm = () => {
     }
   };
 
-  //根據不同狀態取得 alert背景色
-  const getAlertBgColor = (status: AlertStatus) => {
-    if (status === "error") {
-      return "red.100";
-    } else {
-      return "green.100";
-    }
-  };
-
   //處理 alert 訊息
   const handleAlert = (info: AlertInfo) => {
     setAlertInfo(info);
     // 添加一個定時器來自動清除 alert
-    setTimeout(() => setAlertInfo(null), 5000);
+    setTimeout(() => setAlertInfo(null), 2000);
   };
 
   //在註冊/登入表單間切換
@@ -119,8 +110,10 @@ const AuthForm = () => {
       setPassword("");
       setIsLoading(false);
 
-      closeAuthModal();
-      router.push("/dashboard");
+      setTimeout(() => {
+        closeAuthModal();
+        router.push("/dashboard");
+      }, 800);
     } catch (error) {
       const errorMessage = handleFirebaseError(error as AuthError);
       handleAlert({
@@ -146,13 +139,24 @@ const AuthForm = () => {
         <Alert
           status={alertInfo.status}
           borderRadius="5px"
-          variant="left-accent"
-          bg={getAlertBgColor(alertInfo.status)}
+          variant="solid"
+          bg={alertInfo.status === "error" ? "red.50" : "green.50"}
+          borderLeft="4px solid"
+          borderLeftColor={
+            alertInfo.status === "error" ? "red.500" : "green.500"
+          }
           opacity={1}
+          color="brand.dark"
+          boxShadow="sm"
         >
-          <AlertIcon />
+          <AlertIcon
+            color={alertInfo.status === "error" ? "red.500" : "green.500"}
+          />
           <Box>
-            <AlertTitle fontSize={{ base: "15px", md: "17px", lg: "18px" }}>
+            <AlertTitle
+              fontSize={{ base: "15px", md: "17px", lg: "18px" }}
+              fontWeight="bold"
+            >
               {alertInfo.title}
             </AlertTitle>
             <AlertDescription

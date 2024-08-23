@@ -1,14 +1,16 @@
 "use client";
 
+import { useParams, useRouter, notFound } from "next/navigation";
+import Image from "next/image";
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { Box, Text, useBreakpointValue, VStack } from "@chakra-ui/react";
 import { useDesignColorMode } from "@/context/colorModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import useSingleBoard from "@/hooks/useSingleBoard";
 import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
 import DesignEditor from "@/components/_Design/DesignEditor";
-import Image from "next/image";
+import Error from "@/app/error";
+import NotFound from "@/app/not-found";
 
 const DesignPage = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -56,11 +58,11 @@ const DesignPage = () => {
   }
 
   if (error) {
-    return <ErrorDisplay message="發生錯誤，請稍後再試" />;
+    return <Error />;
   }
 
   if (!board) {
-    return <ErrorDisplay message="找不到設計資料，請確認網址是否正確" />;
+    return <NotFound />;
   }
 
   return (

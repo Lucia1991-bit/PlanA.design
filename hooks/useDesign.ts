@@ -35,6 +35,8 @@ const buildDesign = ({
   startDrawWall,
   finishDrawWall,
   applyPattern,
+  contextMenuPosition,
+  handleContextMenuAction,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -98,6 +100,8 @@ const buildDesign = ({
     startDrawWall,
     finishDrawWall,
     applyPattern,
+    contextMenuPosition,
+    handleContextMenuAction,
   };
 };
 
@@ -317,13 +321,19 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   });
 
   //處理畫布事件
-  useCanvasEvents({
+  const {
+    contextMenuPosition,
+    setContextMenuPosition,
+    handleContextMenuAction,
+  } = useCanvasEvents({
     canvas,
-    setSelectedObjects,
     save,
     isDrawingMode,
     onStartDrawing: startDrawing,
     onDrawing: draw,
+    copy,
+    paste,
+    deleteObjects,
   });
 
   //畫布操作快捷鍵
@@ -428,83 +438,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
 
       // 保存初始狀態
       save();
-
-      // 在畫布準備好後保存初始狀態
-      // saveInitialState();
-
-      // const updatePatternScale = (
-      //   path: fabric.Path,
-      //   pattern: fabric.Pattern
-      // ) => {
-      //   (pattern as any).scaleX = 0.01;
-      //   (pattern as any).scaleY = 0.01;
-      //   // 确保 pattern 重复
-      //   (pattern as any).repeat = "repeat";
-
-      //   // 重新应用 Pattern
-      //   path.set("fill", null as any);
-      //   path.set("fill", pattern);
-
-      //   canvas.renderAll();
-      // };
-
-      // const addPatternPathSmallImage = (imageUrl: string) => {
-      //   const path = new fabric.Path("M 0 0 L 400 0 L 400 300 L 0 300 Z", {
-      //     left: 100,
-      //     top: 100,
-      //     stroke: "black",
-      //     strokeWidth: 2,
-      //   });
-
-      //   fabric.Image.fromURL(imageUrl, (img) => {
-      //     const patternSize = 50; // 显著减小图片大小
-      //     img.scaleToWidth(patternSize);
-
-      //     const pattern = new fabric.Pattern({
-      //       source: img.getElement() as HTMLImageElement,
-      //       repeat: "repeat",
-      //     });
-
-      //     path.set("fill", pattern);
-      //     canvas.add(path);
-      //     updatePatternScale(path, pattern);
-
-      //     path.on("scaled", () => updatePatternScale(path, pattern));
-
-      //     canvas.renderAll();
-      //   });
-      // };
-
-      // const addPatternPathLargePath = (imageUrl: string) => {
-      //   const path = new fabric.Path("M 0 0 L 1000 0 L 1000 750 L 0 750 Z", {
-      //     // 显著增大路径
-      //     left: 100,
-      //     top: 100,
-      //     stroke: "black",
-      //     strokeWidth: 2,
-      //   });
-
-      //   fabric.Image.fromURL(imageUrl, (img) => {
-      //     const patternSize = 200; // 保持较大的图片尺寸
-      //     img.scaleToWidth(patternSize);
-
-      //     const pattern = new fabric.Pattern({
-      //       source: img.getElement() as HTMLImageElement,
-      //       repeat: "repeat",
-      //     });
-
-      //     path.set("fill", pattern);
-      //     canvas.add(path);
-      //     updatePatternScale(path, pattern);
-
-      //     path.on("scaled", () => updatePatternScale(path, pattern));
-
-      //     canvas.renderAll();
-      //   });
-      // };
-
-      // addPatternPathSmallImage("/wood1.jpg");
-      // addPatternPathLargePath("/marble1.jpg");
     }
   }, [
     isCanvasReady,
@@ -529,6 +462,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         startDrawWall,
         finishDrawWall,
         applyPattern,
+        contextMenuPosition,
+        handleContextMenuAction,
       });
     }
 
@@ -546,6 +481,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     startDrawWall,
     finishDrawWall,
     applyPattern,
+    contextMenuPosition,
+    handleContextMenuAction,
   ]);
 
   return { initCanvas, design };

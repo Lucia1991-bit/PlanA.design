@@ -73,6 +73,10 @@ const RenameProjectButton: React.FC<RenameProjectButtonProps> = ({
 
   return (
     <Tooltip
+      px="8px"
+      py="4px"
+      borderRadius="3px"
+      fontSize="13px"
       label="更改專案名稱"
       placement="bottom"
       offset={[0, 15]}

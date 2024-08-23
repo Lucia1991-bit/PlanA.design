@@ -1,4 +1,5 @@
 import { PatternOptions } from "@/hooks/usePattern";
+import { MutableRefObject } from "react";
 
 export const MAIN_GRID_SIZE = 200; //一大格200px = 100cm
 export const SUB_GRID_SIZE = 20; //一小格20px = 10cm
@@ -88,6 +89,8 @@ export type ActiveTool =
 export interface DesignHookProps {
   defaultState?: string;
   saveDesign: (fabricData: string) => Promise<void>;
+  fabricCanvasRef: MutableRefObject<fabric.Canvas | null>;
+
   // clearSelectionCallback?: () => void;
   // saveCallback?: (values: {
   //   json: string;
@@ -116,6 +119,10 @@ export type BuildDesignProps = {
   // copy: () => void;
   // paste: () => void;
   canvas: fabric.Canvas;
+  contextMenuPosition: { x: number; y: number } | null;
+  handleContextMenuAction: (
+    action: "copy" | "paste" | "delete" | "close"
+  ) => void;
   // fillColor: string;
   // strokeColor: string;
   // strokeWidth: number;
@@ -161,6 +168,10 @@ export interface Design {
     object: fabric.Object,
     imageUrl: string,
     options?: PatternOptions
+  ) => void;
+  contextMenuPosition: { x: number; y: number } | null;
+  handleContextMenuAction: (
+    action: "copy" | "paste" | "delete" | "close"
   ) => void;
   // addPatternPath: (imageUrl: string) => void;
   // delete: () => void;

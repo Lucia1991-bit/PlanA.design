@@ -48,7 +48,7 @@ const MaterialsLibrary = ({
     // 設置最小顯示時間為 800 毫秒
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 800);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [isLoading]);

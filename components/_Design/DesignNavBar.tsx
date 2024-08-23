@@ -94,6 +94,10 @@ const DesignNavBar = ({
         />
         <HStack>
           <Tooltip
+            px="8px"
+            py="4px"
+            borderRadius="3px"
+            fontSize="13px"
             label="選取物件"
             placement="bottom"
             bg={color.tooltip.backgroundColor}
@@ -114,7 +118,11 @@ const DesignNavBar = ({
             />
           </Tooltip>
           <Tooltip
-            label="復原"
+            px="8px"
+            py="4px"
+            borderRadius="3px"
+            fontSize="13px"
+            label="復原 Ctrl+Z"
             placement="bottom"
             bg={color.tooltip.backgroundColor}
             color={color.tooltip.text}
@@ -138,7 +146,11 @@ const DesignNavBar = ({
           </Tooltip>
 
           <Tooltip
-            label="取消復原"
+            px="8px"
+            py="4px"
+            borderRadius="3px"
+            fontSize="13px"
+            label="取消復原 Ctrl+Y"
             placement="bottom"
             bg={color.tooltip.backgroundColor}
             color={color.tooltip.text}
@@ -162,7 +174,11 @@ const DesignNavBar = ({
           </Tooltip>
 
           <Tooltip
-            label="存檔"
+            px="8px"
+            py="4px"
+            borderRadius="3px"
+            fontSize="13px"
+            label="存檔 Ctrl+S"
             placement="bottom"
             bg={color.tooltip.backgroundColor}
             color={color.tooltip.text}

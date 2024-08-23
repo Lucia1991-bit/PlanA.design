@@ -1,46 +1,40 @@
+import { useCallback, useState, useEffect, useRef } from "react";
 import { fabric } from "fabric";
-import { useEffect, useRef, useCallback } from "react";
 import { MIN_ZOOM, MAX_ZOOM_LEVEL } from "@/types/DesignType";
-import { set } from "lodash";
 
-interface CanvasEventProps {
+interface UseCanvasEventsProps {
   canvas: fabric.Canvas | null;
-  setSelectedObjects: (objects: fabric.Object[]) => void;
-  save: () => void;
   isDrawingMode: boolean;
   onStartDrawing: (event: fabric.IEvent) => void;
   onDrawing: (event: fabric.IEvent) => void;
+  save: () => void;
+  copy: () => void;
+  paste: () => void;
+  deleteObjects: () => void;
 }
 
 const useCanvasEvents = ({
   canvas,
-  save,
   isDrawingMode,
   onStartDrawing,
   onDrawing,
-  setSelectedObjects,
-}: CanvasEventProps) => {
+  save,
+  copy,
+  paste,
+  deleteObjects,
+}: UseCanvasEventsProps) => {
   // 用於追踪畫布是否正在被拖動
   const isDraggingRef = useRef(false);
   // 用於存儲上一次鼠標位置，用於計算拖動距離
   const lastPosXRef = useRef(0);
   const lastPosYRef = useRef(0);
-
-  // 更新鼠標樣式
-  const updateCursor = useCallback(() => {
-    if (!canvas) return;
-    if (isDrawingMode) {
-      canvas.defaultCursor = "crosshair";
-    } else {
-      canvas.defaultCursor = "default";
-    }
-    canvas.requestRenderAll();
-  }, [canvas, isDrawingMode]);
-
-  // 當繪製模式改變時更新鼠標樣式
-  useEffect(() => {
-    updateCursor();
-  }, [isDrawingMode, updateCursor]);
+  // 用於追踪空白鍵是否被按下
+  const isSpacebarDownRef = useRef(false);
+  // 紀錄右鍵選單的位置
+  const [contextMenuPosition, setContextMenuPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
 
   // 處理滾輪縮放
   const handleWheel = useCallback(
@@ -57,7 +51,6 @@ const useCanvasEvents = ({
 
       const point = new fabric.Point(e.offsetX, e.offsetY);
       canvas.zoomToPoint(point, zoom);
-
       canvas.renderAll();
     },
     [canvas]
@@ -69,8 +62,42 @@ const useCanvasEvents = ({
       if (!canvas) return;
       const evt = opt.e as MouseEvent;
 
-      if (evt.altKey === true) {
-        // Alt 鍵按下時進入拖動模式
+      console.log(
+        "Mouse event:",
+        evt.type,
+        "Button:",
+        evt.button,
+        "Which:",
+        evt.which
+      );
+
+      // 處理右鍵點擊
+      if (evt.button === 3 || evt.which === 3) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        const pointer = canvas.getPointer(evt);
+        const target = canvas.findTarget(evt as any, false);
+
+        console.log("Right click detected", pointer, target);
+
+        // 無論是否有目標物件，都設置 contextMenu 位置
+        setContextMenuPosition({ x: evt.clientX, y: evt.clientY });
+        console.log("Context menu position set:", {
+          x: evt.clientX,
+          y: evt.clientY,
+        });
+
+        if (target) {
+          canvas.setActiveObject(target);
+        } else {
+          canvas.discardActiveObject();
+        }
+        canvas.renderAll();
+        return;
+      }
+
+      // 空白鍵按下時進入拖動模式
+      if (isSpacebarDownRef.current) {
         isDraggingRef.current = true;
         lastPosXRef.current = evt.clientX;
         lastPosYRef.current = evt.clientY;
@@ -81,9 +108,11 @@ const useCanvasEvents = ({
       } else if (isDrawingMode) {
         // 在繪製模式下開始繪製
         onStartDrawing(opt);
+      } else {
+        setContextMenuPosition(null);
       }
     },
-    [canvas, isDrawingMode, onStartDrawing]
+    [canvas, isDrawingMode, onStartDrawing, setContextMenuPosition]
   );
 
   // 處理鼠標移動事件
@@ -92,33 +121,19 @@ const useCanvasEvents = ({
       if (!canvas) return;
       const evt = opt.e as MouseEvent;
 
-      if (isDraggingRef.current && evt.altKey) {
+      if (isDraggingRef.current && isSpacebarDownRef.current) {
         // 處理畫布拖動
-        const e = opt.e as MouseEvent;
         const vpt = canvas.viewportTransform;
         if (!vpt) return;
 
-        const dx = e.clientX - lastPosXRef.current;
-        const dy = e.clientY - lastPosYRef.current;
+        const dx = evt.clientX - lastPosXRef.current;
+        const dy = evt.clientY - lastPosYRef.current;
 
-        const zoom = canvas.getZoom();
-        const canvasWidth = canvas.getWidth();
-        const canvasHeight = canvas.getHeight();
+        vpt[4] += dx;
+        vpt[5] += dy;
 
-        const maxPanX = canvasWidth / zoom / 2;
-        const maxPanY = canvasHeight / zoom / 2;
-
-        vpt[4] = Math.min(
-          Math.max(vpt[4] + dx, -maxPanX * zoom),
-          maxPanX * zoom
-        );
-        vpt[5] = Math.min(
-          Math.max(vpt[5] + dy, -maxPanY * zoom),
-          maxPanY * zoom
-        );
-
-        lastPosXRef.current = e.clientX;
-        lastPosYRef.current = e.clientY;
+        lastPosXRef.current = evt.clientX;
+        lastPosYRef.current = evt.clientY;
 
         canvas.requestRenderAll();
         canvas.setCursor("grabbing");
@@ -127,7 +142,7 @@ const useCanvasEvents = ({
         onDrawing(opt);
       }
     },
-    [canvas, isDrawingMode, onDrawing, updateCursor]
+    [canvas, isDrawingMode, onDrawing]
   );
 
   // 處理鼠標釋放事件
@@ -135,14 +150,43 @@ const useCanvasEvents = ({
     if (!canvas) return;
     if (isDraggingRef.current) {
       isDraggingRef.current = false;
-      updateCursor();
+      canvas.defaultCursor = isDrawingMode ? "crosshair" : "default";
       if (!isDrawingMode) {
         save(); // 在非繪製模式下，拖動結束後保存狀態
       }
     }
+    // 在繪製模式下取消原本物件選取
     canvas.selection = !isDrawingMode;
     canvas.requestRenderAll();
-  }, [canvas, isDrawingMode, updateCursor, save]);
+  }, [canvas, isDrawingMode, save]);
+
+  // 處理鍵盤按下事件
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === "Space" && !isSpacebarDownRef.current) {
+        isSpacebarDownRef.current = true;
+        if (canvas) {
+          canvas.defaultCursor = "grab";
+          canvas.requestRenderAll();
+        }
+      }
+    },
+    [canvas]
+  );
+
+  // 處理鍵盤釋放事件
+  const handleKeyUp = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        isSpacebarDownRef.current = false;
+        if (canvas) {
+          canvas.defaultCursor = isDrawingMode ? "crosshair" : "default";
+          canvas.requestRenderAll();
+        }
+      }
+    },
+    [canvas, isDrawingMode]
+  );
 
   // 處理物件旋轉，實現旋轉吸附
   const handleObjectRotate = useCallback(
@@ -164,111 +208,67 @@ const useCanvasEvents = ({
     [canvas]
   );
 
-  // 處理物件修改（添加、刪除、修改）
-  const handleObjectModification = useCallback(() => {
-    if (!isDrawingMode) {
-      save(); // 只在非繪製模式下保存狀態
-    }
-  }, [isDrawingMode, save]);
-
-  //處理物件選取事件
-  const handleSelection = useCallback(
-    (event: fabric.IEvent) => {
-      if (!canvas) return;
-
-      const selected = event.selected;
-      if (!selected || selected.length === 0) return;
-
-      const hasWallLine = selected.some(
-        (obj: fabric.Object) => obj.name === "wallLine"
-      );
-      if (!hasWallLine) return;
-
-      const activeObject = canvas.getActiveObject();
-      if (!activeObject) return;
-
-      const applyRestrictions = (
-        obj: fabric.Object | fabric.ActiveSelection
-      ) => {
-        obj.set({
-          lockMovementX: true,
-          lockMovementY: true,
-          lockRotation: true,
-          lockScalingX: true,
-          lockScalingY: true,
-          hasControls: false,
-          hasBorders: true,
-        });
-      };
-
-      applyRestrictions(activeObject);
-      activeObject.setCoords();
-      canvas.requestRenderAll();
-
-      setSelectedObjects(selected);
+  // 處理右鍵Menu動作
+  const handleContextMenuAction = useCallback(
+    (action: "copy" | "paste" | "delete" | "close") => {
+      switch (action) {
+        case "copy":
+          copy();
+          break;
+        case "paste":
+          paste();
+          break;
+        case "delete":
+          deleteObjects();
+          break;
+        case "close":
+          setContextMenuPosition(null);
+          break;
+      }
     },
-    [canvas, setSelectedObjects]
+    [copy, paste, deleteObjects]
   );
 
   // 設置和清理畫布事件監聽器
   useEffect(() => {
     if (!canvas) return;
 
-    // 為物件操作添加事件監聽
-    canvas.on("object:added", handleObjectModification);
-    canvas.on("object:removed", handleObjectModification);
-    canvas.on("object:modified", handleObjectModification);
-
-    canvas.on("selection:created", handleSelection);
-    canvas.on("selection:updated", handleSelection);
-    canvas.on("selection:cleared", () => {
-      console.log("選擇已清除");
-    });
-
-    // 為其他畫布事件添加監聽
     canvas.on("mouse:wheel", handleWheel);
     canvas.on("mouse:down", handleMouseDown);
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
     canvas.on("object:rotating", handleObjectRotate);
 
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
     // 清理函數
     return () => {
-      canvas.off("object:added", handleObjectModification);
-      canvas.off("object:removed", handleObjectModification);
-      canvas.off("object:modified", handleObjectModification);
-
-      canvas.off("selection:created", handleSelection);
-      canvas.off("selection:updated", handleSelection);
-      canvas.off("selection:cleared");
-
       canvas.off("mouse:wheel", handleWheel);
       canvas.off("mouse:down", handleMouseDown);
       canvas.off("mouse:move", handleMouseMove);
       canvas.off("mouse:up", handleMouseUp);
       canvas.off("object:rotating", handleObjectRotate);
+
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [
     canvas,
-    handleObjectModification,
     handleWheel,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
     handleObjectRotate,
+    handleKeyDown,
+    handleKeyUp,
   ]);
 
-  // 當繪製模式改變時更新畫布狀態
-  useEffect(() => {
-    if (canvas) {
-      canvas.selection = !isDrawingMode; // 在繪製模式下禁用選擇
-      if (isDrawingMode) {
-        canvas.discardActiveObject(); // 在進入繪製模式時取消當前選中的物件
-        canvas.requestRenderAll();
-      }
-      updateCursor();
-    }
-  }, [canvas, isDrawingMode, updateCursor]);
+  return {
+    contextMenuPosition,
+    setContextMenuPosition,
+    handleContextMenuAction,
+  };
 };
 
 export default useCanvasEvents;

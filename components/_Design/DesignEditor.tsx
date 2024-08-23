@@ -1,16 +1,17 @@
 import { fabric } from "fabric";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BoardType } from "@/types/BoardType";
+import { Box, Divider } from "@chakra-ui/react";
 import useDesign from "@/hooks/useDesign";
+import { useUpdateDesign } from "@/hooks/useUpdateDesign";
 import DesignNavBar from "./DesignNavBar";
 import LeftToolBar from "./LeftToolBar";
-import { ActiveTool, Design } from "@/types/DesignType";
 import MaterialsLibrary from "./MaterialsLibrary";
 import SidePanel from "@/components/_UI/SidePanel";
 import FurnitureLibrary from "./FurnitureLibrary";
-import { Box, Divider } from "@chakra-ui/react";
 import DrawWallSidePanel from "./DrawWallSidePanel";
-import { useUpdateDesign } from "@/hooks/useUpdateDesign";
+import { ActiveTool, Design } from "@/types/DesignType";
+import { BoardType } from "@/types/BoardType";
+import ContextMenu from "./ContextMenu";
 
 interface DesignEditorProps {
   board: BoardType;
@@ -29,6 +30,7 @@ const shouldOpenSidebar = (tool: ActiveTool) => toolsWithSidebar.includes(tool);
 const DesignEditor = ({ board, userId }: DesignEditorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
@@ -60,6 +62,11 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
     saveDesign,
   });
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Default context menu prevented in DesignEditor");
+  }, []);
+
   useEffect(() => {
     const canvasElement = canvasRef.current;
     const containerElement = containerRef.current;
@@ -70,6 +77,8 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
 
     const canvas = new fabric.Canvas(canvasRef.current, {
       preserveObjectStacking: true,
+      stopContextMenu: true,
+      fireRightClick: true,
     });
 
     initCanvas({
@@ -119,8 +128,19 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
         overflow="hidden"
         position="relative"
         ref={containerRef}
+        onContextMenu={handleContextMenu}
       >
         <canvas ref={canvasRef} style={{ zIndex: "0" }} />
+        {design?.contextMenuPosition && (
+          <ContextMenu
+            x={design.contextMenuPosition.x}
+            y={design.contextMenuPosition.y}
+            onClose={() => design.handleContextMenuAction("close")}
+            onCopy={() => design.handleContextMenuAction("copy")}
+            onPaste={() => design.handleContextMenuAction("paste")}
+            onDelete={() => design.handleContextMenuAction("delete")}
+          />
+        )}
       </Box>
     </Box>
   );

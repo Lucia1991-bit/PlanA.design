@@ -173,7 +173,7 @@ const HomePage = () => {
                   lg: "80px",
                   xl: "85px",
                 }}
-                mt="-15px"
+                mt={{ base: "-15px", md: "-20px" }}
                 color="brand.primary"
               >
                 {slogans[currentSlogan].split("").map((char, index) => (

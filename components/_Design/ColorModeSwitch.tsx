@@ -14,6 +14,10 @@ const ColorModeSwitch = () => {
 
   return (
     <Tooltip
+      px="8px"
+      py="4px"
+      borderRadius="3px"
+      fontSize="13px"
       label="切換色彩主題"
       placement="bottom"
       offset={[0, 15]}
