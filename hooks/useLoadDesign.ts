@@ -1,8 +1,8 @@
 import { fabric } from "fabric";
 import { useEffect, useRef } from "react";
-import { OBJECT_STATE } from "@/types/DesignType";
+import { CanvasLayer, OBJECT_STATE } from "@/types/DesignType";
 
-interface UseLoadStateProps {
+interface UseLoadDesignProps {
   canvas: fabric.Canvas | null;
   initialState: React.MutableRefObject<string | undefined>;
   canvasHistory: React.MutableRefObject<string[]>;
@@ -10,9 +10,14 @@ interface UseLoadStateProps {
   gridRef: React.MutableRefObject<fabric.Group | null>;
   updateGridColor: () => void;
   updateCanvasColor: () => void;
+  updateGridPosition: () => void;
+  setCanvasLayers: React.Dispatch<React.SetStateAction<CanvasLayer[]>>;
+  setImageResources: React.Dispatch<
+    React.SetStateAction<Record<string, string>>
+  >;
 }
 
-export const useLoadState = ({
+export const useLoadDesign = ({
   canvas,
   initialState,
   canvasHistory,
@@ -20,53 +25,119 @@ export const useLoadState = ({
   gridRef,
   updateGridColor,
   updateCanvasColor,
-}: UseLoadStateProps) => {
+  updateGridPosition,
+  setCanvasLayers,
+  setImageResources,
+}: UseLoadDesignProps) => {
   const initialized = useRef(false);
 
   useEffect(() => {
     if (!initialized.current && initialState?.current && canvas) {
-      const data = JSON.parse(initialState.current);
+      try {
+        // 首先解析外層的 JSON 字符串
+        const parsedInitialState = JSON.parse(initialState.current);
 
-      const grid = gridRef.current;
-      if (grid) {
-        canvas.remove(grid);
-      }
+        // 然後解析內層的 JSON 字符串
+        const {
+          canvasState,
+          canvasLayers = [],
+          imageResources = {},
+        } = JSON.parse(parsedInitialState);
 
-      // 處理 Pattern
-      if (data.objects) {
-        data.objects.forEach((obj: any) => {
-          if (obj.fill && obj.fill.type === "pattern") {
-            fabric.util.loadImage(obj.fill.source, (img) => {
-              obj.fill = new fabric.Pattern({
-                source: img,
-                repeat: obj.fill.repeat,
-                //@ts-ignore
-                scaleX: obj.fill.scaleX,
-                scaleY: obj.fill.scaleY,
-              });
-              (obj.fill as any).sourceURL = obj.fill.source;
-            });
-          }
-        });
-      }
-
-      canvas.loadFromJSON(data, () => {
-        if (grid) {
-          canvas.add(grid);
-          canvas.sendToBack(grid);
+        if (!canvasState) {
+          console.error("Canvas state is undefined or null");
+          return;
         }
 
-        updateGridColor();
-        updateCanvasColor();
+        // 更新 pattern 相關狀態
+        setCanvasLayers(canvasLayers);
+        setImageResources(imageResources);
 
-        const currentState = JSON.stringify(canvas.toJSON(OBJECT_STATE));
+        const grid = gridRef.current;
+        if (grid) {
+          canvas.remove(grid);
+        }
 
-        canvasHistory.current = [currentState];
-        setHistoryIndex(0);
-        canvas.renderAll();
-      });
+        canvas.loadFromJSON(canvasState, () => {
+          // 處理 Pattern
+          canvasLayers.forEach((layer: CanvasLayer) => {
+            const obj = canvas.getObjects()[layer.index];
+            if (obj && obj.name === "room") {
+              const imageUrl = imageResources[layer.pattern.sourceId];
+              if (typeof imageUrl === "string") {
+                fabric.util.loadImage(
+                  imageUrl,
+                  (img) => {
+                    if (img) {
+                      const pattern = new fabric.Pattern({
+                        source: img,
+                        repeat: layer.pattern.repeat,
+                        //@ts-ignore
+                        scaleX: layer.pattern.scaleX,
+                        scaleY: layer.pattern.scaleY,
+                        //@ts-ignore
+                        patternTransform: layer.pattern.patternTransform,
+                      });
+                      obj.set("fill", pattern);
+                    } else {
+                      console.warn(
+                        `Failed to load image for layer ${layer.index}`
+                      );
+                      obj.set("fill", "rgba(0,0,0,0)");
+                    }
+                    canvas.renderAll();
+                  },
+                  null,
+                  //@ts-ignore
+                  { crossOrigin: "anonymous" }
+                );
+              } else {
+                console.warn(`Invalid image URL for layer ${layer.index}`);
+                obj.set("fill", "rgba(0,0,0,0)");
+              }
+            }
+          });
 
-      initialized.current = true;
+          if (grid) {
+            canvas.add(grid);
+            canvas.sendToBack(grid);
+          }
+          updateGridPosition();
+          updateGridColor();
+          updateCanvasColor();
+
+          // 設置畫布尺寸
+          if (canvasState.width && canvasState.height) {
+            canvas.setWidth(canvasState.width);
+            canvas.setHeight(canvasState.height);
+          }
+
+          const currentState = JSON.stringify({
+            canvasState: canvas.toJSON(OBJECT_STATE),
+            canvasLayers,
+            imageResources,
+          });
+          canvasHistory.current = [currentState];
+          setHistoryIndex(0);
+
+          canvas.renderAll();
+        });
+
+        initialized.current = true;
+      } catch (error) {
+        console.error("Error processing initial state:", error);
+      }
     }
-  }, [canvas, initialState, gridRef, updateGridColor, updateCanvasColor]);
+  }, [
+    canvas,
+    initialState,
+    gridRef,
+    updateGridColor,
+    updateCanvasColor,
+    updateGridPosition,
+    canvasHistory,
+    setHistoryIndex,
+    setCanvasLayers,
+    setImageResources,
+  ]);
 };

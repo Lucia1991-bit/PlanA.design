@@ -39,28 +39,22 @@ const useAutoResize = ({
 
     const newWidth = container.offsetWidth;
     const newHeight = container.offsetHeight;
-    const oldWidth = canvas.getWidth();
-    const oldHeight = canvas.getHeight();
-
-    // 更新最大尺寸
-    maxSizeRef.current = {
-      width: Math.max(maxSizeRef.current.width, newWidth),
-      height: Math.max(maxSizeRef.current.height, newHeight),
-    };
 
     try {
+      // 更新最大尺寸
+      const newMaxWidth = Math.max(maxSizeRef.current.width, newWidth);
+      const newMaxHeight = Math.max(maxSizeRef.current.height, newHeight);
+
       // 保存當前的對象和它們的相對位置
       const objects = canvas
         .getObjects()
         .filter((obj) => obj !== gridRef.current);
       const objectsData = objects.map((obj) => ({
         object: obj,
-        originalLeft: obj.left,
-        originalTop: obj.top,
+        originalLeft: obj.left! / canvas.getWidth(),
+        originalTop: obj.top! / canvas.getHeight(),
         originalScaleX: obj.scaleX,
         originalScaleY: obj.scaleY,
-        originalWidth: obj.width,
-        originalHeight: obj.height,
       }));
 
       canvas.setWidth(newWidth);
@@ -91,25 +85,19 @@ const useAutoResize = ({
           originalTop,
           originalScaleX,
           originalScaleY,
-          originalWidth,
-          originalHeight,
         }) => {
-          const scaleX =
-            (newWidth / maxSizeRef.current.width) * originalScaleX!;
-          const scaleY =
-            (newHeight / maxSizeRef.current.height) * originalScaleY!;
-          const left = (originalLeft! / maxSizeRef.current.width) * newWidth;
-          const top = (originalTop! / maxSizeRef.current.height) * newHeight;
+          const scaleX = (newWidth / newMaxWidth) * originalScaleX!;
+          const scaleY = (newHeight / newMaxHeight) * originalScaleY!;
+          const left = originalLeft * newWidth;
+          const top = originalTop * newHeight;
 
-          object.set({
-            left,
-            top,
-            scaleX,
-            scaleY,
-          });
+          object.set({ left, top, scaleX, scaleY });
           object.setCoords();
         }
       );
+
+      // 更新最大尺寸引用
+      maxSizeRef.current = { width: newMaxWidth, height: newMaxHeight };
 
       updateGridPosition();
       canvas.requestRenderAll();

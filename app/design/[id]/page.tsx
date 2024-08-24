@@ -76,28 +76,6 @@ const DesignPage = () => {
   );
 };
 
-interface ErrorDisplayProps {
-  message: string;
-}
-
-//TODO:錯誤畫面
-const ErrorDisplay = ({ message }: ErrorDisplayProps) => (
-  <VStack
-    w="100%"
-    h="100vh"
-    justify="center"
-    align="center"
-    spacing={4}
-    bg="#ecebeb"
-    color="brand.dark"
-  >
-    {/* 想加圖片+回首頁的按鈕 */}
-    <Text fontSize={{ base: "md", md: "xl" }} fontWeight="bold">
-      {message}
-    </Text>
-  </VStack>
-);
-
 const MobileWarning = () => (
   <VStack
     w="100%"

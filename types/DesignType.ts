@@ -1,5 +1,4 @@
 import { PatternOptions } from "@/hooks/usePattern";
-import { MutableRefObject } from "react";
 
 export const MAIN_GRID_SIZE = 200; //一大格200px = 100cm
 export const SUB_GRID_SIZE = 20; //一小格20px = 10cm
@@ -86,11 +85,26 @@ export type ActiveTool =
   | "filter"
   | "settings";
 
+//右鍵選單的位置
+export type ContextMenuPosition = {
+  x: number;
+  y: number;
+};
+
+//Pattern相關狀態
+export type CanvasLayer = {
+  index: number;
+  pattern: {
+    sourceId: string;
+    repeat: string;
+    scaleX: number;
+    scaleY: number;
+  };
+};
+
 export interface DesignHookProps {
   defaultState?: string;
   saveDesign: (fabricData: string) => Promise<void>;
-  fabricCanvasRef: MutableRefObject<fabric.Canvas | null>;
-
   // clearSelectionCallback?: () => void;
   // saveCallback?: (values: {
   //   json: string;
@@ -119,10 +133,15 @@ export type BuildDesignProps = {
   // copy: () => void;
   // paste: () => void;
   canvas: fabric.Canvas;
-  contextMenuPosition: { x: number; y: number } | null;
+  contextMenuPosition: {
+    x: number;
+    y: number;
+    hasActiveObject: boolean;
+  } | null;
   handleContextMenuAction: (
     action: "copy" | "paste" | "delete" | "close"
   ) => void;
+  canPaste: () => boolean;
   // fillColor: string;
   // strokeColor: string;
   // strokeWidth: number;
@@ -169,10 +188,15 @@ export interface Design {
     imageUrl: string,
     options?: PatternOptions
   ) => void;
-  contextMenuPosition: { x: number; y: number } | null;
+  contextMenuPosition: {
+    x: number;
+    y: number;
+    hasActiveObject: boolean;
+  } | null;
   handleContextMenuAction: (
     action: "copy" | "paste" | "delete" | "close"
   ) => void;
+  canPaste: () => boolean;
   // addPatternPath: (imageUrl: string) => void;
   // delete: () => void;
   // changeFontSize: (value: number) => void;

@@ -16,6 +16,7 @@ interface LeftToolBarItemProps {
   imageFlex?: string;
   textFlex?: string;
   spacing?: string;
+  draggable?: boolean;
 }
 
 const LeftToolBarItem = ({
@@ -32,6 +33,7 @@ const LeftToolBarItem = ({
   iconWidth = "80%",
   iconHeight = "30px",
   spacing = "4px",
+  draggable = true,
 }: LeftToolBarItemProps) => {
   const color = useDesignPageColor();
   return (
@@ -61,6 +63,7 @@ const LeftToolBarItem = ({
             priority
             src={icon}
             alt={label}
+            draggable={draggable}
             fill
             sizes="(max-width: 768px) 24px, 30px"
             style={{ objectFit: "contain" }}

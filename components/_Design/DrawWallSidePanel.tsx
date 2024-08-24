@@ -65,6 +65,7 @@ const DrawWallSidePanel = ({
             textFlex="0.1"
             onClick={handleDrawWallClick}
             isActive={isDrawing}
+            draggable={false}
           />
         </HStack>
         <Divider borderColor={color.toolBar.subText} />

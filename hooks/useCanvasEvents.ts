@@ -8,9 +8,9 @@ interface UseCanvasEventsProps {
   onStartDrawing: (event: fabric.IEvent) => void;
   onDrawing: (event: fabric.IEvent) => void;
   save: () => void;
-  copy: () => void;
-  paste: () => void;
-  deleteObjects: () => void;
+  setSelectedObjects: React.Dispatch<React.SetStateAction<fabric.Object[]>>;
+  openContextMenu: (x: number, y: number, hasActiveObject: boolean) => void;
+  closeContextMenu: () => void;
 }
 
 const useCanvasEvents = ({
@@ -19,9 +19,9 @@ const useCanvasEvents = ({
   onStartDrawing,
   onDrawing,
   save,
-  copy,
-  paste,
-  deleteObjects,
+  setSelectedObjects,
+  openContextMenu,
+  closeContextMenu,
 }: UseCanvasEventsProps) => {
   // 用於追踪畫布是否正在被拖動
   const isDraggingRef = useRef(false);
@@ -30,11 +30,38 @@ const useCanvasEvents = ({
   const lastPosYRef = useRef(0);
   // 用於追踪空白鍵是否被按下
   const isSpacebarDownRef = useRef(false);
-  // 紀錄右鍵選單的位置
-  const [contextMenuPosition, setContextMenuPosition] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
+
+  // 處理選擇事件
+  const handleSelectionCreated = useCallback(
+    (e: fabric.IEvent) => {
+      const selected = (e as any).selected || [];
+      setSelectedObjects(selected);
+    },
+    [setSelectedObjects]
+  );
+
+  const handleSelectionUpdated = useCallback(
+    (e: fabric.IEvent) => {
+      const selected = (e as any).selected || [];
+      setSelectedObjects(selected);
+    },
+    [setSelectedObjects]
+  );
+
+  const handleSelectionCleared = useCallback(() => {
+    setSelectedObjects([]);
+  }, [setSelectedObjects]);
+
+  // 更新鼠標樣式
+  const updateCursor = useCallback(() => {
+    if (!canvas) return;
+    if (isDrawingMode) {
+      canvas.defaultCursor = "crosshair";
+    } else {
+      canvas.defaultCursor = "default";
+    }
+    canvas.requestRenderAll();
+  }, [canvas, isDrawingMode]);
 
   // 處理滾輪縮放
   const handleWheel = useCallback(
@@ -62,30 +89,31 @@ const useCanvasEvents = ({
       if (!canvas) return;
       const evt = opt.e as MouseEvent;
 
-      console.log(
-        "Mouse event:",
-        evt.type,
-        "Button:",
-        evt.button,
-        "Which:",
-        evt.which
-      );
-
       // 處理右鍵點擊
       if (evt.button === 3 || evt.which === 3) {
         evt.preventDefault();
         evt.stopPropagation();
-        const pointer = canvas.getPointer(evt);
         const target = canvas.findTarget(evt as any, false);
 
-        console.log("Right click detected", pointer, target);
+        const canvasElement = canvas.getElement();
+        const canvasRect = canvasElement.getBoundingClientRect();
 
-        // 無論是否有目標物件，都設置 contextMenu 位置
-        setContextMenuPosition({ x: evt.clientX, y: evt.clientY });
-        console.log("Context menu position set:", {
-          x: evt.clientX,
-          y: evt.clientY,
-        });
+        let x = evt.clientX;
+        let y = evt.clientY;
+
+        // 使用實際的 ContextMenu 寬度和高度
+        const menuWidth = 150;
+        const menuHeight = 200; // 估計高度，可能需要根據實際情況調整
+
+        // 確保右鍵選單不會超出畫布邊界
+        if (x + menuWidth > canvasRect.right) {
+          x = canvasRect.right - menuWidth;
+        }
+        if (y + menuHeight > canvasRect.bottom) {
+          y = canvasRect.bottom - menuHeight;
+        }
+
+        openContextMenu(x, y, !!target);
 
         if (target) {
           canvas.setActiveObject(target);
@@ -109,10 +137,10 @@ const useCanvasEvents = ({
         // 在繪製模式下開始繪製
         onStartDrawing(opt);
       } else {
-        setContextMenuPosition(null);
+        closeContextMenu();
       }
     },
-    [canvas, isDrawingMode, onStartDrawing, setContextMenuPosition]
+    [canvas, isDrawingMode, onStartDrawing, openContextMenu]
   );
 
   // 處理鼠標移動事件
@@ -188,6 +216,13 @@ const useCanvasEvents = ({
     [canvas, isDrawingMode]
   );
 
+  // 處理物件修改（添加、刪除、修改）
+  const handleObjectModification = useCallback(() => {
+    if (!isDrawingMode) {
+      save(); // 只在非繪製模式下保存狀態
+    }
+  }, [isDrawingMode, save]);
+
   // 處理物件旋轉，實現旋轉吸附
   const handleObjectRotate = useCallback(
     (event: fabric.IEvent) => {
@@ -208,26 +243,10 @@ const useCanvasEvents = ({
     [canvas]
   );
 
-  // 處理右鍵Menu動作
-  const handleContextMenuAction = useCallback(
-    (action: "copy" | "paste" | "delete" | "close") => {
-      switch (action) {
-        case "copy":
-          copy();
-          break;
-        case "paste":
-          paste();
-          break;
-        case "delete":
-          deleteObjects();
-          break;
-        case "close":
-          setContextMenuPosition(null);
-          break;
-      }
-    },
-    [copy, paste, deleteObjects]
-  );
+  // 當繪製模式改變時更新鼠標樣式
+  useEffect(() => {
+    updateCursor();
+  }, [isDrawingMode, updateCursor]);
 
   // 設置和清理畫布事件監聽器
   useEffect(() => {
@@ -237,7 +256,15 @@ const useCanvasEvents = ({
     canvas.on("mouse:down", handleMouseDown);
     canvas.on("mouse:move", handleMouseMove);
     canvas.on("mouse:up", handleMouseUp);
+
+    canvas.on("object:added", handleObjectModification);
+    canvas.on("object:removed", handleObjectModification);
+    canvas.on("object:modified", handleObjectModification);
     canvas.on("object:rotating", handleObjectRotate);
+
+    canvas.on("selection:created", handleSelectionCreated);
+    canvas.on("selection:updated", handleSelectionUpdated);
+    canvas.on("selection:cleared", handleSelectionCleared);
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
@@ -248,7 +275,15 @@ const useCanvasEvents = ({
       canvas.off("mouse:down", handleMouseDown);
       canvas.off("mouse:move", handleMouseMove);
       canvas.off("mouse:up", handleMouseUp);
+
+      canvas.off("object:added", handleObjectModification);
+      canvas.off("object:removed", handleObjectModification);
+      canvas.off("object:modified", handleObjectModification);
       canvas.off("object:rotating", handleObjectRotate);
+
+      canvas.off("selection:created", handleSelectionCreated);
+      canvas.off("selection:updated", handleSelectionUpdated);
+      canvas.off("selection:cleared", handleSelectionCleared);
 
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
@@ -259,16 +294,14 @@ const useCanvasEvents = ({
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
+    handleObjectModification,
     handleObjectRotate,
     handleKeyDown,
     handleKeyUp,
+    handleSelectionCreated,
+    handleSelectionUpdated,
+    handleSelectionCleared,
   ]);
-
-  return {
-    contextMenuPosition,
-    setContextMenuPosition,
-    handleContextMenuAction,
-  };
 };
 
 export default useCanvasEvents;

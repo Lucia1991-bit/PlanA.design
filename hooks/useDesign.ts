@@ -8,18 +8,19 @@ import {
   GLOBAL_SCALE,
   BuildDesignProps,
   Design,
+  CanvasLayer,
 } from "@/types/DesignType";
 import useDesignColor from "./useDesignPageColor";
 import useCanvasEvents from "./useCanvasEvents";
 import useAutoResize from "./useAutoResize";
-import useCanvasAndGridColor from "./useCanvasAndGridColor";
 import { useDesignColorMode } from "@/context/colorModeContext";
 import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useHistory } from "./useHistory";
-import { useLoadState } from "./useLoadDesign";
+import { useLoadDesign } from "./useLoadDesign";
 import { useDrawWall } from "./useDrawWall";
 import { usePattern } from "./usePattern";
+import { useContextMenu } from "./useContextMenu";
 
 //所有設計功能的邏輯
 const buildDesign = ({
@@ -37,6 +38,7 @@ const buildDesign = ({
   applyPattern,
   contextMenuPosition,
   handleContextMenuAction,
+  canPaste,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -102,6 +104,7 @@ const buildDesign = ({
     applyPattern,
     contextMenuPosition,
     handleContextMenuAction,
+    canPaste,
   };
 };
 
@@ -115,10 +118,14 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
 
+  //Pattern相關狀態
+  const [canvasLayers, setCanvasLayers] = useState<CanvasLayer[]>([]);
+  const [imageResources, setImageResources] = useState<Record<string, string>>(
+    {}
+  );
+
   // const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
   // const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
-
-  const getCanvas = useCallback(() => canvasRef.current, []);
 
   const { designColorMode } = useDesignColorMode();
 
@@ -246,6 +253,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canvas.requestRenderAll();
   }, [canvas]);
 
+  //更新網格線顏色
   const updateGridColor = useCallback(() => {
     if (!gridRef.current || !canvas) {
       console.warn("Canvas is not initialized yet");
@@ -262,23 +270,30 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
       }
     });
 
-    canvas.renderAll();
+    canvas.requestRenderAll();
   }, [canvas, color.canvas.mainGridColor, color.canvas.subGridColor]);
 
+  // 更新畫布顏色
+  //TODO:把這個函數刪掉
+  // 現在已經將畫布背景色改成透明，轉換顏色主要是轉換外層的 div
   const updateCanvasColor = useCallback(() => {
-    if (!canvas) {
-      console.warn("Canvas is not initialized yet");
-      return;
-    }
-
-    const backgroundColor = designColorMode === "light" ? "#ecebeb" : "#373838";
-    canvas.setBackgroundColor(backgroundColor, () => {
-      canvas.renderAll();
-    });
+    console.log("change color");
   }, [canvas, designColorMode]);
 
   //畫布的物件互動操作
-  const { copy, paste, deleteObjects } = useClipboard({ canvas });
+  const { copy, paste, canPaste, deleteObjects } = useClipboard({ canvas });
+
+  //管理物件選單操作
+  const {
+    position: contextMenuPosition,
+    open: openContextMenu,
+    close: closeContextMenu,
+    handleAction: handleContextMenuAction,
+  } = useContextMenu({
+    copy,
+    paste,
+    deleteObjects,
+  });
 
   //管理畫布歷史紀錄及存檔
   const {
@@ -290,16 +305,22 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setHistoryIndex,
     canvasHistory,
     saveToDatabase,
+    initializeCanvasState,
   } = useHistory({
     canvas,
     gridRef,
     updateGridColor,
     updateCanvasColor,
+    updateGridPosition,
     saveDesign,
+    canvasLayers,
+    setCanvasLayers,
+    imageResources,
+    setImageResources,
   });
 
   //材質 pattern
-  const { applyPattern, adjustPatternScale } = usePattern({ canvas });
+  const { applyPattern, adjustPatternScale } = usePattern({ canvas, save });
 
   //繪製牆體
   const {
@@ -320,20 +341,39 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     adjustPatternScale,
   });
 
-  //處理畫布事件
-  const {
-    contextMenuPosition,
-    setContextMenuPosition,
-    handleContextMenuAction,
-  } = useCanvasEvents({
+  // 畫布尺寸隨視窗縮放改變
+  const { resizeCanvas } = useAutoResize({
     canvas,
-    save,
+    container,
+    gridRef,
+    createGrid,
+    updateGridPosition,
+  });
+
+  //加載存檔資料
+  useLoadDesign({
+    canvas,
+    initialState: useRef(initialState.current),
+    canvasHistory,
+    setHistoryIndex,
+    gridRef,
+    updateGridColor,
+    updateCanvasColor,
+    updateGridPosition,
+    setCanvasLayers,
+    setImageResources,
+  });
+
+  //處理畫布事件
+  useCanvasEvents({
+    canvas,
     isDrawingMode,
     onStartDrawing: startDrawing,
     onDrawing: draw,
-    copy,
-    paste,
-    deleteObjects,
+    save,
+    setSelectedObjects,
+    openContextMenu,
+    closeContextMenu,
   });
 
   //畫布操作快捷鍵
@@ -347,26 +387,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     undo,
     redo,
     saveToDatabase,
-  });
-
-  // 畫布尺寸隨視窗縮放改變
-  const { resizeCanvas } = useAutoResize({
-    canvas,
-    container,
-    gridRef,
-    createGrid,
-    updateGridPosition,
-  });
-
-  //加載存檔資料
-  useLoadState({
-    canvas,
-    initialState: useRef(initialState.current),
-    canvasHistory,
-    setHistoryIndex,
-    gridRef,
-    updateGridColor,
-    updateCanvasColor,
   });
 
   //初始化畫布
@@ -393,7 +413,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
       //初始尺寸及畫布顏色
       initialCanvas.setWidth(initialContainer.offsetWidth);
       initialCanvas.setHeight(initialContainer.offsetHeight);
-      initialCanvas.setBackgroundColor(color.canvas.backgroundColor, () => {
+      initialCanvas.setBackgroundColor("transparent", () => {
         initialCanvas.renderAll();
       });
 
@@ -410,6 +430,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
       setCanvas(initialCanvas);
       setContainer(initialContainer);
       setIsCanvasReady(true);
+
+      initializeCanvasState();
     },
     [createGrid]
   );
@@ -464,6 +486,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         applyPattern,
         contextMenuPosition,
         handleContextMenuAction,
+        canPaste,
       });
     }
 
@@ -483,6 +506,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     applyPattern,
     contextMenuPosition,
     handleContextMenuAction,
+    canPaste,
   ]);
 
   return { initCanvas, design };

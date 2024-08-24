@@ -29,6 +29,7 @@ import ColorModeSwitch from "./ColorModeSwitch";
 import RenameProjectButton from "@/components/_Design/RenameProjectButton";
 import { ActiveTool, Design } from "@/types/DesignType";
 import { useCallback, useEffect, useState } from "react";
+import CustomTooltip from "../_UI/CustomTooltip";
 
 interface DesignNavBarProps {
   boardId: string;
@@ -117,17 +118,7 @@ const DesignNavBar = ({
               }}
             />
           </Tooltip>
-          <Tooltip
-            px="8px"
-            py="4px"
-            borderRadius="3px"
-            fontSize="13px"
-            label="復原 Ctrl+Z"
-            placement="bottom"
-            bg={color.tooltip.backgroundColor}
-            color={color.tooltip.text}
-            offset={[0, 15]}
-          >
+          <CustomTooltip mainText="復原" shortcutText="Z">
             <IconButton
               isDisabled={!design?.canUndo()}
               color={color.toolBar.text}
@@ -143,19 +134,9 @@ const DesignNavBar = ({
                 _hover: { bg: "transparent" },
               }}
             />
-          </Tooltip>
+          </CustomTooltip>
 
-          <Tooltip
-            px="8px"
-            py="4px"
-            borderRadius="3px"
-            fontSize="13px"
-            label="取消復原 Ctrl+Y"
-            placement="bottom"
-            bg={color.tooltip.backgroundColor}
-            color={color.tooltip.text}
-            offset={[0, 15]}
-          >
+          <CustomTooltip mainText="取消復原" shortcutText="Y">
             <IconButton
               isDisabled={!design?.canRedo()}
               color={color.toolBar.text}
@@ -171,19 +152,9 @@ const DesignNavBar = ({
               }}
               onClick={() => design?.onRedo()}
             />
-          </Tooltip>
+          </CustomTooltip>
 
-          <Tooltip
-            px="8px"
-            py="4px"
-            borderRadius="3px"
-            fontSize="13px"
-            label="存檔 Ctrl+S"
-            placement="bottom"
-            bg={color.tooltip.backgroundColor}
-            color={color.tooltip.text}
-            offset={[0, 15]}
-          >
+          <CustomTooltip mainText="存檔" shortcutText="S">
             <IconButton
               color={color.toolBar.text}
               size="md"
@@ -199,7 +170,7 @@ const DesignNavBar = ({
                 _hover: { bg: "transparent" },
               }}
             />
-          </Tooltip>
+          </CustomTooltip>
           <Divider
             orientation="vertical"
             height="30px"

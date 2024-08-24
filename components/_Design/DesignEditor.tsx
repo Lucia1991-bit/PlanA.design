@@ -12,6 +12,7 @@ import DrawWallSidePanel from "./DrawWallSidePanel";
 import { ActiveTool, Design } from "@/types/DesignType";
 import { BoardType } from "@/types/BoardType";
 import ContextMenu from "./ContextMenu";
+import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 interface DesignEditorProps {
   board: BoardType;
@@ -39,6 +40,8 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
     boardId: board.id,
   });
 
+  const color = useDesignPageColor();
+
   const onChangeActiveTool = useCallback(
     (tool: ActiveTool) => {
       if (tool === activeTool) {
@@ -62,6 +65,7 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
     saveDesign,
   });
 
+  //防止按右鍵的預設行為
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     console.log("Default context menu prevented in DesignEditor");
@@ -94,7 +98,14 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
   }, [initCanvas]);
 
   return (
-    <Box position="relative">
+    <Box
+      position="relative"
+      border="5px solid purple"
+      width="100%"
+      height="100vh"
+      overflow="hidden"
+      bg={color.canvas.backgroundColor}
+    >
       <DesignNavBar
         design={design}
         boardId={board.id}
@@ -135,6 +146,8 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
           <ContextMenu
             x={design.contextMenuPosition.x}
             y={design.contextMenuPosition.y}
+            hasActiveObject={design.contextMenuPosition.hasActiveObject}
+            canPaste={design.canPaste}
             onClose={() => design.handleContextMenuAction("close")}
             onCopy={() => design.handleContextMenuAction("copy")}
             onPaste={() => design.handleContextMenuAction("paste")}

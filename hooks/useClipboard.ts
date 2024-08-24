@@ -1,55 +1,73 @@
+import { useState, useCallback, useEffect } from "react";
 import { fabric } from "fabric";
-import { useCallback, useRef } from "react";
 
-interface UseCanvasClipboardProps {
+interface UseClipboardProps {
   canvas: fabric.Canvas | null;
 }
 
-export const useClipboard = ({ canvas }: UseCanvasClipboardProps) => {
-  const clipboard = useRef<any>(null);
+export const useClipboard = ({ canvas }: UseClipboardProps) => {
+  // 儲存複製的物件
+  const [clipboardData, setClipboardData] = useState<fabric.Object | null>(
+    null
+  );
 
+  useEffect(() => {
+    console.log("Clipboard data changed:", clipboardData);
+  }, [clipboardData]);
+
+  // 複製功能
   const copy = useCallback(() => {
-    canvas?.getActiveObject()?.clone((cloned: any) => {
-      clipboard.current = cloned;
-    });
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      activeObject.clone((cloned: fabric.Object) => {
+        setClipboardData(cloned);
+      });
+    }
   }, [canvas]);
 
+  // 貼上功能
   const paste = useCallback(() => {
-    if (!clipboard.current) return;
-
-    clipboard.current.clone((clonedObj: any) => {
-      canvas?.discardActiveObject();
+    if (!canvas || !clipboardData) return;
+    clipboardData.clone((clonedObj: fabric.Object) => {
+      canvas.discardActiveObject();
       clonedObj.set({
-        left: clonedObj.left + 10,
-        top: clonedObj.top + 10,
+        left: clonedObj.left! + 20,
+        top: clonedObj.top! + 20,
         evented: true,
       });
-
       if (clonedObj.type === "activeSelection") {
-        clonedObj.canvas = canvas;
-        clonedObj.forEachObject((obj: any) => {
-          canvas?.add(obj);
+        // 如果是多重選擇，需要逐個添加到畫布
+        (clonedObj as fabric.ActiveSelection).canvas = canvas;
+        (clonedObj as fabric.ActiveSelection).forEachObject((obj) => {
+          canvas.add(obj);
         });
         clonedObj.setCoords();
       } else {
-        canvas?.add(clonedObj);
+        canvas.add(clonedObj);
       }
-
-      clipboard.current.top += 10;
-      clipboard.current.left += 10;
-      canvas?.setActiveObject(clonedObj);
-      canvas?.requestRenderAll();
+      canvas.setActiveObject(clonedObj);
+      canvas.requestRenderAll();
     });
-  }, [canvas]);
+  }, [canvas, clipboardData]);
 
+  // 檢查是否有資料可以貼上
+  const canPaste = useCallback(() => {
+    const result = clipboardData !== null;
+    console.log("canPaste called, result:", result, "clipboardData:", clipboardData);
+    return result;
+  }, [clipboardData]);
+
+  // 刪除物件功能
   const deleteObjects = useCallback(() => {
-    if (canvas) {
-      const activeObjects = canvas.getActiveObjects();
+    if (!canvas) return;
+    const activeObjects = canvas.getActiveObjects();
+    if (activeObjects) {
+      canvas.remove(...activeObjects);
       canvas.discardActiveObject();
-      activeObjects.forEach((object) => canvas.remove(object));
       canvas.requestRenderAll();
     }
   }, [canvas]);
 
-  return { copy, paste, deleteObjects };
+  return { copy, paste, canPaste, deleteObjects };
 };

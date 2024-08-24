@@ -3,6 +3,7 @@ import { useCallback } from "react";
 
 interface UsePatternProps {
   canvas: fabric.Canvas | null;
+  save: () => void;
 }
 
 export interface PatternOptions {
@@ -11,7 +12,7 @@ export interface PatternOptions {
   repeat?: string;
 }
 
-export const usePattern = ({ canvas }: UsePatternProps) => {
+export const usePattern = ({ canvas, save }: UsePatternProps) => {
   // 應用 pattern 到對象
   const applyPattern = useCallback(
     (object: fabric.Object, imageUrl: string, options: PatternOptions = {}) => {
@@ -36,11 +37,12 @@ export const usePattern = ({ canvas }: UsePatternProps) => {
           (pattern as any).sourceURL = imageUrl; // 儲存原始 URL
           object.set("fill", pattern);
           canvas.renderAll();
+          save(); // 在應用 pattern 後保存狀態
         },
         { crossOrigin: "anonymous" }
       );
     },
-    [canvas]
+    [canvas, save]
   );
 
   // 調整已應用 pattern 的比例
@@ -54,9 +56,10 @@ export const usePattern = ({ canvas }: UsePatternProps) => {
         fill.patternTransform = [scaleX, 0, 0, scaleY, offsetX, offsetY];
         object.set("fill", fill);
         canvas.renderAll();
+        save(); // 在調整 pattern 比例後保存狀態
       }
     },
-    [canvas]
+    [canvas, save]
   );
 
   return { applyPattern, adjustPatternScale };

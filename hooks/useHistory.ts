@@ -1,14 +1,20 @@
-import { OBJECT_STATE } from "@/types/DesignType";
 import { fabric } from "fabric";
 import { useCallback, useRef, useState } from "react";
-import debounce from "lodash/debounce";
+import { CanvasLayer, OBJECT_STATE } from "@/types/DesignType";
 
 interface useHistoryProps {
   canvas: fabric.Canvas | null;
   gridRef: React.MutableRefObject<fabric.Group | null>;
   updateGridColor: () => void;
   updateCanvasColor: () => void;
+  updateGridPosition: () => void;
   saveDesign: (fabricData: string) => Promise<void>;
+  canvasLayers: CanvasLayer[];
+  setCanvasLayers: React.Dispatch<React.SetStateAction<CanvasLayer[]>>;
+  imageResources: Record<string, string>;
+  setImageResources: React.Dispatch<
+    React.SetStateAction<Record<string, string>>
+  >;
 }
 
 export const useHistory = ({
@@ -16,175 +22,268 @@ export const useHistory = ({
   gridRef,
   updateGridColor,
   updateCanvasColor,
+  updateGridPosition,
   saveDesign,
+  canvasLayers,
+  setCanvasLayers,
+  imageResources,
+  setImageResources,
 }: useHistoryProps) => {
   // 當前歷史記錄的索引
-  const [historyIndex, setHistoryIndex] = useState(0);
+  const [historyIndex, setHistoryIndex] = useState(-1);
   // 存儲畫布狀態歷史的陣列
   const canvasHistory = useRef<string[]>([]);
+  // 用於跳過保存操作的標誌
   const skipSave = useRef(false);
-  // 防止保存操作重複
+  // 防止保存操作重複的標誌
   const isInSaveOperation = useRef(false);
+  // 歷史記錄的最大長度
+  const MAX_HISTORY_LENGTH = 50;
 
+  // 檢查是否可以進行撤銷操作
   const canUndo = useCallback(() => historyIndex > 0, [historyIndex]);
+  // 檢查是否可以進行重做操作
   const canRedo = useCallback(
     () => historyIndex < canvasHistory.current.length - 1,
     [historyIndex]
   );
 
-  //保存到歷史紀錄
-  const save = useCallback(() => {
-    if (!canvas || skipSave.current || isInSaveOperation.current) return;
-
-    isInSaveOperation.current = true;
+  // 獲取當前畫布狀態
+  const getCanvasState = useCallback(() => {
+    if (!canvas) return null;
 
     const grid = gridRef.current;
     let gridIndex = -1;
 
-    // 如果存在網格，暫時從畫布中移除
+    // 重要：暫時移除網格，以確保它不被包含在狀態中
     if (grid) {
-      //找到網格在畫布中的索引
       gridIndex = canvas.getObjects().indexOf(grid);
       canvas.remove(grid);
     }
 
-    //將畫布中物件的狀態轉成 JSON
-    const currentState = canvas.toJSON(OBJECT_STATE);
+    //Pattern的圖層資料;
+    const newCanvasLayers: CanvasLayer[] = [];
+    //Pattern的來源 Url
+    const newImageResources: Record<string, string> = {};
 
-    // 處理 Pattern
-    currentState.objects.forEach((obj: any) => {
-      if (obj.fill && obj.fill.source) {
-        obj.fill = {
-          type: "pattern",
-          source: obj.fill.sourceURL || obj.fill.source.src,
-          repeat: obj.fill.repeat,
-          scaleX: obj.fill.scaleX,
-          scaleY: obj.fill.scaleY,
-        };
+    // 將 Pattern相關資料獨立到新的 CanvasLayer和 ImageResources中，不另外跟其他 Canvas狀態一起 JSON格式化
+    // 處理畫布上的所有物件
+    const fabricObjects = canvas.getObjects().map((obj: any, index: number) => {
+      console.log(`Object ${index}:`, obj);
+      // 檢查填了 Pattern 的物件(在drawWall裡取名為room)
+      if (
+        obj.name === "room" ||
+        (obj.fill && obj.fill instanceof fabric.Pattern)
+      ) {
+        // 為每個圖案生成唯一的 ID
+        const imageId = `image_${index}`;
+        console.log(`Processing object ${index} with name:`, obj.name);
+
+        // 檢查 fill 是否為有效的 Pattern
+        if (obj.fill && obj.fill instanceof fabric.Pattern) {
+          // 嘗試獲取 sourceURL，首選 sourceURL，如果不存在則嘗試 source.src
+          const sourceURL =
+            obj.fill.sourceURL || (obj.fill.source && obj.fill.source.src);
+          if (sourceURL) {
+            console.log(`Found sourceURL for object ${index}:`, sourceURL);
+            // 將圖案源另外儲存，以 ID當作索引，以便在後續的狀態恢復中使用
+            newImageResources[imageId] = sourceURL;
+
+            // 創建新的畫布圖層，包含 Pattern 的相關信息
+            newCanvasLayers.push({
+              index,
+              pattern: {
+                sourceId: imageId,
+                repeat: obj.fill.repeat,
+                scaleX: obj.fill.scaleX,
+                scaleY: obj.fill.scaleY,
+                //@ts-ignore
+                patternTransform: obj.fill.patternTransform,
+              },
+            });
+          } else {
+            console.warn(`No sourceURL found for object ${index}`);
+          }
+        } else {
+          console.warn(`Object ${index} has no valid fill pattern`);
+        }
+
+        // 創建對象的淺複製，移除 fill 屬性
+        const objWithoutFill = Object.assign({}, obj.toObject(), {
+          fill: null,
+          name: obj.name,
+        });
+        return objWithoutFill;
       }
+
+      // 如果對象沒有圖案填充，直接返回原對象，確保包含 name 屬性
+      return Object.assign({}, obj.toObject(), { name: obj.name });
     });
 
-    const json = JSON.stringify(currentState);
-
-    //使用這個索引將網格插回原來的位置
+    // 重要：將網格添加回原來的位置
+    // 這確保了網格與其他物件的順序關係保持不變
     if (grid && gridIndex !== -1) {
       canvas.insertAt(grid, gridIndex, false);
     }
 
-    // 更新歷史記錄
-    // canvasHistory.current = canvasHistory.current.slice(0, historyIndex + 1);
-    canvasHistory.current.push(json);
-    setHistoryIndex(canvasHistory.current.length - 1);
+    // 創建不包含 pattern 的畫布狀態
+    const currentState = Object.assign({}, canvas.toJSON(OBJECT_STATE), {
+      objects: fabricObjects,
+    });
 
-    isInSaveOperation.current = false;
-  }, [canvas, gridRef]);
+    // 更新 pattern 相關狀態
+    setCanvasLayers(newCanvasLayers);
+    setImageResources(newImageResources);
 
-  //使用debounce自動保存到資料庫
+    return JSON.stringify({
+      canvasState: currentState,
+      canvasLayers: newCanvasLayers,
+      imageResources: newImageResources,
+    });
+  }, [canvas, gridRef, setCanvasLayers, setImageResources]);
 
-  //手動保存到資料庫
-  const saveToDatabase = useCallback(async () => {
-    if (!canvas || isInSaveOperation.current) return;
+  // 保存當前狀態到歷史記錄
+  const save = useCallback(() => {
+    if (!canvas || skipSave.current || isInSaveOperation.current) return;
+
     isInSaveOperation.current = true;
+    const currentState = getCanvasState();
+    if (currentState) {
+      // 如果是第一次保存，直接添加到歷史記錄
+      if (historyIndex === -1) {
+        canvasHistory.current = [currentState];
+        setHistoryIndex(0);
+      } else {
+        // 更新歷史記錄，刪除當前索引之後的所有記錄
+        canvasHistory.current = canvasHistory.current.slice(
+          0,
+          historyIndex + 1
+        );
+        canvasHistory.current.push(currentState);
 
-    const grid = gridRef.current;
-    let gridStackPosition = grid ? canvas.getObjects().indexOf(grid) : -1;
-
-    try {
-      if (grid) {
-        canvas.remove(grid);
-      }
-
-      const currentState = canvas.toJSON(OBJECT_STATE);
-
-      // 處理 Pattern
-      currentState.objects.forEach((obj: any) => {
-        if (obj.fill && obj.fill.source) {
-          obj.fill = {
-            type: "pattern",
-            source: obj.fill.sourceURL || obj.fill.source.src,
-            repeat: obj.fill.repeat,
-            scaleX: obj.fill.scaleX,
-            scaleY: obj.fill.scaleY,
-          };
+        // 限制歷史記錄長度
+        if (canvasHistory.current.length > MAX_HISTORY_LENGTH) {
+          canvasHistory.current = canvasHistory.current.slice(
+            -MAX_HISTORY_LENGTH
+          );
         }
-      });
 
-      const json = JSON.stringify(currentState);
-
-      await saveDesign(json);
-
-      if (canvas) {
-        if (grid) {
-          canvas.add(grid);
-          if (gridStackPosition > -1) {
-            canvas.moveTo(grid, gridStackPosition);
-          }
-        }
-        canvas.renderAll();
+        setHistoryIndex(
+          Math.min(canvasHistory.current.length - 1, MAX_HISTORY_LENGTH - 1)
+        );
       }
-      isInSaveOperation.current = false;
-    } catch (error) {
-      console.error("保存設計時發生錯誤:", error);
-      // 可以在這裡添加錯誤處理邏輯，例如顯示錯誤消息給用戶
     }
-  }, [canvas, gridRef, saveDesign]);
+    isInSaveOperation.current = false;
+  }, [canvas, getCanvasState, historyIndex]);
 
   // 恢復到指定的歷史狀態
   const restoreState = useCallback(
-    (state: string) => {
+    (stateString: string) => {
       if (!canvas) return;
 
+      // 設置跳過保存的標誌，防止在恢復過程中觸發新的保存操作
       skipSave.current = true;
-
-      // 暫時存儲當前網格
+      // 保存當前的網格引用
       const currentGrid = gridRef.current;
+      const {
+        canvasState,
+        canvasLayers: newCanvasLayers,
+        imageResources: newImageResources,
+      } = JSON.parse(stateString);
 
-      // 解析狀態
-      const parsedState = JSON.parse(state);
-
-      // 處理 Pattern
-      if (parsedState.objects) {
-        parsedState.objects.forEach((obj: any) => {
-          if (obj.fill && obj.fill.type === "pattern") {
-            fabric.util.loadImage(obj.fill.source, (img) => {
-              obj.fill = new fabric.Pattern({
-                source: img,
-                repeat: obj.fill.repeat,
+      // 預加載所有圖像
+      const imageLoadPromises = Object.entries(newImageResources).map(
+        ([id, url]) =>
+          new Promise<void>((resolve) => {
+            if (typeof url === "string") {
+              fabric.util.loadImage(
+                url,
+                (img) => {
+                  if (img) {
+                    newImageResources[id] = img;
+                  } else {
+                    console.warn(`Failed to load image for ${id}`);
+                    delete newImageResources[id];
+                  }
+                  resolve();
+                },
+                null,
                 //@ts-ignore
-                scaleX: obj.fill.scaleX,
-                scaleY: obj.fill.scaleY,
-              });
-              (obj.fill as any).sourceURL = obj.fill.source;
-            });
+                { crossOrigin: "anonymous" }
+              );
+            } else {
+              console.warn(`Invalid URL for ${id}`);
+              delete newImageResources[id];
+              resolve();
+            }
+          })
+      );
+
+      // 等待所有圖像加載完成
+      Promise.all(imageLoadPromises).then(() => {
+        canvas.loadFromJSON(canvasState, () => {
+          newCanvasLayers.forEach((layer: CanvasLayer) => {
+            const obj = canvas.getObjects()[layer.index];
+            if (obj && obj.name === "room") {
+              const img = newImageResources[layer.pattern.sourceId];
+              if (img) {
+                const pattern = new fabric.Pattern({
+                  source: img,
+                  repeat: layer.pattern.repeat,
+                  //@ts-ignore
+                  scaleX: layer.pattern.scaleX,
+                  scaleY: layer.pattern.scaleY,
+                  //@ts-ignore
+                  patternTransform: layer.pattern.patternTransform,
+                });
+                (pattern as any).sourceURL = layer.pattern.sourceId;
+                obj.set("fill", pattern);
+              } else {
+                // 如果圖片加載失敗，設置為透明填充
+                obj.set("fill", "rgba(0,0,0,0)");
+              }
+            }
+          });
+
+          // 處理網格
+          const loadedGrid = canvas
+            .getObjects()
+            .find((obj) => obj.name === "designGrid") as
+            | fabric.Group
+            | undefined;
+
+          if (loadedGrid) {
+            gridRef.current = loadedGrid;
+          } else if (currentGrid) {
+            canvas.add(currentGrid);
+            canvas.sendToBack(currentGrid);
           }
+
+          // 更新網格顏色及位置
+          updateGridColor();
+          updateCanvasColor();
+          updateGridPosition();
+
+          // 更新 pattern 相關狀態
+          setCanvasLayers(newCanvasLayers);
+          setImageResources(newImageResources);
+
+          canvas.renderAll();
+
+          // 重置跳過保存的標誌
+          skipSave.current = false;
         });
-      }
-
-      // 從 JSON 加載畫布狀態
-      canvas.loadFromJSON(parsedState, () => {
-        // 檢查加載的狀態是否已經包含網格
-        const loadedGrid = canvas
-          .getObjects()
-          .find((obj) => obj.name === "designGrid") as fabric.Group | undefined;
-
-        if (loadedGrid) {
-          // 如果加載的狀態包含網格，使用加載的網格
-          gridRef.current = loadedGrid;
-        } else if (currentGrid) {
-          // 如果加載的狀態不包含網格，但之前有網格，則添加回之前的網格
-          canvas.add(currentGrid);
-          canvas.sendToBack(currentGrid);
-        }
-
-        // 更新網格和畫布顏色
-        updateGridColor();
-        updateCanvasColor();
-
-        canvas.renderAll();
-        skipSave.current = false;
       });
     },
-    [canvas, gridRef, updateGridColor, updateCanvasColor]
+    [
+      canvas,
+      gridRef,
+      updateGridColor,
+      updateCanvasColor,
+      updateGridPosition,
+      setCanvasLayers,
+      setImageResources,
+    ]
   );
 
   // 執行撤銷操作
@@ -205,6 +304,34 @@ export const useHistory = ({
     }
   }, [canRedo, historyIndex, restoreState]);
 
+  // 保存到數據庫
+  const saveToDatabase = useCallback(async () => {
+    if (!canvas || isInSaveOperation.current) return;
+    isInSaveOperation.current = true;
+
+    try {
+      const currentState = getCanvasState();
+      if (currentState) {
+        await saveDesign(currentState);
+      }
+    } catch (error) {
+      console.error("保存設計時發生錯誤:", error);
+    } finally {
+      isInSaveOperation.current = false;
+    }
+  }, [canvas, getCanvasState, saveDesign]);
+
+  // 初始化畫布狀態
+  const initializeCanvasState = useCallback(() => {
+    const initialState = getCanvasState();
+    if (initialState) {
+      // 直接設置初始狀態，但不添加到歷史記錄
+      canvasHistory.current = [initialState];
+      // 將 historyIndex 設置為 -1，表示還沒有可撤銷的操作
+      setHistoryIndex(-1);
+    }
+  }, [getCanvasState]);
+
   return {
     save,
     canUndo,
@@ -214,5 +341,6 @@ export const useHistory = ({
     setHistoryIndex,
     canvasHistory,
     saveToDatabase,
+    initializeCanvasState,
   };
 };
