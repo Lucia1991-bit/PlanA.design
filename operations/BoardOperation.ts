@@ -56,9 +56,9 @@ export const updateBoard = async (
       lastModified: serverTimestamp(),
     };
 
-    if (updateData.fabricData) {
-      dataToUpdate.fabricData = JSON.stringify(updateData.fabricData);
-    }
+    // if (updateData.fabricData) {
+    //   dataToUpdate.fabricData = JSON.stringify(updateData.fabricData);
+    // }
 
     await updateDoc(boardRef, dataToUpdate);
   } catch (error) {

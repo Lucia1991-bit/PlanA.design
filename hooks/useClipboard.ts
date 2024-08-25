@@ -53,9 +53,7 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
 
   // 檢查是否有資料可以貼上
   const canPaste = useCallback(() => {
-    const result = clipboardData !== null;
-    console.log("canPaste called, result:", result, "clipboardData:", clipboardData);
-    return result;
+    return clipboardData !== null;
   }, [clipboardData]);
 
   // 刪除物件功能

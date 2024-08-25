@@ -1,8 +1,7 @@
 import React from "react";
 import { Box, VStack, Button, HStack, Text } from "@chakra-ui/react";
-import { CopyIcon, DeleteIcon } from "@chakra-ui/icons";
 import { MdKeyboardCommandKey } from "react-icons/md";
-import { FaPaste } from "react-icons/fa";
+import { LuClipboard, LuTrash2, LuCopy } from "react-icons/lu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 interface ContextMenuProps {
@@ -48,11 +47,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     >
       <VStack spacing={0} align="stretch">
         <Button
-          fontSize="14px"
+          fontSize="13.5px"
           borderRadius="0"
           color={color.toolBar.text}
           onClick={() => handleAction(onCopy)}
-          leftIcon={<CopyIcon />}
+          leftIcon={<LuCopy />}
           justifyContent="flex-start"
           variant="ghost"
           w="100%"
@@ -87,11 +86,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
           </HStack>
         </Button>
         <Button
-          fontSize="14px"
+          fontSize="13.5px"
           borderRadius="0"
           color={color.toolBar.text}
           onClick={() => handleAction(onPaste)}
-          leftIcon={<FaPaste />}
+          leftIcon={<LuClipboard />}
           justifyContent="flex-start"
           variant="ghost"
           w="100%"
@@ -126,11 +125,11 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
           </HStack>
         </Button>
         <Button
-          fontSize="14px"
+          fontSize="13.5px"
           borderRadius="0"
           color={color.toolBar.text}
           onClick={() => handleAction(onDelete)}
-          leftIcon={<DeleteIcon />}
+          leftIcon={<LuTrash2 />}
           justifyContent="flex-start"
           variant="ghost"
           w="100%"
@@ -158,7 +157,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
               color={color.toolBar.subText}
               fontWeight="300"
             >
-              Delete
+              DELETE
             </Text>
           </HStack>
         </Button>

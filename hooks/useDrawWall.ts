@@ -9,7 +9,6 @@ interface UseDrawWallProps {
   gridRef: React.MutableRefObject<fabric.Group | null>;
   save: () => void;
   updateGridColor: () => void;
-  updateCanvasColor: () => void;
   applyPattern: (
     object: fabric.Object,
     imageUrl: string,
@@ -27,7 +26,6 @@ export const useDrawWall = ({
   gridRef,
   save,
   updateGridColor,
-  updateCanvasColor,
   applyPattern,
   adjustPatternScale,
 }: UseDrawWallProps) => {
@@ -93,7 +91,6 @@ export const useDrawWall = ({
     // 按正確的順序重新添加元素
     canvas.add(grid); // 網格在最底層
     updateGridColor();
-    updateCanvasColor();
     roomObjects.forEach((room) => canvas.add(room)); // 房間在網格之上
     wallObjects.forEach((wall) => canvas.add(wall)); // 牆體在房間之上
     otherObjects.forEach((obj) => canvas.add(obj)); // 其他物件在最上層

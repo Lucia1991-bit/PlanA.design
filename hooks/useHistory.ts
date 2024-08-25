@@ -6,7 +6,6 @@ interface useHistoryProps {
   canvas: fabric.Canvas | null;
   gridRef: React.MutableRefObject<fabric.Group | null>;
   updateGridColor: () => void;
-  updateCanvasColor: () => void;
   updateGridPosition: () => void;
   saveDesign: (fabricData: string) => Promise<void>;
   canvasLayers: CanvasLayer[];
@@ -21,7 +20,6 @@ export const useHistory = ({
   canvas,
   gridRef,
   updateGridColor,
-  updateCanvasColor,
   updateGridPosition,
   saveDesign,
   canvasLayers,
@@ -55,7 +53,7 @@ export const useHistory = ({
     const grid = gridRef.current;
     let gridIndex = -1;
 
-    // 重要：暫時移除網格，以確保它不被包含在狀態中
+    // 重要：暫時移除網格，確保它不被包含在狀態中
     if (grid) {
       gridIndex = canvas.getObjects().indexOf(grid);
       canvas.remove(grid);
@@ -69,7 +67,9 @@ export const useHistory = ({
     // 將 Pattern相關資料獨立到新的 CanvasLayer和 ImageResources中，不另外跟其他 Canvas狀態一起 JSON格式化
     // 處理畫布上的所有物件
     const fabricObjects = canvas.getObjects().map((obj: any, index: number) => {
-      console.log(`Object ${index}:`, obj);
+      // 創建對象的淺複製，確保包含 name 屬性
+      const baseObject = Object.assign({}, obj.toObject(), { name: obj.name });
+
       // 檢查填了 Pattern 的物件(在drawWall裡取名為room)
       if (
         obj.name === "room" ||
@@ -77,7 +77,6 @@ export const useHistory = ({
       ) {
         // 為每個圖案生成唯一的 ID
         const imageId = `image_${index}`;
-        console.log(`Processing object ${index} with name:`, obj.name);
 
         // 檢查 fill 是否為有效的 Pattern
         if (obj.fill && obj.fill instanceof fabric.Pattern) {
@@ -85,7 +84,6 @@ export const useHistory = ({
           const sourceURL =
             obj.fill.sourceURL || (obj.fill.source && obj.fill.source.src);
           if (sourceURL) {
-            console.log(`Found sourceURL for object ${index}:`, sourceURL);
             // 將圖案源另外儲存，以 ID當作索引，以便在後續的狀態恢復中使用
             newImageResources[imageId] = sourceURL;
 
@@ -94,6 +92,8 @@ export const useHistory = ({
               index,
               pattern: {
                 sourceId: imageId,
+                //@ts-ignore
+                sourceURL: sourceURL,
                 repeat: obj.fill.repeat,
                 scaleX: obj.fill.scaleX,
                 scaleY: obj.fill.scaleY,
@@ -107,17 +107,9 @@ export const useHistory = ({
         } else {
           console.warn(`Object ${index} has no valid fill pattern`);
         }
-
-        // 創建對象的淺複製，移除 fill 屬性
-        const objWithoutFill = Object.assign({}, obj.toObject(), {
-          fill: null,
-          name: obj.name,
-        });
-        return objWithoutFill;
       }
 
-      // 如果對象沒有圖案填充，直接返回原對象，確保包含 name 屬性
-      return Object.assign({}, obj.toObject(), { name: obj.name });
+      return baseObject;
     });
 
     // 重要：將網格添加回原來的位置
@@ -195,7 +187,8 @@ export const useHistory = ({
       const imageLoadPromises = Object.entries(newImageResources).map(
         ([id, url]) =>
           new Promise<void>((resolve) => {
-            if (typeof url === "string") {
+            // 檢查 URL 是否為有效的 http(s) URL
+            if (typeof url === "string" && url.startsWith("http")) {
               fabric.util.loadImage(
                 url,
                 (img) => {
@@ -236,11 +229,12 @@ export const useHistory = ({
                   //@ts-ignore
                   patternTransform: layer.pattern.patternTransform,
                 });
-                (pattern as any).sourceURL = layer.pattern.sourceId;
+                //@ts-ignore
+                (pattern as any).sourceURL = layer.pattern.sourceURL;
                 obj.set("fill", pattern);
               } else {
                 // 如果圖片加載失敗，設置為透明填充
-                obj.set("fill", "rgba(0,0,0,0)");
+                obj.set("fill", "rgba(200, 200, 200, 0.4)");
               }
             }
           });
@@ -261,7 +255,6 @@ export const useHistory = ({
 
           // 更新網格顏色及位置
           updateGridColor();
-          updateCanvasColor();
           updateGridPosition();
 
           // 更新 pattern 相關狀態
@@ -279,7 +272,6 @@ export const useHistory = ({
       canvas,
       gridRef,
       updateGridColor,
-      updateCanvasColor,
       updateGridPosition,
       setCanvasLayers,
       setImageResources,

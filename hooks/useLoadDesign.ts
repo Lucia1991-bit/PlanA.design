@@ -9,7 +9,6 @@ interface UseLoadDesignProps {
   setHistoryIndex: React.Dispatch<React.SetStateAction<number>>;
   gridRef: React.MutableRefObject<fabric.Group | null>;
   updateGridColor: () => void;
-  updateCanvasColor: () => void;
   updateGridPosition: () => void;
   setCanvasLayers: React.Dispatch<React.SetStateAction<CanvasLayer[]>>;
   setImageResources: React.Dispatch<
@@ -24,7 +23,6 @@ export const useLoadDesign = ({
   setHistoryIndex,
   gridRef,
   updateGridColor,
-  updateCanvasColor,
   updateGridPosition,
   setCanvasLayers,
   setImageResources,
@@ -35,14 +33,14 @@ export const useLoadDesign = ({
     if (!initialized.current && initialState?.current && canvas) {
       try {
         // 首先解析外層的 JSON 字符串
-        const parsedInitialState = JSON.parse(initialState.current);
+        // const parsedInitialState = JSON.parse(initialState.current);
 
         // 然後解析內層的 JSON 字符串
         const {
           canvasState,
           canvasLayers = [],
           imageResources = {},
-        } = JSON.parse(parsedInitialState);
+        } = JSON.parse(initialState.current);
 
         if (!canvasState) {
           console.error("Canvas state is undefined or null");
@@ -63,8 +61,11 @@ export const useLoadDesign = ({
           canvasLayers.forEach((layer: CanvasLayer) => {
             const obj = canvas.getObjects()[layer.index];
             if (obj && obj.name === "room") {
-              const imageUrl = imageResources[layer.pattern.sourceId];
-              if (typeof imageUrl === "string") {
+              const imageUrl =
+                //@ts-ignore
+                layer.pattern.sourceURL ||
+                imageResources[layer.pattern.sourceId];
+              if (typeof imageUrl === "string" && imageUrl.startsWith("http")) {
                 fabric.util.loadImage(
                   imageUrl,
                   (img) => {
@@ -78,12 +79,13 @@ export const useLoadDesign = ({
                         //@ts-ignore
                         patternTransform: layer.pattern.patternTransform,
                       });
+                      (pattern as any).sourceURL = imageUrl;
                       obj.set("fill", pattern);
                     } else {
                       console.warn(
                         `Failed to load image for layer ${layer.index}`
                       );
-                      obj.set("fill", "rgba(0,0,0,0)");
+                      obj.set("fill", "rgba(200, 200, 200, 0.4)");
                     }
                     canvas.renderAll();
                   },
@@ -93,7 +95,7 @@ export const useLoadDesign = ({
                 );
               } else {
                 console.warn(`Invalid image URL for layer ${layer.index}`);
-                obj.set("fill", "rgba(0,0,0,0)");
+                obj.set("fill", "rgba(200, 200, 200, 0.4)");
               }
             }
           });
@@ -104,7 +106,6 @@ export const useLoadDesign = ({
           }
           updateGridPosition();
           updateGridColor();
-          updateCanvasColor();
 
           // 設置畫布尺寸
           if (canvasState.width && canvasState.height) {
@@ -133,7 +134,6 @@ export const useLoadDesign = ({
     initialState,
     gridRef,
     updateGridColor,
-    updateCanvasColor,
     updateGridPosition,
     canvasHistory,
     setHistoryIndex,

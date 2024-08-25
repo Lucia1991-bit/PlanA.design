@@ -273,13 +273,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canvas.requestRenderAll();
   }, [canvas, color.canvas.mainGridColor, color.canvas.subGridColor]);
 
-  // 更新畫布顏色
-  //TODO:把這個函數刪掉
-  // 現在已經將畫布背景色改成透明，轉換顏色主要是轉換外層的 div
-  const updateCanvasColor = useCallback(() => {
-    console.log("change color");
-  }, [canvas, designColorMode]);
-
   //畫布的物件互動操作
   const { copy, paste, canPaste, deleteObjects } = useClipboard({ canvas });
 
@@ -310,7 +303,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canvas,
     gridRef,
     updateGridColor,
-    updateCanvasColor,
     updateGridPosition,
     saveDesign,
     canvasLayers,
@@ -336,7 +328,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     gridRef,
     save,
     updateGridColor,
-    updateCanvasColor,
     applyPattern,
     adjustPatternScale,
   });
@@ -358,7 +349,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setHistoryIndex,
     gridRef,
     updateGridColor,
-    updateCanvasColor,
     updateGridPosition,
     setCanvasLayers,
     setImageResources,
@@ -454,20 +444,13 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   useEffect(() => {
     if (isCanvasReady && canvas) {
       updateGridPosition();
-      updateCanvasColor();
       updateGridColor();
       canvas.requestRenderAll();
 
       // 保存初始狀態
       save();
     }
-  }, [
-    isCanvasReady,
-    canvas,
-    updateGridPosition,
-    updateCanvasColor,
-    updateGridColor,
-  ]);
+  }, [isCanvasReady, canvas, updateGridPosition, updateGridColor]);
 
   const design = useMemo(() => {
     if (canvas) {
