@@ -29,7 +29,6 @@ export const useDrawWall = ({
   applyPattern,
   adjustPatternScale,
 }: UseDrawWallProps) => {
-  // 狀態定義
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const isDrawingRef = useRef(false);
   const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
@@ -38,40 +37,128 @@ export const useDrawWall = ({
 
   const color = useDesignPageColor();
   const currentLineRef = useRef<fabric.Line | null>(null);
+  const guideLineRef = useRef<fabric.Line | null>(null);
+  const startPointRef = useRef<fabric.Circle | null>(null);
+  const endPointRef = useRef<fabric.Circle | null>(null);
 
-  //預設地板材質圖片
   const defaultPatternUrl =
     "https://res.cloudinary.com/datj4og4i/image/upload/v1723533704/plan-a/material/%E6%9C%A8%E5%9C%B0%E6%9D%BF/wood25_small.jpg";
 
-  // 常量定義
   const WALL_THICKNESS = 30;
+  const PREVIEW_LINE_COLOR = "rgba(0, 123, 255, 0.7)";
+  const GUIDE_LINE_COLOR = "rgba(0, 0, 255, 0.3)";
+  const POINT_RADIUS = 5;
+  const SNAP_THRESHOLD = 10;
 
-  // 鎖點網格
   const snapToGrid = useCallback(
     (x: number, y: number): [number, number] => {
-      // 計算網格的起始位置
       const gridOffsetX = canvas ? canvas.width! / 2 : 0;
       const gridOffsetY = canvas ? canvas.height! / 2 : 0;
-
-      // 調整坐標以考慮網格偏移
       const adjustedX = x - gridOffsetX;
       const adjustedY = y - gridOffsetY;
-
-      // 對齊到最近的 SUB_GRID_SIZE
       const snappedX = Math.round(adjustedX / SUB_GRID_SIZE) * SUB_GRID_SIZE;
       const snappedY = Math.round(adjustedY / SUB_GRID_SIZE) * SUB_GRID_SIZE;
-
-      // 將坐標轉換回畫布坐標系
       return [snappedX + gridOffsetX, snappedY + gridOffsetY];
     },
     [canvas]
   );
 
-  // 確保網格、牆體、地板材質在底層
+  const createOrUpdatePreviewLine = useCallback(
+    (startX: number, startY: number, endX: number, endY: number) => {
+      if (!canvas) return;
+
+      if (currentLineRef.current) {
+        currentLineRef.current.set({
+          x1: startX,
+          y1: startY,
+          x2: endX,
+          y2: endY,
+        });
+      } else {
+        const newLine = new fabric.Line([startX, startY, endX, endY], {
+          stroke: PREVIEW_LINE_COLOR,
+          strokeWidth: WALL_THICKNESS,
+          strokeLineCap: "square",
+          strokeLineJoin: "bevel",
+          selectable: false,
+          evented: false,
+        });
+        currentLineRef.current = newLine;
+        canvas.add(newLine);
+      }
+      canvas.renderAll();
+    },
+    [canvas]
+  );
+
+  const createOrUpdateGuideLine = useCallback(
+    (startX: number, startY: number, endX: number, endY: number) => {
+      if (!canvas) return;
+
+      const midX = (startX + endX) / 2;
+      const midY = (startY + endY) / 2;
+      const angle = (Math.atan2(endY - startY, endX - startX) * 180) / Math.PI;
+
+      if (guideLineRef.current) {
+        guideLineRef.current.set({
+          x1: midX - 1000 * Math.cos((angle * Math.PI) / 180),
+          y1: midY - 1000 * Math.sin((angle * Math.PI) / 180),
+          x2: midX + 1000 * Math.cos((angle * Math.PI) / 180),
+          y2: midY + 1000 * Math.sin((angle * Math.PI) / 180),
+        });
+      } else {
+        const guideLine = new fabric.Line(
+          [
+            midX - 1000 * Math.cos((angle * Math.PI) / 180),
+            midY - 1000 * Math.sin((angle * Math.PI) / 180),
+            midX + 1000 * Math.cos((angle * Math.PI) / 180),
+            midY + 1000 * Math.sin((angle * Math.PI) / 180),
+          ],
+          {
+            stroke: GUIDE_LINE_COLOR,
+            strokeDashArray: [5, 5],
+            selectable: false,
+            evented: false,
+          }
+        );
+        guideLineRef.current = guideLine;
+        canvas.add(guideLine);
+      }
+      canvas.renderAll();
+    },
+    [canvas]
+  );
+
+  const createOrUpdatePoint = useCallback(
+    (
+      x: number,
+      y: number,
+      pointRef: React.MutableRefObject<fabric.Circle | null>
+    ) => {
+      if (!canvas) return;
+
+      if (pointRef.current) {
+        pointRef.current.set({ left: x - POINT_RADIUS, top: y - POINT_RADIUS });
+      } else {
+        const point = new fabric.Circle({
+          left: x - POINT_RADIUS,
+          top: y - POINT_RADIUS,
+          radius: POINT_RADIUS,
+          fill: PREVIEW_LINE_COLOR,
+          selectable: false,
+          evented: false,
+        });
+        pointRef.current = point;
+        canvas.add(point);
+      }
+      canvas.renderAll();
+    },
+    [canvas]
+  );
+
   const ensureDesignElementsAtBottom = useCallback(() => {
     if (!canvas || !gridRef.current) return;
 
-    // 將所有元素按類型分組
     const grid = gridRef.current;
     const roomObjects = canvas
       .getObjects()
@@ -85,20 +172,17 @@ export const useDrawWall = ({
         (obj) => obj !== grid && obj.name !== "room" && obj.name !== "wallLine"
       );
 
-    // 清空畫布
     canvas.clear();
 
-    // 按正確的順序重新添加元素
-    canvas.add(grid); // 網格在最底層
+    canvas.add(grid);
     updateGridColor();
-    roomObjects.forEach((room) => canvas.add(room)); // 房間在網格之上
-    wallObjects.forEach((wall) => canvas.add(wall)); // 牆體在房間之上
-    otherObjects.forEach((obj) => canvas.add(obj)); // 其他物件在最上層
+    roomObjects.forEach((room) => canvas.add(room));
+    wallObjects.forEach((wall) => canvas.add(wall));
+    otherObjects.forEach((obj) => canvas.add(obj));
 
     canvas.renderAll();
-  }, [canvas, gridRef]);
+  }, [canvas, gridRef, updateGridColor]);
 
-  // 開啟繪製模式
   const startDrawWall = useCallback(() => {
     console.log("startDrawWall: 開始繪製牆壁模式");
     setIsDrawingMode(true);
@@ -107,7 +191,6 @@ export const useDrawWall = ({
     setCompletedWalls([]);
   }, []);
 
-  // 開始繪製
   const startDrawing = useCallback(
     (event: fabric.IEvent) => {
       if (!isDrawingMode || !canvas) return;
@@ -119,55 +202,45 @@ export const useDrawWall = ({
       setCurrentPath((prev) => [...prev, newPoint]);
 
       if (currentLineRef.current) {
-        currentLineRef.current.setCoords();
-        setCompletedWalls((prev) => [...prev, currentLineRef.current!]);
+        const completedLine = new fabric.Line(
+          [currentLineRef.current.x1!, currentLineRef.current.y1!, x, y],
+          {
+            stroke: color.wall.fill,
+            strokeWidth: WALL_THICKNESS,
+            strokeLineCap: "square",
+            strokeLineJoin: "round",
+            selectable: true,
+            evented: true,
+            name: "wallLine",
+          }
+        );
+        canvas.add(completedLine);
+        setCompletedWalls((prev) => [...prev, completedLine]);
+        canvas.remove(currentLineRef.current);
       }
 
-      const newLine = new fabric.Line([x, y, x, y], {
-        stroke: color.wall.fill,
-        strokeWidth: WALL_THICKNESS,
-        selectable: true,
-        evented: true,
-        hasBorders: true,
-        hasControls: true,
-        lockMovementX: true,
-        lockMovementY: true,
-        lockRotation: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        cornerColor: "#FFF",
-        cornerStyle: "circle",
-        borderColor: "#3b82f6",
-        borderScaleFactor: 1.5,
-        transparentCorners: false,
-        borderOpacityWhenMoving: 1,
-        cornerStrokeColor: "#3b82f6",
-        name: "wallLine",
-      });
+      createOrUpdatePreviewLine(x, y, x, y);
+      createOrUpdatePoint(x, y, startPointRef);
+      createOrUpdatePoint(x, y, endPointRef);
+      createOrUpdateGuideLine(x, y, x, y);
 
-      newLine.setControlsVisibility({
-        mt: false,
-        mb: false, // 隱藏頂部和底部中間的控制點
-        ml: false,
-        mr: false, // 只顯示左右中間的控制點
-        tl: false,
-        tr: false,
-        bl: false,
-        br: false, // 隱藏角落的控制點
-        mtr: false,
-      });
-
-      //創建一條新的線
-      currentLineRef.current = newLine;
-      canvas.add(newLine);
       ensureDesignElementsAtBottom();
       canvas.renderAll();
       save();
     },
-    [isDrawingMode, canvas, snapToGrid, save, ensureDesignElementsAtBottom]
+    [
+      isDrawingMode,
+      canvas,
+      snapToGrid,
+      save,
+      ensureDesignElementsAtBottom,
+      createOrUpdatePreviewLine,
+      createOrUpdatePoint,
+      createOrUpdateGuideLine,
+      color.wall.fill,
+    ]
   );
 
-  // 繪製中
   const draw = useCallback(
     (event: fabric.IEvent) => {
       if (!isDrawingRef.current || !canvas || !currentLineRef.current) return;
@@ -176,21 +249,21 @@ export const useDrawWall = ({
       let [x, y] = snapToGrid(pointer.x, pointer.y);
       const startPoint = currentPath[currentPath.length - 1];
 
-      if (Math.abs(x - startPoint.x) > Math.abs(y - startPoint.y)) {
-        y = startPoint.y;
-      } else {
-        x = startPoint.x;
-      }
-
-      //不斷改變線的終點，創造線條隨著滑鼠移動的效果
-      currentLineRef.current.set({ x2: x, y2: y });
-      //TODO:可以改成requestRenderAll看看能不能提升效能
+      createOrUpdatePreviewLine(startPoint.x, startPoint.y, x, y);
+      createOrUpdatePoint(x, y, endPointRef);
+      createOrUpdateGuideLine(startPoint.x, startPoint.y, x, y);
       canvas.renderAll();
     },
-    [isDrawingMode, canvas, currentPath, snapToGrid]
+    [
+      canvas,
+      currentPath,
+      snapToGrid,
+      createOrUpdatePreviewLine,
+      createOrUpdatePoint,
+      createOrUpdateGuideLine,
+    ]
   );
 
-  // 創建多邊形並應用圖案
   const createPolygonWithPattern = useCallback(
     (points: fabric.Point[]) => {
       if (!canvas) return;
@@ -227,26 +300,42 @@ export const useDrawWall = ({
 
       canvas.setActiveObject(newRoom);
     },
-    [canvas, ensureDesignElementsAtBottom, save]
+    [
+      canvas,
+      ensureDesignElementsAtBottom,
+      save,
+      applyPattern,
+      adjustPatternScale,
+    ]
   );
 
-  const TOLERANCE = 20; // 容許範圍，單位為像素
-
-  // 完成繪製
   const finishDrawWall = useCallback(() => {
     if (!canvas || !isDrawingRef.current) return;
 
     setIsDrawingMode(false);
     isDrawingRef.current = false;
 
-    //結束繪製後刪除掉多餘的線
     if (currentLineRef.current) {
       canvas.remove(currentLineRef.current);
       currentLineRef.current = null;
     }
 
-    // 創建多邊形（如果有至少 4條線）
-    if (completedWalls.length >= 4) {
+    if (guideLineRef.current) {
+      canvas.remove(guideLineRef.current);
+      guideLineRef.current = null;
+    }
+
+    if (startPointRef.current) {
+      canvas.remove(startPointRef.current);
+      startPointRef.current = null;
+    }
+
+    if (endPointRef.current) {
+      canvas.remove(endPointRef.current);
+      endPointRef.current = null;
+    }
+
+    if (completedWalls.length >= 3) {
       const points = completedWalls.map(
         (line) => new fabric.Point(line.x1!, line.y1!)
       );
@@ -261,10 +350,21 @@ export const useDrawWall = ({
     }
 
     setCurrentPath([]);
-    setCompletedWalls([]);
     canvas.renderAll();
     save();
   }, [canvas, isDrawingMode, completedWalls, createPolygonWithPattern, save]);
+
+  const deleteSelectedWall = useCallback(() => {
+    if (!canvas) return;
+
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.name === "wallLine") {
+      canvas.remove(activeObject);
+      setCompletedWalls((prev) => prev.filter((wall) => wall !== activeObject));
+      canvas.renderAll();
+      save();
+    }
+  }, [canvas, save]);
 
   return {
     isDrawingMode,
@@ -275,5 +375,6 @@ export const useDrawWall = ({
     finishDrawWall,
     rooms,
     createPolygonWithPattern,
+    deleteSelectedWall,
   };
 };

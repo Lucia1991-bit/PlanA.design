@@ -104,7 +104,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
             <MotionText
               key={index}
               variants={letterVariants}
-              fontSize={{ base: "20px", md: "26px", lg: "30px" }}
+              fontSize={{ base: "22px", md: "26px", lg: "30px" }}
               fontWeight="300"
               letterSpacing={6}
             >

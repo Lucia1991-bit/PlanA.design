@@ -201,7 +201,7 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
       py={{ base: "100px", lg: "50px" }}
     >
       <MotionBox
-        p={6}
+        px={6}
         maxWidth="1300px"
         width="100%"
         height="100%"
@@ -231,7 +231,7 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
                 <MotionText
                   key={`${wordIndex}-${letterIndex}`}
                   variants={titleVariants}
-                  fontSize={{ base: "20px", md: "26px", lg: "30px" }}
+                  fontSize={{ base: "22px", md: "26px", lg: "30px" }}
                   fontWeight="300"
                   letterSpacing={6}
                   display="inline-block"
@@ -407,7 +407,7 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
             <Show above="lg">
               <MotionBox
                 position="absolute"
-                bottom="0"
+                bottom={{ base: "0px", lg: "-10px" }}
                 right="0"
                 w="220px"
                 flex={1}
