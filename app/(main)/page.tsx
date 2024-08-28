@@ -16,7 +16,10 @@ const HomePage = () => {
     useState(false);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const [showIntroAnimation, setShowIntroAnimation] = useState(false);
+  const [showInstructionAnimation, setShowInstructionAnimation] =
+    useState(false);
   const introSectionRef = useRef<HTMLDivElement>(null);
+  const instructionSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -27,27 +30,35 @@ const HomePage = () => {
     }, 1300);
 
     const handleScroll = () => {
-      if (introSectionRef.current) {
-        const rect = introSectionRef.current.getBoundingClientRect();
-        // 設置觸發點，例如滾動到螢幕高度的75%時觸發
-        const triggerPoint = window.innerHeight * 0.75;
+      const triggerPoint = window.innerHeight * 0.7;
 
-        if (rect.top <= triggerPoint && !showIntroAnimation) {
+      if (introSectionRef.current) {
+        const introRect = introSectionRef.current.getBoundingClientRect();
+        if (introRect.top <= triggerPoint && !showIntroAnimation) {
           setShowIntroAnimation(true);
           console.log("IntroSection animation triggered");
+        }
+      }
+
+      if (instructionSectionRef.current) {
+        const instructionRect =
+          instructionSectionRef.current.getBoundingClientRect();
+        if (instructionRect.top <= triggerPoint && !showInstructionAnimation) {
+          setShowInstructionAnimation(true);
+          console.log("InstructionSection animation triggered");
         }
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-    // 初始檢查
+    // 初始检查
     handleScroll();
 
     return () => {
       clearTimeout(contentTimer);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [showIntroAnimation]);
+  }, [showIntroAnimation, showInstructionAnimation]);
 
   if (!mounted) return <LoadingPage />;
 
@@ -105,7 +116,9 @@ const HomePage = () => {
       <Box ref={introSectionRef}>
         <IntroSection animate={showIntroAnimation} />
       </Box>
-      <InstructionSection />
+      <Box ref={instructionSectionRef}>
+        <InstructionSection animate={showInstructionAnimation} />
+      </Box>
     </Box>
   );
 };

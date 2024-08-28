@@ -5,38 +5,49 @@ import {
   Heading,
   Text,
   Button,
-  useColorModeValue,
   VStack,
   AspectRatio,
   Show,
   useDisclosure,
   keyframes,
 } from "@chakra-ui/react";
+import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import AuthModal from "@/components/_Auth/AuthModal";
 
+const MotionBox = motion(Box);
+const MotionFlex = motion(Flex);
+const MotionText = motion(Text);
+const MotionVStack = motion(VStack);
+
 const steps = [
   {
     title: "繪製空間",
-    description: "使用繪製工具繪製牆體，",
-    gifUrl: "/內容假圖.png",
+    description: "使用繪製工具繪製牆面，系統自動識別並生成封閉空間",
+    gifUrl: "/instruction.gif",
+    duration: 10000,
   },
   {
-    title: "填入材質",
-    description: "為您的空間添加家具、裝飾品和材質。",
+    title: "應用材質",
+    description:
+      "從材質庫內選擇材質，一鍵應用至相應的空間。可即時預覽效果，隨時更換以達到理想效果",
     gifUrl: "/內容假圖.png",
+    duration: 8000,
   },
   {
-    title: "選擇家具",
-    description: "效果逼真的圖片、全景圖、VR漫遊，甚至是帶有動效的視頻！",
+    title: "擺放家具",
+    description:
+      "從家具庫內選擇家具，以拖曳方式擺放，可自由調整家具的位置、角度和尺寸",
     gifUrl: "/內容假圖.png",
+    duration: 8000,
   },
   {
-    title: "分享圖面",
-    description: "無需負擔你的電腦，隨時隨地在任何瀏覽器上訪問或分享你的設計。",
+    title: "分享設計",
+    description: "完成設計後，提供分享選項，可匯出並分享成果",
     gifUrl: "/內容假圖.png",
+    duration: 8000,
   },
 ];
 
@@ -46,35 +57,51 @@ const moveRightAnimation = keyframes`
   100% { transform: translateX(0); }
 `;
 
-const InstructionSection = () => {
+interface InstructionSectionProps {
+  animate: boolean;
+}
+
+const InstructionSection = ({ animate }: InstructionSectionProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [videoProgress, setVideoProgress] = useState(0);
-  const stepDuration = 5000; // 一張圖片的播放時間
+  const stepDuration = 8000; // 一張圖片的播放時間
   const stepsRef = useRef<(HTMLDivElement | null)[]>([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user } = useAuth();
   const router = useRouter();
+  const controls = useAnimation();
+  const [animationComplete, setAnimationComplete] = useState(false);
 
   useEffect(() => {
-    const stepTimer = setInterval(() => {
-      setCurrentStep((prevStep) => (prevStep + 1) % steps.length);
-      setVideoProgress(0);
-    }, stepDuration);
+    if (animate) {
+      controls.start("visible").then(() => setAnimationComplete(true));
+    }
+  }, [animate, controls]);
 
-    const progressTimer = setInterval(() => {
-      setVideoProgress((prevProgress) => {
-        if (prevProgress < 100) {
-          return prevProgress + 1;
-        }
-        return prevProgress;
-      });
-    }, stepDuration / 100);
+  useEffect(() => {
+    if (animationComplete) {
+      const currentStepData = steps[currentStep];
+      setVideoProgress(0); // 重置進度條為 0
 
-    return () => {
-      clearInterval(stepTimer);
-      clearInterval(progressTimer);
-    };
-  }, []);
+      const stepTimer = setTimeout(() => {
+        setCurrentStep((prevStep) => (prevStep + 1) % steps.length);
+      }, currentStepData.duration);
+
+      const progressTimer = setInterval(() => {
+        setVideoProgress((prevProgress) => {
+          if (prevProgress < 100) {
+            return prevProgress + 100 / (currentStepData.duration / 100);
+          }
+          return 100;
+        });
+      }, 100);
+
+      return () => {
+        clearTimeout(stepTimer);
+        clearInterval(progressTimer);
+      };
+    }
+  }, [animationComplete, currentStep]);
 
   const handleStepClick = (index: number) => {
     setCurrentStep(index);
@@ -106,6 +133,62 @@ const InstructionSection = () => {
     }
   };
 
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.8,
+      },
+    },
+  };
+
+  const titleVariants = {
+    hidden: {
+      y: 20,
+      opacity: 0.1,
+      color: "#f9f9f8",
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      color: ["#f9f9f8", "#c7c8c8", "#c6332e"],
+      transition: {
+        y: { type: "spring", damping: 10, stiffness: 100, duration: 0.5 },
+        opacity: { duration: 0.5 },
+        color: {
+          times: [0, 0.1, 1],
+          duration: 1,
+          ease: "easeInOut",
+        },
+      },
+    },
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 1.8,
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
     <Box
       width="100%"
@@ -117,18 +200,49 @@ const InstructionSection = () => {
       p={4}
       py={{ base: "100px", lg: "50px" }}
     >
-      <Box p={8} maxWidth="1300px" width="100%" height="100%">
-        <Text
-          color="brand.primary"
-          fontSize={{ base: "20px", md: "26px", lg: "30px" }}
-          fontWeight="300"
-          letterSpacing={6}
-          textAlign={{ base: "center", lg: "right" }}
+      <MotionBox
+        p={6}
+        maxWidth="1300px"
+        width="100%"
+        height="100%"
+        variants={containerVariants}
+        initial="hidden"
+        animate={controls}
+      >
+        <MotionFlex
+          width="100%"
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+          justifyContent={{ base: "center", lg: "flex-end" }}
           pr={{ base: "0", lg: "30px" }}
         >
-          HOW IT WORKS
-        </Text>
-        <Flex
+          {"HOW IT WORKS".split(" ").map((word, wordIndex) => (
+            <React.Fragment key={wordIndex}>
+              {wordIndex > 0 && (
+                <Box as="span" width="0.6em" display="inline-block" />
+              )}
+              {word.split("").map((letter, letterIndex) => (
+                <MotionText
+                  key={`${wordIndex}-${letterIndex}`}
+                  variants={titleVariants}
+                  fontSize={{ base: "20px", md: "26px", lg: "30px" }}
+                  fontWeight="300"
+                  letterSpacing={6}
+                  display="inline-block"
+                >
+                  {letter}
+                </MotionText>
+              ))}
+            </React.Fragment>
+          ))}
+        </MotionFlex>
+        <MotionFlex
           w="full"
           flexDirection={{ base: "column", lg: "row" }}
           position="relative"
@@ -136,8 +250,9 @@ const InstructionSection = () => {
           gap={10}
           justifyContent="center"
           alignItems="flex-start"
+          variants={contentVariants}
         >
-          <Box
+          <MotionBox
             w={{ base: "100%", lg: "65%" }}
             position="relative"
             display="flex"
@@ -151,6 +266,7 @@ const InstructionSection = () => {
                 <Image
                   priority
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   src={steps[currentStep].gifUrl}
                   alt={`Step ${currentStep + 1}`}
                   style={{ objectFit: "contain" }}
@@ -171,8 +287,8 @@ const InstructionSection = () => {
                 transition="width 0.1s linear"
               />
             </Box>
-          </Box>
-          <VStack
+          </MotionBox>
+          <MotionVStack
             w={{ base: "100%", lg: "34%" }}
             h="100%"
             spacing={8}
@@ -271,12 +387,12 @@ const InstructionSection = () => {
                     </Heading>
                   </Flex>
                   <Text
-                    fontSize={{ base: "xs", lg: "sm" }}
+                    fontSize={{ base: "14px", md: "15px" }}
                     opacity={index === currentStep ? 1 : 0}
                     maxHeight={index === currentStep ? "1000px" : "0"}
                     overflow="hidden"
                     transition="all 0.3s ease-in-out"
-                    pr="5px"
+                    pr={{ base: "20px", lg: "0" }}
                     pl={{ base: "60px", md: "70px", lg: "70px" }}
                     mt={2}
                   >
@@ -285,12 +401,49 @@ const InstructionSection = () => {
                 </Box>
               ))}
             </Flex>
-
             <Show above="lg">
-              <Box flex={1}></Box>
+              <Box flex="1.5"></Box>
+            </Show>
+            <Show above="lg">
+              <MotionBox
+                position="absolute"
+                bottom="0"
+                right="0"
+                w="220px"
+                flex={1}
+              >
+                <Button
+                  py="22px"
+                  bg="brand.primary"
+                  color="white"
+                  rounded="md"
+                  width="100%"
+                  borderRadius="30px"
+                  _hover={{
+                    bg: "brand.hover",
+                    color: "#ffffff",
+                  }}
+                  onClick={handleStartCreating}
+                >
+                  開始創作{" "}
+                  <Box
+                    as="span"
+                    display="inline-block"
+                    animation={`${moveRightAnimation} 1s infinite`}
+                    ml={2}
+                  >
+                    →
+                  </Box>
+                </Button>
+              </MotionBox>
             </Show>
             <Show below="lg">
-              <Box flex={1} width="40%" alignSelf="center" mt="35px">
+              <MotionBox
+                flex={1}
+                width={{ base: "40%", md: "35%" }}
+                alignSelf="center"
+                mt="35px"
+              >
                 <Button
                   px={4}
                   py={5}
@@ -300,43 +453,19 @@ const InstructionSection = () => {
                   width="100%"
                   size={{ base: "xs", md: "sm" }}
                   borderRadius="30px"
+                  _hover={{
+                    bg: "brand.hover",
+                    color: "#ffffff",
+                  }}
                   onClick={handleStartCreating}
                 >
                   開始創作 →
                 </Button>
-              </Box>
+              </MotionBox>
             </Show>
-          </VStack>
-          <Show above="lg">
-            <Box position="absolute" bottom="0" right="0" w="220px" flex={1}>
-              <Button
-                p={4}
-                size="md"
-                bg="brand.primary"
-                color="white"
-                rounded="md"
-                width="100%"
-                borderRadius="30px"
-                _hover={{
-                  bg: "brand.hover",
-                  color: "#ffffff",
-                }}
-                onClick={handleStartCreating}
-              >
-                開始創作{" "}
-                <Box
-                  as="span"
-                  display="inline-block"
-                  animation={`${moveRightAnimation} 1s infinite`}
-                  ml={2}
-                >
-                  →
-                </Box>
-              </Button>
-            </Box>
-          </Show>
-        </Flex>
-      </Box>
+          </MotionVStack>
+        </MotionFlex>
+      </MotionBox>
       <AuthModal isOpen={isOpen} onClose={onClose} />
     </Box>
   );

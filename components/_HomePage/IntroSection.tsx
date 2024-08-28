@@ -15,9 +15,7 @@ import Image from "next/image";
 const MotionBox = motion(Box);
 const MotionText = motion(Text);
 const MotionHeading = motion(Heading);
-const MotionImage = motion(Image);
 const MotionFlex = motion(Flex);
-const MotionVStack = motion(VStack);
 
 interface IntroSectionProps {
   animate: boolean;
@@ -85,7 +83,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
         flexDirection="column"
         justifyContent="center"
         alignItems="center"
-        px={8}
+        px={6}
       >
         <MotionFlex
           width="100%"
@@ -100,7 +98,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
             },
           }}
           justifyContent={{ base: "center", lg: "flex-start" }}
-          pl={{ base: "0", lg: "90px" }}
+          pl={{ base: "0", lg: "95px" }}
         >
           {"ABOUT".split("").map((letter, index) => (
             <MotionText
@@ -161,7 +159,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
               animate={controls}
               mb={{ base: "10px", lg: "18px" }}
             >
-              簡單步驟 無限可能
+              簡單步驟&nbsp;&nbsp;&nbsp;無限可能
             </MotionHeading>
             <MotionHeading
               as="h3"
