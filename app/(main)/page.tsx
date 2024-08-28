@@ -22,43 +22,52 @@ const HomePage = () => {
   const instructionSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMounted(true);
+    // 延長 loading 效果
+    const mountTimer = setTimeout(() => {
+      setMounted(true);
+    }, 1000); // 增加到 3 秒
 
-    const contentTimer = setTimeout(() => {
-      setMainTitleAnimationComplete(true);
-      setShowScrollIndicator(true);
-    }, 1300);
+    return () => clearTimeout(mountTimer);
+  }, []);
 
-    const handleScroll = () => {
-      const triggerPoint = window.innerHeight * 0.7;
+  useEffect(() => {
+    if (mounted) {
+      const contentTimer = setTimeout(() => {
+        setMainTitleAnimationComplete(true);
+        setShowScrollIndicator(true);
+      }, 1300);
 
-      if (introSectionRef.current) {
-        const introRect = introSectionRef.current.getBoundingClientRect();
-        if (introRect.top <= triggerPoint && !showIntroAnimation) {
-          setShowIntroAnimation(true);
-          console.log("IntroSection animation triggered");
+      const handleScroll = () => {
+        const triggerPoint = window.innerHeight * 0.7;
+
+        if (introSectionRef.current) {
+          const introRect = introSectionRef.current.getBoundingClientRect();
+          if (introRect.top <= triggerPoint && !showIntroAnimation) {
+            setShowIntroAnimation(true);
+          }
         }
-      }
 
-      if (instructionSectionRef.current) {
-        const instructionRect =
-          instructionSectionRef.current.getBoundingClientRect();
-        if (instructionRect.top <= triggerPoint && !showInstructionAnimation) {
-          setShowInstructionAnimation(true);
-          console.log("InstructionSection animation triggered");
+        if (instructionSectionRef.current) {
+          const instructionRect =
+            instructionSectionRef.current.getBoundingClientRect();
+          if (
+            instructionRect.top <= triggerPoint &&
+            !showInstructionAnimation
+          ) {
+            setShowInstructionAnimation(true);
+          }
         }
-      }
-    };
+      };
 
-    window.addEventListener("scroll", handleScroll);
-    // 初始检查
-    handleScroll();
+      window.addEventListener("scroll", handleScroll);
+      handleScroll();
 
-    return () => {
-      clearTimeout(contentTimer);
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [showIntroAnimation, showInstructionAnimation]);
+      return () => {
+        clearTimeout(contentTimer);
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }
+  }, [mounted, showIntroAnimation, showInstructionAnimation]);
 
   if (!mounted) return <LoadingPage />;
 
