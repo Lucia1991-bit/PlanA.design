@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import SimpleLoadingPage from "@/components/_Loading/SimpleLoadingPage";
+import LoadingPage from "@/components/_Loading/LoadingPage";
 import { Box, Container } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
 import useBoards from "@/hooks/useBoards";
@@ -21,7 +21,7 @@ const DashboardPage = () => {
 
   // 如果正在加載或用戶未登入，顯示加載頁面
   if (authLoading || !user || !boards) {
-    return <SimpleLoadingPage />;
+    return <LoadingPage />;
   }
 
   return (

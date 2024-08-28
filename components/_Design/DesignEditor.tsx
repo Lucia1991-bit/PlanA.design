@@ -100,7 +100,6 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
   return (
     <Box
       position="relative"
-      border="5px solid purple"
       width="100%"
       height="100vh"
       overflow="hidden"

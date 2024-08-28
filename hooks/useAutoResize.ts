@@ -118,7 +118,14 @@ const useAutoResize = ({
 
     if (isCanvasReady && container) {
       console.log("Setting up ResizeObserver in useAutoResize");
-      const resizeObserver = new ResizeObserver(debouncedResize);
+      const resizeObserver = new ResizeObserver((entries) => {
+        // 檢查 canvas 是否仍然存在
+        if (canvas) {
+          debouncedResize();
+        } else {
+          console.warn("Canvas is not available, skipping resize");
+        }
+      });
       resizeObserver.observe(container);
 
       // 初始调用一次以确保正确的初始大小
@@ -129,7 +136,7 @@ const useAutoResize = ({
         debouncedResize.cancel();
       };
     }
-  }, [isCanvasReady, resizeCanvas, container]);
+  }, [isCanvasReady, resizeCanvas, container, canvas]);
 
   return { resizeCanvas };
 };

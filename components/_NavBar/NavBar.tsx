@@ -49,7 +49,9 @@ const NavBar = () => {
     handleScroll();
 
     // 設置初始加載頁面時 NavBar向下滑動動畫
-    setIsLoaded(true);
+    setTimeout(() => {
+      setIsLoaded(true);
+    });
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isScrolled]);

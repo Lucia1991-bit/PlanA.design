@@ -11,10 +11,6 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
     null
   );
 
-  useEffect(() => {
-    console.log("Clipboard data changed:", clipboardData);
-  }, [clipboardData]);
-
   // 複製功能
   const copy = useCallback(() => {
     if (!canvas) return;

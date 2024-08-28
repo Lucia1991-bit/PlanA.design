@@ -30,7 +30,7 @@ const AuthModal = ({ isOpen, onClose }: LoginModalProps) => {
         width={{ lg: "450px", base: "85%" }}
         minWidth="300px"
         bg="rgba(255, 255, 255, 0.65)"
-        backdropFilter="blur(5px)"
+        backdropFilter="blur(6px)"
         display="flex"
         justifyContent="center"
         alignItems="center"
