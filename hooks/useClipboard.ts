@@ -59,6 +59,7 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
     if (activeObjects) {
       activeObjects.forEach((obj) => {
         if (obj.name === "wallLine") {
+          //@ts-ignore
           const wallId = obj.get("id") as string;
           canvas.getObjects().forEach((canvasObj) => {
             if (

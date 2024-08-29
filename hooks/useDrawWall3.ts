@@ -48,7 +48,7 @@ export const useDrawWall = ({
   const PREVIEW_LINE_COLOR = "rgba(0, 123, 255, 0.5)";
   const GUIDE_LINE_COLOR = "#3b82f6";
   const POINT_RADIUS = 6;
-  const SNAP_THRESHOLD = 20;
+  const SNAP_THRESHOLD = 10;
   const CORNER_SIZE = WALL_THICKNESS * 1.5;
 
   //鎖點網格
@@ -68,6 +68,39 @@ export const useDrawWall = ({
     [canvas]
   );
 
+  // 限制為正交（只能垂直或水平）
+  const snapToOrthogonal = (
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number
+  ): [number, number] => {
+    const dx = Math.abs(endX - startX);
+    const dy = Math.abs(endY - startY);
+    if (dx > dy) {
+      // 水平線
+      return [endX, startY];
+    } else {
+      // 垂直線
+      return [startX, endY];
+    }
+  };
+
+  const snapToGridAndOrthogonal = useCallback(
+    (
+      startX: number,
+      startY: number,
+      endX: number,
+      endY: number
+    ): [number, number] => {
+      // 先進行網格捕捉
+      const [snappedEndX, snappedEndY] = snapToGrid(endX, endY);
+      // 然後進行正交捕捉
+      return snapToOrthogonal(startX, startY, snappedEndX, snappedEndY);
+    },
+    [snapToGrid]
+  );
+
   //創建牆體
   const createWallPath = useCallback(
     (
@@ -77,6 +110,8 @@ export const useDrawWall = ({
       endY: number,
       isPreview: boolean = false
     ) => {
+      [endX, endY] = snapToGridAndOrthogonal(startX, startY, endX, endY);
+
       const angle = Math.atan2(endY - startY, endX - startX);
       const length = Math.sqrt(
         Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
@@ -88,7 +123,7 @@ export const useDrawWall = ({
         fill: isPreview ? PREVIEW_LINE_COLOR : color.wall.fill,
         stroke: "transparent",
         strokeWidth: 1,
-        originX: "left",
+        originX: "right",
         originY: "center",
       });
 
@@ -134,7 +169,7 @@ export const useDrawWall = ({
 
       return group;
     },
-    [color.wall.fill]
+    [color.wall.fill, snapToGridAndOrthogonal]
   );
 
   //創建牆體預覽
@@ -142,7 +177,13 @@ export const useDrawWall = ({
     (startX: number, startY: number, endX: number, endY: number) => {
       if (!canvas) return;
 
-      const [snappedEndX, snappedEndY] = snapToGrid(endX, endY);
+      // 使用正交捕捉
+      const [snappedEndX, snappedEndY] = snapToGridAndOrthogonal(
+        startX,
+        startY,
+        endX,
+        endY
+      );
 
       if (currentLineRef.current) {
         canvas.remove(currentLineRef.current);
@@ -159,7 +200,7 @@ export const useDrawWall = ({
       canvas.add(previewWall);
       canvas.renderAll();
     },
-    [canvas, createWallPath, snapToGrid]
+    [canvas, createWallPath, snapToGridAndOrthogonal]
   );
 
   //創建虛線參考線
@@ -167,25 +208,24 @@ export const useDrawWall = ({
     (startX: number, startY: number, endX: number, endY: number) => {
       if (!canvas) return;
 
-      const midX = (startX + endX) / 2;
-      const midY = (startY + endY) / 2;
-      const angle = (Math.atan2(endY - startY, endX - startX) * 180) / Math.PI;
+      // 使用正交捕捉
+      const [snappedEndX, snappedEndY] = snapToGridAndOrthogonal(
+        startX,
+        startY,
+        endX,
+        endY
+      );
 
       if (guideLineRef.current) {
         guideLineRef.current.set({
-          x1: midX - 1000 * Math.cos((angle * Math.PI) / 180),
-          y1: midY - 1000 * Math.sin((angle * Math.PI) / 180),
-          x2: midX + 1000 * Math.cos((angle * Math.PI) / 180),
-          y2: midY + 1000 * Math.sin((angle * Math.PI) / 180),
+          x1: startX,
+          y1: startY,
+          x2: snappedEndX,
+          y2: snappedEndY,
         });
       } else {
         const guideLine = new fabric.Line(
-          [
-            midX - 1000 * Math.cos((angle * Math.PI) / 180),
-            midY - 1000 * Math.sin((angle * Math.PI) / 180),
-            midX + 1000 * Math.cos((angle * Math.PI) / 180),
-            midY + 1000 * Math.sin((angle * Math.PI) / 180),
-          ],
+          [startX, startY, snappedEndX, snappedEndY],
           {
             stroke: GUIDE_LINE_COLOR,
             strokeDashArray: [5, 5],
@@ -198,7 +238,7 @@ export const useDrawWall = ({
       }
       canvas.renderAll();
     },
-    [canvas]
+    [canvas, snapToGridAndOrthogonal]
   );
 
   //創建預覽參考端點
@@ -350,18 +390,25 @@ export const useDrawWall = ({
       if (!isDrawingRef.current || !canvas || currentPath.length === 0) return;
 
       const pointer = canvas.getPointer(event.e);
-      const [x, y] = snapToGrid(pointer.x, pointer.y);
       const startPoint = currentPath[currentPath.length - 1];
 
-      createOrUpdatePreviewLine(startPoint.x, startPoint.y, x, y);
-      createOrUpdatePoint(x, y, endPointRef);
-      createOrUpdateGuideLine(startPoint.x, startPoint.y, x, y);
+      // 使用正交捕捉
+      const [snappedX, snappedY] = snapToGridAndOrthogonal(
+        startPoint.x,
+        startPoint.y,
+        pointer.x,
+        pointer.y
+      );
+
+      createOrUpdatePreviewLine(startPoint.x, startPoint.y, snappedX, snappedY);
+      createOrUpdatePoint(snappedX, snappedY, endPointRef);
+      createOrUpdateGuideLine(startPoint.x, startPoint.y, snappedX, snappedY);
       canvas.renderAll();
     },
     [
       canvas,
       currentPath,
-      snapToGrid,
+      snapToGridAndOrthogonal,
       createOrUpdatePreviewLine,
       createOrUpdatePoint,
       createOrUpdateGuideLine,
@@ -438,35 +485,6 @@ export const useDrawWall = ({
     ]
   );
 
-  const createLShapedConnector = (
-    point: fabric.Point,
-    angle1: number,
-    angle2: number
-  ) => {
-    const size = WALL_THICKNESS;
-    const path = [
-      `M ${point.x} ${point.y}`,
-      `L ${point.x + size * Math.cos(angle1)} ${
-        point.y + size * Math.sin(angle1)
-      }`,
-      `L ${point.x + size * Math.cos(angle1) + size * Math.cos(angle2)} ${
-        point.y + size * Math.sin(angle1) + size * Math.sin(angle2)
-      }`,
-      `L ${point.x + size * Math.cos(angle2)} ${
-        point.y + size * Math.sin(angle2)
-      }`,
-      "Z",
-    ].join(" ");
-
-    return new fabric.Path(path, {
-      fill: color.wall.fill,
-      stroke: "transparent",
-      selectable: true,
-      evented: true,
-      name: "wallConnector",
-    });
-  };
-
   //結束繪製
   const finishDrawWall = useCallback(() => {
     if (!canvas || !isDrawingRef.current) return;
@@ -514,10 +532,13 @@ export const useDrawWall = ({
     if (completedWalls.length >= 2) {
       for (let i = 0; i < completedWalls.length; i++) {
         const currentWall = completedWalls[i];
+        console.log(currentWall);
         const nextWall = completedWalls[(i + 1) % completedWalls.length];
 
         //@ts-ignore
         const currentEnd = currentWall.get("endPoint") as fabric.Point;
+
+        console.log("currentEnd", currentEnd);
         //@ts-ignore
         const nextStart = nextWall.get("startPoint") as fabric.Point;
 
@@ -548,46 +569,26 @@ export const useDrawWall = ({
             //@ts-ignore
             nextWall.get("endPoint") as fabric.Point
           );
-
-          // 創建 L 型連接件
-          const currentAngle = Math.atan2(
-            //@ts-ignore
-            midPoint.y - currentWall.get("startPoint").y,
-            //@ts-ignore
-            midPoint.x - currentWall.get("startPoint").x
-          );
-          const nextAngle = Math.atan2(
-            //@ts-ignore
-            nextWall.get("endPoint").y - midPoint.y,
-            //@ts-ignore
-            nextWall.get("endPoint").x - midPoint.x
-          );
-
-          const connector = createLShapedConnector(
-            midPoint,
-            currentAngle,
-            nextAngle
-          );
-          canvas.add(connector);
         }
       }
     }
 
     // 創建最終端點
-    completedWalls.forEach((wall, index) => {
-      //@ts-ignore
-      const wallId = wall.get("id") as string;
+    // completedWalls.forEach((wall, index) => {
+    //   //@ts-ignore
+    //   const wallId = wall.get("id") as string;
+    //   console.log(wall);
 
-      //@ts-ignore
-      const startPoint = wall.get("startPoint") as fabric.Point;
-      createEndpoint(startPoint.x, startPoint.y, wallId, true);
+    //   //@ts-ignore
+    //   const startPoint = wall.get("startPoint") as fabric.Point;
+    //   createEndpoint(startPoint.x, startPoint.y, wallId, true);
 
-      if (index === completedWalls.length - 1) {
-        //@ts-ignore
-        const endPoint = wall.get("endPoint") as fabric.Point;
-        createEndpoint(endPoint.x, endPoint.y, wallId, false);
-      }
-    });
+    //   if (index === completedWalls.length - 1) {
+    //     //@ts-ignore
+    //     const endPoint = wall.get("endPoint") as fabric.Point;
+    //     createEndpoint(endPoint.x, endPoint.y, wallId, false);
+    //   }
+    // });
 
     // 創建多邊形（如果需要）
     if (completedWalls.length >= 3) {
@@ -614,10 +615,10 @@ export const useDrawWall = ({
   }, [
     canvas,
     completedWalls,
-    save,
-    createLShapedConnector,
+    SNAP_THRESHOLD,
     createEndpoint,
     createPolygonWithPattern,
+    save,
   ]);
 
   return {

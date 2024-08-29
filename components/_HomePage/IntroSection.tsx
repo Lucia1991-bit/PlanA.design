@@ -25,7 +25,6 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
   const controls = useAnimation();
 
   useEffect(() => {
-    console.log("IntroSection animate prop:", animate);
     if (animate) {
       controls.start("visible");
     }
@@ -74,7 +73,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      py={{ base: "100px", lg: "40px" }}
+      py={{ base: "100px", lg: "50px" }}
     >
       <Box
         maxWidth="1300px"

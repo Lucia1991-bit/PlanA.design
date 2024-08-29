@@ -11,10 +11,12 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import AuthModal from "@/components/_Auth/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileMenu from "@/components/_Profile/ProfileMenu";
 import NavBarBackground from "./NavBarBackground";
+import { usePageLoading } from "@/context/PageLoadingContext";
 
 //頁面初始加載時 NavBar向下滑動動畫
 const slideDown = keyframes`
@@ -29,6 +31,8 @@ const NavBar = () => {
   //管理登入/註冊 modal開關狀態
   const { isAuthModalOpen, openAuthModal, closeAuthModal, user, isLoading } =
     useAuth();
+
+  const { isPageLoading } = usePageLoading();
 
   // NavBar 的高度和樣式會根據 isScrolled 和 isLoaded 狀態動態變化
   useEffect(() => {
@@ -57,7 +61,7 @@ const NavBar = () => {
   }, [isScrolled]);
 
   //加在頁面時檢查使用者登入狀態需要時間，防止閃現另一種狀態的按鈕
-  if (isLoading) {
+  if (isLoading || isPageLoading) {
     return null;
   }
 

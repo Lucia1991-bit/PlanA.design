@@ -9,6 +9,7 @@ import Slogan from "@/components/_HomePage/Slogan";
 import InstructionSection from "@/components/_HomePage/InstructionSection";
 import ScrollIndicator from "@/components/_HomePage/ScrollIndicator";
 import IntroSection from "@/components/_HomePage/IntroSection";
+import { usePageLoading } from "@/context/PageLoadingContext";
 
 const HomePage = () => {
   const [mounted, setMounted] = useState(false);
@@ -21,14 +22,17 @@ const HomePage = () => {
   const introSectionRef = useRef<HTMLDivElement>(null);
   const instructionSectionRef = useRef<HTMLDivElement>(null);
 
+  const { setIsPageLoading } = usePageLoading();
+
   useEffect(() => {
     // 延長 loading 效果
     const mountTimer = setTimeout(() => {
       setMounted(true);
+      setIsPageLoading(false);
     }, 1000);
 
     return () => clearTimeout(mountTimer);
-  }, []);
+  }, [setIsPageLoading]);
 
   useEffect(() => {
     if (mounted) {
@@ -133,3 +137,6 @@ const HomePage = () => {
 };
 
 export default HomePage;
+function useLoading(): { setIsPageLoading: any } {
+  throw new Error("Function not implemented.");
+}

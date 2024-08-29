@@ -32,11 +32,11 @@ export const useDrawWall = ({
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const isDrawingRef = useRef(false);
   const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
-  const [completedWalls, setCompletedWalls] = useState<fabric.Line[]>([]);
+  const [completedWalls, setCompletedWalls] = useState<fabric.Group[]>([]);
   const [rooms, setRooms] = useState<fabric.Polygon[]>([]);
 
   const color = useDesignPageColor();
-  const currentLineRef = useRef<fabric.Path | null>(null);
+  const currentLineRef = useRef<fabric.Group | null>(null);
   const guideLineRef = useRef<fabric.Line | null>(null);
   const startPointRef = useRef<fabric.Circle | null>(null);
   const endPointRef = useRef<fabric.Circle | null>(null);
@@ -68,6 +68,7 @@ export const useDrawWall = ({
     [canvas]
   );
 
+  //創建牆體
   const createWallPath = useCallback(
     (
       startX: number,
@@ -80,6 +81,14 @@ export const useDrawWall = ({
       const length = Math.sqrt(
         Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
       );
+
+      // 根據繪製方向調整牆體的起點
+      let adjustedStartX = startX;
+      let adjustedStartY = startY;
+      if (endX < startX || endY < startY) {
+        adjustedStartX -= Math.cos(angle) * WALL_THICKNESS;
+        adjustedStartY -= Math.sin(angle) * WALL_THICKNESS;
+      }
 
       const rect = new fabric.Rect({
         width: Number(length.toFixed(2)),
@@ -120,12 +129,16 @@ export const useDrawWall = ({
         });
       }
 
+      //@ts-ignore
       group.set("startPoint", new fabric.Point(startX, startY));
+      //@ts-ignore
       group.set("endPoint", new fabric.Point(endX, endY));
+      //@ts-ignore
 
       const wallId = `wall_${Date.now()}_${Math.random()
         .toString(36)
         .substr(2, 9)}`;
+      //@ts-ignore
       group.set("id", wallId);
 
       return group;
@@ -259,7 +272,9 @@ export const useDrawWall = ({
     if (!canvas) return;
 
     completedWalls.forEach((wall) => {
+      //@ts-ignore
       const startPoint = wall.get("startPoint") as fabric.Point;
+      //@ts-ignore
       const endPoint = wall.get("endPoint") as fabric.Point;
 
       [startPoint, endPoint].forEach((point) => {
@@ -479,9 +494,14 @@ export const useDrawWall = ({
     if (completedWalls.length >= 2) {
       for (let i = 0; i < completedWalls.length; i++) {
         const currentWall = completedWalls[i];
+        console.log(currentWall);
         const nextWall = completedWalls[(i + 1) % completedWalls.length];
 
+        //@ts-ignore
         const currentEnd = currentWall.get("endPoint") as fabric.Point;
+
+        console.log("currentEnd", currentEnd);
+        //@ts-ignore
         const nextStart = nextWall.get("startPoint") as fabric.Point;
 
         // 如果端點足夠接近，就將它們合併
@@ -493,18 +513,22 @@ export const useDrawWall = ({
             (currentEnd.x + nextStart.x) / 2,
             (currentEnd.y + nextStart.y) / 2
           );
+          //@ts-ignore
           currentWall.set("endPoint", midPoint);
+          //@ts-ignore
           nextWall.set("startPoint", midPoint);
 
           // 更新牆體的位置和尺寸
           updateWallGeometry(
             currentWall,
+            //@ts-ignore
             currentWall.get("startPoint") as fabric.Point,
             midPoint
           );
           updateWallGeometry(
             nextWall,
             midPoint,
+            //@ts-ignore
             nextWall.get("endPoint") as fabric.Point
           );
         }
@@ -512,26 +536,31 @@ export const useDrawWall = ({
     }
 
     // 創建最終端點
-    completedWalls.forEach((wall, index) => {
-      const wallId = wall.get("id") as string;
-      console.log(wall);
+    // completedWalls.forEach((wall, index) => {
+    //   //@ts-ignore
+    //   const wallId = wall.get("id") as string;
+    //   console.log(wall);
 
-      const startPoint = wall.get("startPoint") as fabric.Point;
-      createEndpoint(startPoint.x, startPoint.y, wallId, true);
+    //   //@ts-ignore
+    //   const startPoint = wall.get("startPoint") as fabric.Point;
+    //   createEndpoint(startPoint.x, startPoint.y, wallId, true);
 
-      if (index === completedWalls.length - 1) {
-        const endPoint = wall.get("endPoint") as fabric.Point;
-        createEndpoint(endPoint.x, endPoint.y, wallId, false);
-      }
-    });
+    //   if (index === completedWalls.length - 1) {
+    //     //@ts-ignore
+    //     const endPoint = wall.get("endPoint") as fabric.Point;
+    //     createEndpoint(endPoint.x, endPoint.y, wallId, false);
+    //   }
+    // });
 
     // 創建多邊形（如果需要）
     if (completedWalls.length >= 3) {
       const points = completedWalls.map(
+        //@ts-ignore
         (wall) => wall.get("startPoint") as fabric.Point
       );
       points.push(
         completedWalls[completedWalls.length - 1].get(
+          //@ts-ignore
           "endPoint"
         ) as fabric.Point
       );

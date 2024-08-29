@@ -26,7 +26,7 @@ const steps = [
   {
     title: "繪製空間",
     description: "使用繪製工具繪製牆面，系統自動識別並生成封閉空間",
-    gifUrl: "/instruction.gif",
+    gifUrl: "/內容假圖.png",
     duration: 10000,
   },
   {
@@ -198,7 +198,7 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
       justifyContent="center"
       alignItems="center"
       p={4}
-      py={{ base: "100px", lg: "40px" }}
+      py={{ base: "100px", lg: "50px" }}
     >
       <MotionBox
         px={6}
