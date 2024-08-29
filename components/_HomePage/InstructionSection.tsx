@@ -198,7 +198,7 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
       justifyContent="center"
       alignItems="center"
       p={4}
-      py={{ base: "100px", lg: "50px" }}
+      py={{ base: "100px", lg: "40px" }}
     >
       <MotionBox
         px={6}

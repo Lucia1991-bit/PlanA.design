@@ -25,7 +25,7 @@ const HomePage = () => {
     // 延長 loading 效果
     const mountTimer = setTimeout(() => {
       setMounted(true);
-    }, 1000); // 增加到 3 秒
+    }, 1000);
 
     return () => clearTimeout(mountTimer);
   }, []);

@@ -45,8 +45,8 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
         y: { type: "spring", damping: 10, stiffness: 100, duration: 0.5 },
         opacity: { duration: 0.5 },
         color: {
-          times: [0, 0.1, 1], // 调整颜色变化的时间点，减少白色停留时间
-          duration: 1, // 缩短整个颜色变化过程至1秒
+          times: [0, 0.1, 1],
+          duration: 1,
           ease: "easeInOut",
         },
       },
@@ -59,7 +59,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
       opacity: 1,
       y: 0,
       transition: {
-        delay: 1 + custom * 0.3, // Increase delay between items
+        delay: 1 + custom * 0.3,
         duration: 0.8,
         ease: "easeOut",
       },
@@ -74,7 +74,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
       display="flex"
       justifyContent="center"
       alignItems="center"
-      py={10}
+      py={{ base: "100px", lg: "40px" }}
     >
       <Box
         maxWidth="1300px"
@@ -118,7 +118,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
           justifyContent="center"
           alignItems="center"
           mt={8}
-          gap={6}
+          gap={8}
         >
           <MotionBox
             position="relative"
