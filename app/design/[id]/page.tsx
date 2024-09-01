@@ -3,7 +3,14 @@
 import { useParams, useRouter, notFound } from "next/navigation";
 import Image from "next/image";
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Text, useBreakpointValue, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Text,
+  useBreakpointValue,
+  VStack,
+  Link as ChakraLink,
+  Button,
+} from "@chakra-ui/react";
 import { useDesignColorMode } from "@/context/colorModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import useSingleBoard from "@/hooks/useSingleBoard";
@@ -11,6 +18,7 @@ import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
 import DesignEditor from "@/components/_Design/DesignEditor";
 import Error from "@/app/error";
 import NotFound from "@/app/not-found";
+import Link from "next/link";
 
 const DesignPage = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -99,14 +107,39 @@ const MobileWarning = () => (
         priority
       />
     </Box>
-    <Box w="90%" textAlign="center">
+    <VStack
+      w="90%"
+      textAlign="center"
+      justifyContent="center"
+      alignItems="center"
+      spacing={1}
+    >
       <Text fontSize={{ base: "md", md: "22px" }} fontWeight="bold">
         請使用桌面版瀏覽器以獲得最佳設計體驗
       </Text>
       <Text fontSize={{ base: "12px", md: "md" }}>
         您當前的設備螢幕太小，無法提供完整的設計功能
       </Text>
-    </Box>
+      <Link href="/" passHref legacyBehavior>
+        <ChakraLink pointerEvents="auto" mt={5}>
+          <Button
+            mt={{ base: "-15px", md: "-10px" }}
+            fontWeight="300"
+            size={{ base: "sm", md: "md" }}
+            borderColor="brand.light"
+            bg="brand.light"
+            color="brand.dark"
+            variant="ghost"
+            _hover={{
+              bg: "brand.secondary",
+              color: "brand.dark",
+            }}
+          >
+            返回首頁
+          </Button>
+        </ChakraLink>
+      </Link>
+    </VStack>
   </VStack>
 );
 

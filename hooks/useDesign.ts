@@ -39,6 +39,7 @@ const buildDesign = ({
   contextMenuPosition,
   handleContextMenuAction,
   canPaste,
+  clearCanvas,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -97,6 +98,7 @@ const buildDesign = ({
         canvas.renderAll();
       });
     },
+
     isDrawingMode,
     setIsDrawingMode,
     startDrawWall,
@@ -105,6 +107,7 @@ const buildDesign = ({
     contextMenuPosition,
     handleContextMenuAction,
     canPaste,
+    clearCanvas,
   };
 };
 
@@ -448,6 +451,48 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     [createGrid]
   );
 
+  // 清空畫布
+  const clearCanvas = useCallback(() => {
+    if (!canvas || !gridRef.current) return;
+
+    // 獲取所有不是網格的對象
+    const objectsToRemove = canvas
+      .getObjects()
+      .filter((obj) => obj !== gridRef.current);
+
+    // 刪除這些對象
+    canvas.remove(...objectsToRemove);
+
+    // 重置相關狀態
+    setSelectedObjects([]);
+    setUnfinishedWall(null);
+    unfinishedWallRef.current = null;
+    setCanvasLayers([]);
+    setImageResources({});
+
+    // 更新網格位置和顏色
+    updateGridPosition();
+    updateGridColor();
+
+    // 重新渲染畫布
+    canvas.renderAll();
+
+    // 保存當前狀態
+    save();
+
+    console.log("畫布已清空（保留網格）");
+  }, [
+    canvas,
+    gridRef,
+    updateGridPosition,
+    updateGridColor,
+    save,
+    setSelectedObjects,
+    setUnfinishedWall,
+    setCanvasLayers,
+    setImageResources,
+  ]);
+
   // 新增：保存初始狀態的函數
   // const saveInitialState = useCallback(() => {
   //   if (canvas && gridRef.current) {
@@ -497,6 +542,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         contextMenuPosition,
         handleContextMenuAction,
         canPaste,
+        clearCanvas,
       });
     }
 
@@ -517,6 +563,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     contextMenuPosition,
     handleContextMenuAction,
     canPaste,
+    clearCanvas,
   ]);
 
   return { initCanvas, design };

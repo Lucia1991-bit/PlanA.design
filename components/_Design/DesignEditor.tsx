@@ -83,6 +83,9 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
       preserveObjectStacking: true,
       stopContextMenu: true,
       fireRightClick: true,
+      selection: false, // 禁用多重選擇
+      selectionBorderColor: "transparent", // 使選擇邊框透明
+      selectionLineWidth: 0, // 選擇線寬度為0
     });
 
     initCanvas({

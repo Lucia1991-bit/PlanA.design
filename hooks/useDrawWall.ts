@@ -532,6 +532,43 @@ export const useDrawWall = ({
     ]
   );
 
+  // const createClosedSpaceCorner = (
+  //   point: fabric.Point,
+  //   prevWall: fabric.Group,
+  //   nextWall: fabric.Group
+  // ) => {
+  //   if (!canvas) return;
+
+  //   // 獲取前一個牆和下一個牆的方向向量
+  //   const prevDir = {
+  //     x: point.x - (prevWall.get("startPoint") as fabric.Point).x,
+  //     y: point.y - (prevWall.get("startPoint") as fabric.Point).y,
+  //   };
+  //   const nextDir = {
+  //     x: (nextWall.get("endPoint") as fabric.Point).x - point.x,
+  //     y: (nextWall.get("endPoint") as fabric.Point).y - point.y,
+  //   };
+
+  //   // 計算角度
+  //   const angle =
+  //     Math.atan2(prevDir.y, prevDir.x) - Math.atan2(nextDir.y, nextDir.x);
+
+  //   // 創建轉角
+  //   const cornerSize = WALL_THICKNESS;
+  //   const corner = new fabric.Circle({
+  //     left: point.x - cornerSize / 2,
+  //     top: point.y - cornerSize / 2,
+  //     radius: cornerSize / 2,
+  //     fill: color.wall.fill,
+  //     selectable: false,
+  //     evented: false,
+  //     name: "wallCorner",
+  //   });
+
+  //   canvas.add(corner);
+  // };
+
+  //填補終點轉角的缺角
   const createClosedSpaceCorner = (
     point: fabric.Point,
     prevWall: fabric.Group,
@@ -550,15 +587,74 @@ export const useDrawWall = ({
     };
 
     // 計算角度
-    const angle =
-      Math.atan2(prevDir.y, prevDir.x) - Math.atan2(nextDir.y, nextDir.x);
+    const prevAngle = Math.atan2(prevDir.y, prevDir.x);
+    const nextAngle = Math.atan2(nextDir.y, nextDir.x);
+    const cornerAngle = nextAngle - prevAngle;
 
     // 創建轉角
-    const cornerSize = WALL_THICKNESS * 1.5;
-    const corner = new fabric.Circle({
-      left: point.x - cornerSize / 2,
-      top: point.y - cornerSize / 2,
-      radius: cornerSize / 2,
+    const cornerSize = WALL_THICKNESS;
+    const halfSize = cornerSize / 2;
+
+    // 計算轉角的四個點
+    const p1 = {
+      x:
+        point.x -
+        halfSize * Math.cos(prevAngle) -
+        halfSize * Math.sin(prevAngle),
+      y:
+        point.y -
+        halfSize * Math.sin(prevAngle) +
+        halfSize * Math.cos(prevAngle),
+    };
+    const p2 = {
+      x:
+        point.x +
+        halfSize * Math.cos(prevAngle) -
+        halfSize * Math.sin(prevAngle),
+      y:
+        point.y +
+        halfSize * Math.sin(prevAngle) +
+        halfSize * Math.cos(prevAngle),
+    };
+    const p3 = {
+      x:
+        point.x +
+        halfSize * Math.cos(nextAngle) +
+        halfSize * Math.sin(nextAngle),
+      y:
+        point.y +
+        halfSize * Math.sin(nextAngle) -
+        halfSize * Math.cos(nextAngle),
+    };
+    const p4 = {
+      x:
+        point.x -
+        halfSize * Math.cos(nextAngle) +
+        halfSize * Math.sin(nextAngle),
+      y:
+        point.y -
+        halfSize * Math.sin(nextAngle) -
+        halfSize * Math.cos(nextAngle),
+    };
+
+    // 定義轉角路徑
+    const pathData = [
+      "M",
+      p1.x,
+      p1.y,
+      "L",
+      p2.x,
+      p2.y,
+      "L",
+      p3.x,
+      p3.y,
+      "L",
+      p4.x,
+      p4.y,
+      "Z",
+    ].join(" ");
+
+    const corner = new fabric.Path(pathData, {
       fill: color.wall.fill,
       selectable: false,
       evented: false,
@@ -610,41 +706,44 @@ export const useDrawWall = ({
         ) {
           console.log("檢測到封閉空間");
 
-          // 創建封閉空間的轉角
-          const closingPoint = new fabric.Point(
-            (firstPoint.x + lastPoint.x) / 2,
-            (firstPoint.y + lastPoint.y) / 2
-          );
+          // // 創建封閉空間的轉角
+          // const closingPoint = new fabric.Point(
+          //   (firstPoint.x + lastPoint.x) / 2,
+          //   (firstPoint.y + lastPoint.y) / 2
+          // );
 
-          // 獲取最後一個牆體和第一個牆體
-          const lastWall = completedWalls[
-            completedWalls.length - 1
-          ] as fabric.Group;
-          const firstWall = completedWalls[0] as fabric.Group;
+          // // 獲取最後一個牆體和第一個牆體
+          // const lastWall = completedWalls[
+          //   completedWalls.length - 1
+          // ] as fabric.Group;
+          // const firstWall = completedWalls[0] as fabric.Group;
 
-          createClosedSpaceCorner(closingPoint, lastWall, firstWall);
+          // createClosedSpaceCorner(closingPoint, lastWall, firstWall);
 
-          createPolygonWithPattern(allPoints);
+          // 創建完全閉合的路徑
+          const closedPoints = [...allPoints, firstPoint];
+          const closedPathData =
+            closedPoints
+              .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
+              .join(" ") + " Z";
 
-          // 找到所有的 wallGroup 物件
-          const wallGroups = canvas
-            .getObjects()
-            .filter((obj) => obj.name === "wallGroup") as fabric.Group[];
-
-          // 從每個 wallGroup 中移除端點
-          wallGroups.forEach((wallGroup) => {
-            const allObjects = wallGroup.getObjects();
-            const objectsToRemove = allObjects.filter(
-              (obj) =>
-                obj.name &&
-                (obj.name === "wallEndpoint_start" ||
-                  obj.name === "wallEndpoint_end")
-            );
-
-            objectsToRemove.forEach((obj) => wallGroup.remove(obj));
-
-            wallGroup.addWithUpdate(); // 更新 wallGroup
+          const closedWall = new fabric.Path(closedPathData, {
+            fill: "transparent",
+            stroke: color.wall.fill,
+            strokeWidth: WALL_THICKNESS,
+            strokeLineJoin: "miter",
+            strokeMiterLimit: 5,
+            strokeLineCap: "square",
+            selectable: false,
+            evented: false,
+            objectCaching: false,
+            name: "finishedWall",
           });
+
+          canvas.remove(wall);
+          canvas.add(closedWall);
+
+          createPolygonWithPattern(closedPoints);
 
           setCompletedWalls([]);
           setCurrentPath([]);
@@ -675,6 +774,7 @@ export const useDrawWall = ({
     save,
     color.wall.fill,
     WALL_THICKNESS,
+    createClosedSpaceCorner,
   ]);
 
   //刪除牆體，需將未完成牆體的狀態也一併刪除
@@ -683,6 +783,38 @@ export const useDrawWall = ({
   //     prevWall && prevWall.get("id") === deletedWallId ? null : prevWall
   //   );
   // }, []);
+
+  const deleteAllWalls = useCallback(() => {
+    if (!canvas) return;
+
+    // 找出所有的牆體和相關元素
+    const wallObjects = canvas
+      .getObjects()
+      .filter(
+        (obj) =>
+          obj.name === "wallGroup" ||
+          obj.name === "wallCorner" ||
+          obj.name === "room"
+      );
+
+    // 刪除找到的所有牆體和相關元素
+    wallObjects.forEach((obj) => {
+      canvas.remove(obj);
+    });
+
+    // 重置相關狀態
+    setCompletedWalls([]);
+    setCurrentPath([]);
+    setUnfinishedWall(null);
+
+    // 重新渲染畫布
+    canvas.renderAll();
+
+    // 保存當前狀態
+    save();
+
+    console.log("所有牆面已被刪除");
+  }, [canvas, setCompletedWalls, setCurrentPath, setUnfinishedWall, save]);
 
   return {
     isDrawingMode,
@@ -693,5 +825,6 @@ export const useDrawWall = ({
     finishDrawWall,
     createPolygonWithPattern,
     createContinuousWall,
+    deleteAllWalls,
   };
 };

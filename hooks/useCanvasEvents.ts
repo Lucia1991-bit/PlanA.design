@@ -13,6 +13,8 @@ interface UseCanvasEventsProps {
   closeContextMenu: () => void;
 }
 
+type CursorType = "default" | "crosshair" | "grab" | "grabbing";
+
 const useCanvasEvents = ({
   canvas,
   isDrawingMode,
@@ -23,6 +25,10 @@ const useCanvasEvents = ({
   openContextMenu,
   closeContextMenu,
 }: UseCanvasEventsProps) => {
+  //平移模式
+  const [isPanMode, setIsPanMode] = useState(false);
+  const [cursorType, setCursorType] = useState<CursorType>("default");
+
   // 用於追踪畫布是否正在被拖動
   const isDraggingRef = useRef(false);
   // 用於存儲上一次鼠標位置，用於計算拖動距離
@@ -34,22 +40,21 @@ const useCanvasEvents = ({
   // 處理選擇事件
   const handleSelectionCreated = useCallback(
     (e: fabric.IEvent) => {
-      const selected = (e as any).selected || [];
-      setSelectedObjects(selected);
+      if (!canvas) return;
+      const target = e.target;
+      if (target) {
+        // 隱藏選取框和控制點
+        target.set({
+          borderColor: "transparent",
+          cornerColor: "transparent",
+          cornerSize: 0,
+          hasControls: false,
+          hasBorders: false,
+        });
 
-      // 檢查是否創建了 activeSelection
-      if (e.target && e.target.type === "activeSelection") {
-        const activeSelection = e.target as fabric.ActiveSelection;
-
-        // 檢查 activeSelection 中是否包含 wallGroup
-        const containsWallGroup = activeSelection
-          .getObjects()
-          .some((obj) => obj.name === "wallGroup");
-
-        if (containsWallGroup) {
-          // 如果包含 wallGroup，應用 wallGroup 的屬性到 activeSelection
-          activeSelection.set({
-            hasControls: false,
+        // 特殊處理 wallGroup
+        if (target.name === "wallGroup" || target.name === "wallCorner") {
+          target.set({
             lockMovementX: true,
             lockMovementY: true,
             lockRotation: true,
@@ -57,16 +62,26 @@ const useCanvasEvents = ({
             lockScalingY: true,
             selectable: true,
             evented: false,
-            objectCaching: false,
           });
         }
-        // 確保更新應用到畫布
-        if (canvas) {
-          canvas.requestRenderAll();
+
+        if (target.name === "room") {
+          target.set({
+            lockMovementX: true,
+            lockMovementY: true,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            selectable: true,
+            evented: false,
+          });
         }
+
+        setSelectedObjects([target]);
+        canvas.requestRenderAll();
       }
     },
-    [setSelectedObjects, canvas]
+    [canvas, setSelectedObjects]
   );
 
   const handleSelectionUpdated = useCallback(
@@ -82,15 +97,20 @@ const useCanvasEvents = ({
   }, [setSelectedObjects]);
 
   // 更新鼠標樣式
-  const updateCursor = useCallback(() => {
-    if (!canvas) return;
+  const updateCursorType = useCallback(() => {
     if (isDrawingMode) {
-      canvas.defaultCursor = "crosshair";
+      setCursorType("crosshair");
+    } else if (
+      isDraggingRef.current &&
+      (isPanMode || isSpacebarDownRef.current)
+    ) {
+      setCursorType("grabbing");
+    } else if (isPanMode || isSpacebarDownRef.current) {
+      setCursorType("grab");
     } else {
-      canvas.defaultCursor = "default";
+      setCursorType("default");
     }
-    canvas.requestRenderAll();
-  }, [canvas, isDrawingMode]);
+  }, [isDrawingMode, isPanMode]);
 
   // 處理滾輪縮放
   const handleWheel = useCallback(
@@ -168,8 +188,16 @@ const useCanvasEvents = ({
       } else {
         closeContextMenu();
       }
+      updateCursorType();
     },
-    [canvas, isDrawingMode, onStartDrawing, openContextMenu]
+    [
+      canvas,
+      isPanMode,
+      isDrawingMode,
+      onStartDrawing,
+      closeContextMenu,
+      updateCursorType,
+    ]
   );
 
   // 處理鼠標移動事件
@@ -178,7 +206,11 @@ const useCanvasEvents = ({
       if (!canvas) return;
       const evt = opt.e as MouseEvent;
 
-      if (isDraggingRef.current && isSpacebarDownRef.current) {
+      //如果按鈕開啟 panMode 或按住空白鍵，則進入拖動模式
+      if (
+        (isDraggingRef.current && isSpacebarDownRef.current) ||
+        (isDraggingRef.current && isPanMode)
+      ) {
         // 處理畫布拖動
         const vpt = canvas.viewportTransform;
         if (!vpt) return;
@@ -198,8 +230,9 @@ const useCanvasEvents = ({
         // 在繪製模式下繼續繪製
         onDrawing(opt);
       }
+      updateCursorType();
     },
-    [canvas, isDrawingMode, onDrawing]
+    [canvas, isPanMode, isDrawingMode, onDrawing, updateCursorType]
   );
 
   // 處理鼠標釋放事件
@@ -214,21 +247,19 @@ const useCanvasEvents = ({
     }
     // 在繪製模式下取消原本物件選取
     canvas.selection = !isDrawingMode;
+    updateCursorType();
     canvas.requestRenderAll();
-  }, [canvas, isDrawingMode, save]);
+  }, [canvas, isDrawingMode, isPanMode, save, updateCursorType]);
 
   // 處理鍵盤按下事件
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.code === "Space" && !isSpacebarDownRef.current) {
         isSpacebarDownRef.current = true;
-        if (canvas) {
-          canvas.defaultCursor = "grab";
-          canvas.requestRenderAll();
-        }
+        updateCursorType();
       }
     },
-    [canvas]
+    [updateCursorType]
   );
 
   // 處理鍵盤釋放事件
@@ -236,13 +267,10 @@ const useCanvasEvents = ({
     (e: KeyboardEvent) => {
       if (e.code === "Space") {
         isSpacebarDownRef.current = false;
-        if (canvas) {
-          canvas.defaultCursor = isDrawingMode ? "crosshair" : "default";
-          canvas.requestRenderAll();
-        }
+        updateCursorType();
       }
     },
-    [canvas, isDrawingMode]
+    [updateCursorType]
   );
 
   // 處理物件修改（添加、刪除、修改）
@@ -274,8 +302,11 @@ const useCanvasEvents = ({
 
   // 當繪製模式改變時更新鼠標樣式
   useEffect(() => {
-    updateCursor();
-  }, [isDrawingMode, updateCursor]);
+    if (canvas) {
+      canvas.defaultCursor = cursorType;
+      canvas.requestRenderAll();
+    }
+  }, [canvas, cursorType]);
 
   // 設置和清理畫布事件監聽器
   useEffect(() => {

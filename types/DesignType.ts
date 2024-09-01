@@ -80,6 +80,7 @@ export type ActiveTool =
   | "draw"
   | "door"
   | "window"
+  | "pan"
   | "fill"
   | "stroke-color"
   | "stroke-width"
@@ -145,6 +146,7 @@ export type BuildDesignProps = {
     action: "copy" | "paste" | "delete" | "close"
   ) => void;
   canPaste: () => boolean;
+  clearCanvas: () => void;
   // fillColor: string;
   // strokeColor: string;
   // strokeWidth: number;
@@ -200,6 +202,7 @@ export interface Design {
     action: "copy" | "paste" | "delete" | "close"
   ) => void;
   canPaste: () => boolean;
+  clearCanvas: () => void;
   // addPatternPath: (imageUrl: string) => void;
   // delete: () => void;
   // changeFontSize: (value: number) => void;
