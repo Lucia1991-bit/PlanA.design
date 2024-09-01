@@ -17,6 +17,7 @@ import {
   LuLoader,
   LuDownload,
   LuMousePointerClick,
+  LuMousePointer2,
   LuRedo2,
   LuSave,
   LuUndo2,
@@ -111,7 +112,7 @@ const DesignNavBar = ({
               bg={activeTool === "select" ? color.toolBar.hover : "transparent"}
               color={color.toolBar.text}
               aria-label={"select"}
-              icon={<LuMousePointerClick fontSize="20px" />}
+              icon={<LuMousePointer2 fontSize="20px" />}
               _hover={{ bg: color.toolBar.hover }}
               _active={{
                 bg: color.toolBar.hover,

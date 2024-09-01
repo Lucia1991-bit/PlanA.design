@@ -118,6 +118,12 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
 
+  //保存未完成的牆體
+  const [unfinishedWall, setUnfinishedWall] = useState<fabric.Object | null>(
+    null
+  );
+  const unfinishedWallRef = useRef<fabric.Object | null>(null);
+
   //Pattern相關狀態
   const [canvasLayers, setCanvasLayers] = useState<CanvasLayer[]>([]);
   const [imageResources, setImageResources] = useState<Record<string, string>>(
@@ -131,6 +137,16 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
 
   //獲取 light模式及dark模式顏色
   const color = useDesignColor();
+
+  //改變 unfinishedWall的狀態
+  const memoizedSetUnfinishedWall = useCallback(
+    (wall: fabric.Object | null) => {
+      console.log("設置 unfinishedWall:", wall);
+      setUnfinishedWall(wall);
+      unfinishedWallRef.current = wall;
+    },
+    []
+  );
 
   //創建網格線
   const createGrid = useCallback((width: number, height: number) => {
@@ -273,21 +289,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canvas.requestRenderAll();
   }, [canvas, color.canvas.mainGridColor, color.canvas.subGridColor]);
 
-  //畫布的物件互動操作
-  const { copy, paste, canPaste, deleteObjects } = useClipboard({ canvas });
-
-  //管理物件選單操作
-  const {
-    position: contextMenuPosition,
-    open: openContextMenu,
-    close: closeContextMenu,
-    handleAction: handleContextMenuAction,
-  } = useContextMenu({
-    copy,
-    paste,
-    deleteObjects,
-  });
-
   //管理畫布歷史紀錄及存檔
   const {
     save,
@@ -309,6 +310,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setCanvasLayers,
     imageResources,
     setImageResources,
+    // unfinishedWallRef,
+    // setUnfinishedWall: memoizedSetUnfinishedWall,
   });
 
   //材質 pattern
@@ -322,7 +325,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     startDrawing,
     draw,
     finishDrawWall,
-    rooms,
   } = useDrawWall({
     canvas,
     gridRef,
@@ -330,6 +332,25 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     updateGridColor,
     applyPattern,
     adjustPatternScale,
+    unfinishedWall: unfinishedWallRef,
+    setUnfinishedWall: memoizedSetUnfinishedWall,
+  });
+
+  //畫布的物件互動操作
+  const { copy, paste, canPaste, deleteObjects } = useClipboard({
+    canvas,
+  });
+
+  //管理物件選單操作
+  const {
+    position: contextMenuPosition,
+    open: openContextMenu,
+    close: closeContextMenu,
+    handleAction: handleContextMenuAction,
+  } = useContextMenu({
+    copy,
+    paste,
+    deleteObjects,
   });
 
   // 畫布尺寸隨視窗縮放改變
@@ -345,6 +366,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   useLoadDesign({
     canvas,
     initialState: useRef(initialState.current),
+    initializeCanvasState,
     canvasHistory,
     setHistoryIndex,
     gridRef,
@@ -451,6 +473,11 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
       save();
     }
   }, [isCanvasReady, canvas, updateGridPosition, updateGridColor]);
+
+  useEffect(() => {
+    console.log("useDesign 中的 unfinishedWall 變化:", unfinishedWall);
+    unfinishedWallRef.current = unfinishedWall;
+  }, [unfinishedWall]);
 
   const design = useMemo(() => {
     if (canvas) {

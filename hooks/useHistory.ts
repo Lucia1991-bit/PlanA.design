@@ -14,6 +14,8 @@ interface useHistoryProps {
   setImageResources: React.Dispatch<
     React.SetStateAction<Record<string, string>>
   >;
+  // unfinishedWallRef: React.MutableRefObject<fabric.Object | null>;
+  // setUnfinishedWall: (wall: fabric.Object | null) => void;
 }
 
 export const useHistory = ({
@@ -26,7 +28,9 @@ export const useHistory = ({
   setCanvasLayers,
   imageResources,
   setImageResources,
-}: useHistoryProps) => {
+}: // unfinishedWallRef,
+// setUnfinishedWall,
+useHistoryProps) => {
   // 當前歷史記錄的索引
   const [historyIndex, setHistoryIndex] = useState(-1);
   // 存儲畫布狀態歷史的陣列
@@ -66,51 +70,89 @@ export const useHistory = ({
 
     // 將 Pattern相關資料獨立到新的 CanvasLayer和 ImageResources中，不另外跟其他 Canvas狀態一起 JSON格式化
     // 處理畫布上的所有物件
-    const fabricObjects = canvas.getObjects().map((obj: any, index: number) => {
-      // 創建對象的淺複製，確保包含 name 屬性
-      const baseObject = Object.assign({}, obj.toObject(), { name: obj.name });
+    const fabricObjects = canvas
+      .getObjects()
+      //排除有設定 excludeFromExport屬性的物件
+      .filter((obj: any) => !obj.excludeFromExport)
+      .map((obj: any, index: number) => {
+        // 創建對象的淺複製，確保包含 name 屬性
+        const baseObject = Object.assign({}, obj.toObject(), {
+          name: obj.name,
+        });
 
-      // 檢查填了 Pattern 的物件(在drawWall裡取名為room)
-      if (
-        obj.name === "room" ||
-        (obj.fill && obj.fill instanceof fabric.Pattern)
-      ) {
-        // 為每個圖案生成唯一的 ID
-        const imageId = `image_${index}`;
+        // 另外處理 wallGroup 牆體的屬性
+        if (obj.name === "wallGroup") {
+          baseObject.selectable = false;
+          baseObject.evented = false;
+          baseObject.hasControls = false;
+          baseObject.lockMovementX = true;
+          baseObject.lockMovementY = true;
+          baseObject.lockRotation = true;
+          baseObject.lockScalingX = true;
+          baseObject.lockScalingY = true;
+          baseObject.subTargetCheck = true;
+          baseObject.lockUniScaling = true;
 
-        // 檢查 fill 是否為有效的 Pattern
-        if (obj.fill && obj.fill instanceof fabric.Pattern) {
-          // 嘗試獲取 sourceURL，首選 sourceURL，如果不存在則嘗試 source.src
-          const sourceURL =
-            obj.fill.sourceURL || (obj.fill.source && obj.fill.source.src);
-          if (sourceURL) {
-            // 將圖案源另外儲存，以 ID當作索引，以便在後續的狀態恢復中使用
-            newImageResources[imageId] = sourceURL;
-
-            // 創建新的畫布圖層，包含 Pattern 的相關信息
-            newCanvasLayers.push({
-              index,
-              pattern: {
-                sourceId: imageId,
-                //@ts-ignore
-                sourceURL: sourceURL,
-                repeat: obj.fill.repeat,
-                scaleX: obj.fill.scaleX,
-                scaleY: obj.fill.scaleY,
-                //@ts-ignore
-                patternTransform: obj.fill.patternTransform,
-              },
-            });
-          } else {
-            console.warn(`No sourceURL found for object ${index}`);
-          }
-        } else {
-          console.warn(`Object ${index} has no valid fill pattern`);
+          // 保存 wallGroup 的自定義屬性
+          baseObject.id = obj.id;
+          baseObject.startPoint = obj.startPoint;
+          baseObject.endPoint = obj.endPoint;
+          baseObject.allPoints = obj.allPoints;
+          baseObject.isReversed = obj.isReversed;
         }
-      }
 
-      return baseObject;
-    });
+        // 檢查填了 Pattern 的物件(在drawWall裡取名為room)
+        if (
+          obj.name === "room" ||
+          (obj.fill && obj.fill instanceof fabric.Pattern)
+        ) {
+          //保持屬性不變
+          baseObject.selectable = true;
+          baseObject.evented = true;
+          baseObject.hasBorders = true;
+          baseObject.hasControls = false;
+          baseObject.lockMovementX = true;
+          baseObject.lockMovementY = true;
+          baseObject.lockRotation = true;
+          baseObject.lockScalingX = true;
+          baseObject.lockScalingY = true;
+
+          // 為每個圖案生成唯一的 ID
+          const imageId = `image_${index}`;
+
+          // 檢查 fill 是否為有效的 Pattern
+          if (obj.fill && obj.fill instanceof fabric.Pattern) {
+            // 嘗試獲取 sourceURL，首選 sourceURL，如果不存在則嘗試 source.src
+            const sourceURL =
+              obj.fill.sourceURL || (obj.fill.source && obj.fill.source.src);
+            if (sourceURL) {
+              // 將圖案源另外儲存，以 ID當作索引，以便在後續的狀態恢復中使用
+              newImageResources[imageId] = sourceURL;
+
+              // 創建新的畫布圖層，包含 Pattern 的相關信息
+              newCanvasLayers.push({
+                index,
+                pattern: {
+                  sourceId: imageId,
+                  //@ts-ignore
+                  sourceURL: sourceURL,
+                  repeat: obj.fill.repeat,
+                  scaleX: obj.fill.scaleX,
+                  scaleY: obj.fill.scaleY,
+                  //@ts-ignore
+                  patternTransform: obj.fill.patternTransform,
+                },
+              });
+            } else {
+              console.warn(`No sourceURL found for object ${index}`);
+            }
+          } else {
+            console.warn(`Object ${index} has no valid fill pattern`);
+          }
+        }
+
+        return baseObject;
+      });
 
     // 重要：將網格添加回原來的位置
     // 這確保了網格與其他物件的順序關係保持不變
@@ -131,6 +173,9 @@ export const useHistory = ({
       canvasState: currentState,
       canvasLayers: newCanvasLayers,
       imageResources: newImageResources,
+      // unfinishedWall: unfinishedWallRef.current
+      //   ? unfinishedWallRef.current.toObject(OBJECT_STATE)
+      //   : null,
     });
   }, [canvas, gridRef, setCanvasLayers, setImageResources]);
 
@@ -181,6 +226,7 @@ export const useHistory = ({
         canvasState,
         canvasLayers: newCanvasLayers,
         imageResources: newImageResources,
+        // unfinishedWall: unfinishedWallState,
       } = JSON.parse(stateString);
 
       // 預加載所有圖像
@@ -239,6 +285,21 @@ export const useHistory = ({
             }
           });
 
+          // 恢復 unfinishedWall
+          // if (unfinishedWallState) {
+          //   fabric.util.enlivenObjects([unfinishedWallState], (objects) => {
+          //     if (objects[0]) {
+          //       const restoredWall = objects[0] as fabric.Object;
+          //       unfinishedWallRef.current = restoredWall;
+          //       setUnfinishedWall(restoredWall);
+          //       canvas.add(restoredWall);
+          //     }
+          //   });
+          // } else {
+          //   unfinishedWallRef.current = null;
+          //   setUnfinishedWall(null);
+          // }
+
           // 處理網格
           const loadedGrid = canvas
             .getObjects()
@@ -282,8 +343,13 @@ export const useHistory = ({
   const undo = useCallback(() => {
     if (canUndo()) {
       const previousIndex = historyIndex - 1;
-      restoreState(canvasHistory.current[previousIndex]);
-      setHistoryIndex(previousIndex);
+      if (previousIndex >= 0) {
+        restoreState(canvasHistory.current[previousIndex]);
+        setHistoryIndex(previousIndex);
+      } else {
+        console.warn("Cannot undo further: reached the beginning of history");
+        return;
+      }
     }
   }, [canUndo, historyIndex, restoreState]);
 
@@ -314,15 +380,21 @@ export const useHistory = ({
   }, [canvas, getCanvasState, saveDesign]);
 
   // 初始化畫布狀態
-  const initializeCanvasState = useCallback(() => {
-    const initialState = getCanvasState();
-    if (initialState) {
-      // 直接設置初始狀態，但不添加到歷史記錄
-      canvasHistory.current = [initialState];
-      // 將 historyIndex 設置為 -1，表示還沒有可撤銷的操作
-      setHistoryIndex(-1);
-    }
-  }, [getCanvasState]);
+  const initializeCanvasState = useCallback(
+    (isNewDesign: boolean = true) => {
+      // 獲取當前畫布的狀態
+      const initialState = getCanvasState();
+
+      // 設置歷史索引
+      // 如果是新設計，設置為 -1（表示沒有可撤銷的操作）
+      // 如果是載入的設計，設置為 0（表示這是第一個可撤銷的狀態）
+      if (initialState) {
+        canvasHistory.current = [initialState];
+        setHistoryIndex(isNewDesign ? -1 : 0);
+      }
+    },
+    [getCanvasState]
+  );
 
   return {
     save,

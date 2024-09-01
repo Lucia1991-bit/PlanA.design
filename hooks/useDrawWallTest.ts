@@ -21,11 +21,6 @@ interface UseDrawWallProps {
   ) => void;
 }
 
-interface Point {
-  x: number;
-  y: number;
-}
-
 export const useDrawWall = ({
   canvas,
   gridRef,
@@ -71,6 +66,34 @@ export const useDrawWall = ({
       ];
     },
     [canvas]
+  );
+
+  const calculateIntersection = useCallback(
+    (line1Start, line1End, line2Start, line2End) => {
+      const dx1 = line1End.x - line1Start.x;
+      const dy1 = line1End.y - line1Start.y;
+      const dx2 = line2End.x - line2Start.x;
+      const dy2 = line2End.y - line2Start.y;
+
+      const denominator = dx1 * dy2 - dy1 * dx2;
+      if (Math.abs(denominator) < 1e-6) return null; // 線段幾乎平行，視為無交點
+
+      const t =
+        ((line2Start.x - line1Start.x) * dy2 -
+          (line2Start.y - line1Start.y) * dx2) /
+        denominator;
+      const u =
+        ((line2Start.x - line1Start.x) * dy1 -
+          (line2Start.y - line1Start.y) * dx1) /
+        denominator;
+
+      if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+        return new fabric.Point(line1Start.x + t * dx1, line1Start.y + t * dy1);
+      }
+
+      return null;
+    },
+    []
   );
 
   //創建牆體
@@ -139,6 +162,22 @@ export const useDrawWall = ({
       //@ts-ignore
       group.set("endPoint", new fabric.Point(endX, endY));
       //@ts-ignore
+
+      const innerStartPoint = new fabric.Point(startX, startY);
+      const innerEndPoint = new fabric.Point(endX, endY);
+      const outerStartPoint = new fabric.Point(
+        startX + WALL_THICKNESS * Math.sin(angle),
+        startY - WALL_THICKNESS * Math.cos(angle)
+      );
+      const outerEndPoint = new fabric.Point(
+        endX + WALL_THICKNESS * Math.sin(angle),
+        endY - WALL_THICKNESS * Math.cos(angle)
+      );
+
+      group.set("innerStartPoint", innerStartPoint);
+      group.set("innerEndPoint", innerEndPoint);
+      group.set("outerStartPoint", outerStartPoint);
+      group.set("outerEndPoint", outerEndPoint);
 
       const wallId = `wall_${Date.now()}_${Math.random()
         .toString(36)
@@ -244,83 +283,6 @@ export const useDrawWall = ({
     [canvas]
   );
 
-  const fillCornerGap = useCallback(
-    (prevWall: fabric.Group, newWall: fabric.Group) => {
-      if (!canvas) return;
-
-      // 獲取牆體的實際起點和終點
-      const prevStart = prevWall.get("startPoint") as fabric.Point;
-      const prevEnd = prevWall.get("endPoint") as fabric.Point;
-      const newStart = newWall.get("startPoint") as fabric.Point;
-      const newEnd = newWall.get("endPoint") as fabric.Point;
-
-      // 計算牆體的方向向量
-      const prevDir = {
-        x: prevEnd.x - prevStart.x,
-        y: prevEnd.y - prevStart.y,
-      };
-      const newDir = { x: newEnd.x - newStart.x, y: newEnd.y - newStart.y };
-
-      // 計算單位方向向量
-      const prevLength = Math.sqrt(
-        prevDir.x * prevDir.x + prevDir.y * prevDir.y
-      );
-      const newLength = Math.sqrt(newDir.x * newDir.x + newDir.y * newDir.y);
-      const prevUnitDir = {
-        x: prevDir.x / prevLength,
-        y: prevDir.y / prevLength,
-      };
-      const newUnitDir = { x: newDir.x / newLength, y: newDir.y / newLength };
-
-      // 計算法線向量（逆時針旋轉90度）
-      const prevNormal = { x: -prevUnitDir.y, y: prevUnitDir.x };
-      const newNormal = { x: -newUnitDir.y, y: newUnitDir.x };
-
-      // 計算內側和外側點
-      const prevInner = {
-        x: prevEnd.x - (prevNormal.x * WALL_THICKNESS) / 2,
-        y: prevEnd.y - (prevNormal.y * WALL_THICKNESS) / 2,
-      };
-      const prevOuter = {
-        x: prevEnd.x + (prevNormal.x * WALL_THICKNESS) / 2,
-        y: prevEnd.y + (prevNormal.y * WALL_THICKNESS) / 2,
-      };
-      const newInner = {
-        x: newStart.x - (newNormal.x * WALL_THICKNESS) / 2,
-        y: newStart.y - (newNormal.y * WALL_THICKNESS) / 2,
-      };
-      const newOuter = {
-        x: newStart.x + (newNormal.x * WALL_THICKNESS) / 2,
-        y: newStart.y + (newNormal.y * WALL_THICKNESS) / 2,
-      };
-
-      // 計算轉角類型（內角或外角）
-      const crossProduct =
-        prevUnitDir.x * newUnitDir.y - prevUnitDir.y * newUnitDir.x;
-      const isInnerCorner = crossProduct > 0;
-
-      // 創建填充多邊形
-      let points;
-      if (isInnerCorner) {
-        points = [prevInner, newInner, newStart, prevEnd];
-      } else {
-        points = [prevOuter, newOuter, newStart, prevEnd];
-      }
-
-      const cornerFiller = new fabric.Polygon(points, {
-        fill: color.wall.fill,
-        stroke: color.wall.fill,
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        name: "wallCornerFiller",
-      });
-
-      canvas.add(cornerFiller);
-      canvas.renderAll();
-    },
-    [canvas, color.wall.fill]
-  );
   //確認牆體、網格、Pattern之間的順序
   const ensureDesignElementsAtBottom = useCallback(() => {
     if (!canvas || !gridRef.current) return;
@@ -392,6 +354,8 @@ export const useDrawWall = ({
     (event: fabric.IEvent) => {
       if (!isDrawingMode || !canvas) return;
 
+      console.log("這裡是test");
+
       const pointer = canvas.getPointer(event.e);
       const [x, y] = snapToGrid(pointer.x, pointer.y);
       const newPoint = new fabric.Point(x, y);
@@ -403,12 +367,6 @@ export const useDrawWall = ({
         const newWall = createWallPath(prevPoint.x, prevPoint.y, x, y);
         canvas.add(newWall);
         setCompletedWalls((prev) => [...prev, newWall]);
-
-        // 檢查是否需要填充轉角
-        if (completedWalls.length > 0) {
-          const prevWall = completedWalls[completedWalls.length - 1];
-          fillCornerGap(prevWall, newWall);
-        }
       }
 
       // 顯示所有隱藏的參考點
@@ -560,85 +518,131 @@ export const useDrawWall = ({
     });
 
     // 定義 updateWallGeometry 函數
-    const updateWallGeometry = (
-      wall: fabric.Group,
-      start: fabric.Point,
-      end: fabric.Point
-    ) => {
-      const angle = Math.atan2(end.y - start.y, end.x - start.x);
-      const length = Math.sqrt(
-        Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)
-      );
-      wall.set({
-        left: start.x,
-        top: start.y,
-        angle: angle * (180 / Math.PI),
-        width: length,
-      });
-      wall.setCoords();
-    };
+    // const updateWallGeometry = (
+    //   wall: fabric.Group,
+    //   start: fabric.Point,
+    //   end: fabric.Point
+    // ) => {
+    //   const angle = Math.atan2(end.y - start.y, end.x - start.x);
+    //   const length = Math.sqrt(
+    //     Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)
+    //   );
+    //   wall.set({
+    //     left: start.x,
+    //     top: start.y,
+    //     angle: angle * (180 / Math.PI),
+    //     width: length,
+    //   });
+    //   wall.setCoords();
+    // };
 
-    // 處理轉角連接
-    if (completedWalls.length >= 2) {
-      for (let i = 0; i < completedWalls.length; i++) {
-        const currentWall = completedWalls[i];
-        console.log(currentWall);
-        const nextWall = completedWalls[(i + 1) % completedWalls.length];
+    // // 處理轉角連接
+    // if (completedWalls.length >= 2) {
+    //   for (let i = 0; i < completedWalls.length; i++) {
+    //     const currentWall = completedWalls[i];
+    //     console.log(currentWall);
+    //     const nextWall = completedWalls[(i + 1) % completedWalls.length];
 
-        //@ts-ignore
-        const currentEnd = currentWall.get("endPoint") as fabric.Point;
+    //     //@ts-ignore
+    //     const currentEnd = currentWall.get("endPoint") as fabric.Point;
 
-        console.log("currentEnd", currentEnd);
-        //@ts-ignore
-        const nextStart = nextWall.get("startPoint") as fabric.Point;
+    //     console.log("currentEnd", currentEnd);
+    //     //@ts-ignore
+    //     const nextStart = nextWall.get("startPoint") as fabric.Point;
 
-        // 如果端點足夠接近，就將它們合併
-        if (
-          Math.abs(currentEnd.x - nextStart.x) < SNAP_THRESHOLD &&
-          Math.abs(currentEnd.y - nextStart.y) < SNAP_THRESHOLD
-        ) {
-          const midPoint = new fabric.Point(
-            (currentEnd.x + nextStart.x) / 2,
-            (currentEnd.y + nextStart.y) / 2
-          );
-          //@ts-ignore
-          currentWall.set("endPoint", midPoint);
-          //@ts-ignore
-          nextWall.set("startPoint", midPoint);
+    //     // 如果端點足夠接近，就將它們合併
+    //     if (
+    //       Math.abs(currentEnd.x - nextStart.x) < SNAP_THRESHOLD &&
+    //       Math.abs(currentEnd.y - nextStart.y) < SNAP_THRESHOLD
+    //     ) {
+    //       const midPoint = new fabric.Point(
+    //         (currentEnd.x + nextStart.x) / 2,
+    //         (currentEnd.y + nextStart.y) / 2
+    //       );
+    //       //@ts-ignore
+    //       currentWall.set("endPoint", midPoint);
+    //       //@ts-ignore
+    //       nextWall.set("startPoint", midPoint);
 
-          // 更新牆體的位置和尺寸
-          updateWallGeometry(
-            currentWall,
-            //@ts-ignore
-            currentWall.get("startPoint") as fabric.Point,
-            midPoint
-          );
-          updateWallGeometry(
-            nextWall,
-            midPoint,
-            //@ts-ignore
-            nextWall.get("endPoint") as fabric.Point
-          );
-        }
-      }
-    }
+    //       // 更新牆體的位置和尺寸
+    //       updateWallGeometry(
+    //         currentWall,
+    //         //@ts-ignore
+    //         currentWall.get("startPoint") as fabric.Point,
+    //         midPoint
+    //       );
+    //       updateWallGeometry(
+    //         nextWall,
+    //         midPoint,
+    //         //@ts-ignore
+    //         nextWall.get("endPoint") as fabric.Point
+    //       );
+    //     }
+    //   }
+    // }
 
     // 創建最終端點
-    // completedWalls.forEach((wall, index) => {
-    //   //@ts-ignore
-    //   const wallId = wall.get("id") as string;
-    //   console.log(wall);
+    completedWalls.forEach((wall, index) => {
+      //@ts-ignore
+      const wallId = wall.get("id") as string;
+      console.log(wall);
 
-    //   //@ts-ignore
-    //   const startPoint = wall.get("startPoint") as fabric.Point;
-    //   createEndpoint(startPoint.x, startPoint.y, wallId, true);
+      //@ts-ignore
+      const startPoint = wall.get("startPoint") as fabric.Point;
+      createEndpoint(startPoint.x, startPoint.y, wallId, true);
 
-    //   if (index === completedWalls.length - 1) {
-    //     //@ts-ignore
-    //     const endPoint = wall.get("endPoint") as fabric.Point;
-    //     createEndpoint(endPoint.x, endPoint.y, wallId, false);
-    //   }
-    // });
+      if (index === completedWalls.length - 1) {
+        //@ts-ignore
+        const endPoint = wall.get("endPoint") as fabric.Point;
+        createEndpoint(endPoint.x, endPoint.y, wallId, false);
+      }
+    });
+
+    completedWalls.forEach((wall1, index) => {
+      for (let i = index + 1; i < completedWalls.length; i++) {
+        const wall2 = completedWalls[i];
+
+        // 計算內側交點
+        const innerIntersection = calculateIntersection(
+          wall1.get("innerStartPoint"),
+          wall1.get("innerEndPoint"),
+          wall2.get("innerStartPoint"),
+          wall2.get("innerEndPoint")
+        );
+
+        // 計算外側交點
+        const outerIntersection = calculateIntersection(
+          wall1.get("outerStartPoint"),
+          wall1.get("outerEndPoint"),
+          wall2.get("outerStartPoint"),
+          wall2.get("outerEndPoint")
+        );
+
+        // 顯示內側交點（如果存在）
+        if (innerIntersection) {
+          const innerPoint = new fabric.Circle({
+            left: innerIntersection.x,
+            top: innerIntersection.y,
+            radius: 5,
+            fill: "red",
+            selectable: false,
+          });
+          canvas.add(innerPoint);
+        }
+
+        // 顯示外側交點（如果存在）
+        if (outerIntersection) {
+          const outerPoint = new fabric.Circle({
+            left: outerIntersection.x,
+            top: outerIntersection.y,
+            radius: 5,
+            fill: "blue",
+            selectable: false,
+          });
+          canvas.add(outerPoint);
+        }
+      }
+    });
 
     // 創建多邊形（如果需要）
     if (completedWalls.length >= 3) {

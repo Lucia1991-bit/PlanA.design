@@ -58,18 +58,6 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
     const activeObjects = canvas.getActiveObjects();
     if (activeObjects) {
       activeObjects.forEach((obj) => {
-        if (obj.name === "wallLine") {
-          //@ts-ignore
-          const wallId = obj.get("id") as string;
-          canvas.getObjects().forEach((canvasObj) => {
-            if (
-              canvasObj.name &&
-              canvasObj.name.startsWith(`wallEndpoint_${wallId}`)
-            ) {
-              canvas.remove(canvasObj);
-            }
-          });
-        }
         canvas.remove(obj);
       });
       canvas.discardActiveObject();

@@ -5,6 +5,7 @@ import { CanvasLayer, OBJECT_STATE } from "@/types/DesignType";
 interface UseLoadDesignProps {
   canvas: fabric.Canvas | null;
   initialState: React.MutableRefObject<string | undefined>;
+  initializeCanvasState: (isNewDesign: boolean) => void;
   canvasHistory: React.MutableRefObject<string[]>;
   setHistoryIndex: React.Dispatch<React.SetStateAction<number>>;
   gridRef: React.MutableRefObject<fabric.Group | null>;
@@ -19,6 +20,7 @@ interface UseLoadDesignProps {
 export const useLoadDesign = ({
   canvas,
   initialState,
+  initializeCanvasState,
   canvasHistory,
   setHistoryIndex,
   gridRef,
@@ -32,10 +34,7 @@ export const useLoadDesign = ({
   useEffect(() => {
     if (!initialized.current && initialState?.current && canvas) {
       try {
-        // 首先解析外層的 JSON 字符串
-        // const parsedInitialState = JSON.parse(initialState.current);
-
-        // 然後解析內層的 JSON 字符串
+        // 解析 JSON 字符串
         const {
           canvasState,
           canvasLayers = [],
@@ -113,13 +112,8 @@ export const useLoadDesign = ({
             canvas.setHeight(canvasState.height);
           }
 
-          const currentState = JSON.stringify({
-            canvasState: canvas.toJSON(OBJECT_STATE),
-            canvasLayers,
-            imageResources,
-          });
-          canvasHistory.current = [currentState];
-          setHistoryIndex(0);
+          // 使用 initializeCanvasState 來初始化歷史記錄
+          initializeCanvasState(false); // false 表示這不是新設計
 
           canvas.renderAll();
         });

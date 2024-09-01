@@ -56,6 +56,9 @@ export const OBJECT_STATE = [
   "patternSourceType",
   "source", // 這對於 Pattern 很重要
   "repeat",
+  "subTargetCheck",
+  "lockUniScaling",
+  "id",
 ];
 
 export const selectionDependentTools = [

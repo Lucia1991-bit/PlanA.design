@@ -19,8 +19,6 @@ interface UseDrawWallProps {
     scaleX: number,
     scaleY: number
   ) => void;
-  unfinishedWall: React.MutableRefObject<fabric.Object | null>;
-  setUnfinishedWall: (wall: fabric.Object | null) => void;
 }
 
 export const useDrawWall = ({
@@ -30,13 +28,12 @@ export const useDrawWall = ({
   updateGridColor,
   applyPattern,
   adjustPatternScale,
-  unfinishedWall,
-  setUnfinishedWall,
 }: UseDrawWallProps) => {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const isDrawingRef = useRef(false);
   const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
-  const [completedWalls, setCompletedWalls] = useState<fabric.Object[]>([]);
+  const [completedWalls, setCompletedWalls] = useState<fabric.Path[]>([]);
+  const [allWallPaths, setAllWallPaths] = useState<fabric.Path[]>([]);
   const [rooms, setRooms] = useState<fabric.Polygon[]>([]);
 
   const color = useDesignPageColor();
@@ -44,9 +41,6 @@ export const useDrawWall = ({
   const guideLineRef = useRef<fabric.Line | null>(null);
   const startPointRef = useRef<fabric.Circle | null>(null);
   const endPointRef = useRef<fabric.Circle | null>(null);
-
-  //追蹤未完成牆體的繪製順序（預設是必須從終點開始繪製，如果想從起點開始必須反轉）
-  const currentReversedRef = useRef(false);
 
   const defaultPatternUrl =
     "https://res.cloudinary.com/datj4og4i/image/upload/v1723533704/plan-a/material/%E6%9C%A8%E5%9C%B0%E6%9D%BF/wood25_small.jpg";
@@ -75,6 +69,75 @@ export const useDrawWall = ({
     [canvas]
   );
 
+  // 創建牆體路徑（for視覺回饋）
+  const createWallPath = useCallback(
+    (
+      startX: number,
+      startY: number,
+      endX: number,
+      endY: number,
+      isPreview: boolean = false
+    ) => {
+      // 計算牆體的角度和長度
+      const angle = Math.atan2(endY - startY, endX - startX);
+      const length = Math.sqrt(
+        Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+      );
+
+      // 計算牆體的寬度偏移
+      const dx = (WALL_THICKNESS / 2) * Math.sin(angle);
+      const dy = (WALL_THICKNESS / 2) * Math.cos(angle);
+
+      // 創建牆體路徑
+      const pathData = [
+        `M ${startX - dx} ${startY + dy}`,
+        `L ${endX - dx} ${endY + dy}`,
+        `L ${endX + dx} ${endY - dy}`,
+        `L ${startX + dx} ${startY - dy}`,
+        "Z",
+      ].join(" ");
+
+      const path = new fabric.Path(pathData, {
+        fill: isPreview ? PREVIEW_LINE_COLOR : color.wall.fill,
+        stroke: isPreview ? PREVIEW_LINE_COLOR : color.wall.fill,
+        strokeWidth: 1,
+        selectable: !isPreview,
+        evented: !isPreview,
+        opacity: isPreview ? 0.5 : 1,
+        name: "wallLine",
+      });
+
+      // 設置自定義控制點
+      if (!isPreview) {
+        path.setControlsVisibility({
+          mt: false, // 頂部中間
+          mb: false, // 底部中間
+          ml: true, // 左側中間（保留）
+          mr: true, // 右側中間（保留）
+          mtr: false, // 旋轉控制點
+          tl: false, // 左上角
+          tr: false, // 右上角
+          bl: false, // 左下角
+          br: false, // 右下角
+        });
+      }
+
+      // 設置自定義屬性
+      //@ts-ignore
+      path.set("startPoint", new fabric.Point(startX, startY));
+      //@ts-ignore
+      path.set("endPoint", new fabric.Point(endX, endY));
+      //@ts-ignore
+      path.set(
+        "id",
+        `wall_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      );
+
+      return path;
+    },
+    [color.wall.fill, WALL_THICKNESS, PREVIEW_LINE_COLOR]
+  );
+
   //創建牆體預覽
   const createOrUpdatePreviewLine = useCallback(
     (startX: number, startY: number, endX: number, endY: number) => {
@@ -82,40 +145,22 @@ export const useDrawWall = ({
 
       const [snappedEndX, snappedEndY] = snapToGrid(endX, endY);
 
-      // 計算牆體的角度和長度
-      const angle = Math.atan2(snappedEndY - startY, snappedEndX - startX);
-      const dx = (WALL_THICKNESS / 2) * Math.sin(angle);
-      const dy = (WALL_THICKNESS / 2) * Math.cos(angle);
-
-      // 創建預覽路徑
-      const pathData = [
-        `M ${startX - dx} ${startY + dy}`,
-        `L ${snappedEndX - dx} ${snappedEndY + dy}`,
-        `L ${snappedEndX + dx} ${snappedEndY - dy}`,
-        `L ${startX + dx} ${startY - dy}`,
-        "Z",
-      ].join(" ");
-
       if (currentLineRef.current) {
         canvas.remove(currentLineRef.current);
       }
 
-      const previewWall = new fabric.Path(pathData, {
-        fill: PREVIEW_LINE_COLOR,
-        stroke: PREVIEW_LINE_COLOR,
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        opacity: 0.5,
-        name: "previewWallLine",
-        excludeFromExport: true,
-      });
-
+      const previewWall = createWallPath(
+        startX,
+        startY,
+        snappedEndX,
+        snappedEndY,
+        true
+      );
       currentLineRef.current = previewWall;
       canvas.add(previewWall);
       canvas.renderAll();
     },
-    [canvas, snapToGrid, WALL_THICKNESS, PREVIEW_LINE_COLOR]
+    [canvas, createWallPath, snapToGrid]
   );
 
   //創建虛線參考線
@@ -147,7 +192,6 @@ export const useDrawWall = ({
             strokeDashArray: [5, 5],
             selectable: false,
             evented: false,
-            excludeFromExport: true, // 防止被保存到歷史記錄
           }
         );
         guideLineRef.current = guideLine;
@@ -163,8 +207,7 @@ export const useDrawWall = ({
     (
       x: number,
       y: number,
-      pointRef: React.MutableRefObject<fabric.Circle | null>,
-      name: string
+      pointRef: React.MutableRefObject<fabric.Circle | null>
     ) => {
       if (!canvas) return;
 
@@ -179,8 +222,6 @@ export const useDrawWall = ({
           stroke: PREVIEW_LINE_COLOR,
           selectable: false,
           evented: false,
-          excludeFromExport: true,
-          name: name,
         });
         pointRef.current = point;
         canvas.add(point);
@@ -248,12 +289,10 @@ export const useDrawWall = ({
   // 創建連續牆體
   //獲取所有牆體的端點，重新繪製一次牆面(才能確保轉角處的連續性)
   const createContinuousWall = useCallback(
-    (points: fabric.Point[], isReversed: boolean = false) => {
+    (points: fabric.Point[]) => {
       if (!canvas) return null;
 
-      const orderedPoints = isReversed ? [...points].reverse() : points;
-
-      const pathData = orderedPoints
+      const pathData = points
         .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
         .join(" ");
 
@@ -263,113 +302,31 @@ export const useDrawWall = ({
         strokeWidth: WALL_THICKNESS,
         strokeLineJoin: "square",
         strokeLineCap: "bevel",
-        selectable: false,
+        selectable: true,
         evented: false,
-        name: "continuousWall",
+        name: "wallSegment",
         originX: "left",
-        originY: "top",
+        originY: "bottom",
       });
 
-      const endpoints = [
-        orderedPoints[0],
-        orderedPoints[orderedPoints.length - 1],
-      ].map((point, index) => {
-        const circle = new fabric.Circle({
-          left: point.x - POINT_RADIUS,
-          top: point.y - POINT_RADIUS,
-          radius: POINT_RADIUS,
-          fill: "#FFF",
-          stroke: PREVIEW_LINE_COLOR,
-          strokeWidth: 1,
-          selectable: false,
-          evented: false,
-          name: `wallEndpoint_${index === 0 ? "start" : "end"}`,
-        });
-        circle.set("data", { type: "wallEndpoint", index: index });
-
-        return circle;
-      });
-
-      const group = new fabric.Group([path, ...endpoints], {
-        selectable: false,
-        evented: false,
-        name: "wallGroup",
-        hasControls: false,
-        objectCaching: false,
-        lockMovementX: true,
-        lockMovementY: true,
-        lockRotation: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        subTargetCheck: true,
-        lockUniScaling: true,
-      });
-
-      const wallId = `wall_${Date.now()}_${Math.random()
-        .toString(36)
-        .substr(2, 9)}`;
-
-      // 禁用組內對象的事件
-      group.getObjects().forEach((obj) => {
-        obj.evented = false;
-        obj.selectable = false;
-      });
-
-      group.set({
-        //@ts-ignore
-        id: wallId,
-        startPoint: orderedPoints[0],
-        endPoint: orderedPoints[orderedPoints.length - 1],
-        allPoints: orderedPoints,
-        isReversed: isReversed,
-      });
-
-      canvas.add(group);
-      return group;
+      canvas.add(path);
+      return path;
     },
-    [canvas, color.wall.fill, WALL_THICKNESS, POINT_RADIUS, PREVIEW_LINE_COLOR]
+    [canvas, color.wall.fill, WALL_THICKNESS]
   );
+
   //進入繪製模式
   const startDrawWall = useCallback(() => {
     console.log("startDrawWall: 開始繪製牆壁模式");
     setIsDrawingMode(true);
     isDrawingRef.current = true;
-
     setCurrentPath([]);
 
-    // 清除之前的參考點和指引線
-    [startPointRef, endPointRef, guideLineRef].forEach((ref) => {
-      if (ref.current) {
-        canvas?.remove(ref.current);
-        ref.current = null;
-      }
-    });
+    // 顯示已完成線段的端點
+    showCompletedWallEndpoints();
+  }, [showCompletedWallEndpoints]);
 
-    console.log("在開始繪製檢查unfinishedWall", unfinishedWall.current);
-
-    if (unfinishedWall.current && unfinishedWall.current.get) {
-      console.log("存在未完成的牆體，繼續繪製");
-      console.log(unfinishedWall.current.get("id"));
-      const wallPoints = unfinishedWall.current.get(
-        "allPoints"
-      ) as fabric.Point[];
-      setCurrentPath(wallPoints);
-      setCompletedWalls([unfinishedWall.current]);
-      currentLineRef.current = unfinishedWall.current;
-    } else {
-      console.log("沒有未完成的牆體，準備開始新的繪製");
-      setCurrentPath([]);
-      setCompletedWalls([]);
-      if (currentLineRef.current) {
-        canvas?.remove(currentLineRef.current);
-        currentLineRef.current = null;
-      }
-    }
-
-    canvas?.renderAll();
-    save();
-  }, [canvas, unfinishedWall, save]);
-
+  //開始繪製牆體
   const startDrawing = useCallback(
     (event: fabric.IEvent) => {
       if (!isDrawingMode || !canvas) return;
@@ -378,54 +335,19 @@ export const useDrawWall = ({
       const [x, y] = snapToGrid(pointer.x, pointer.y);
       const newPoint = new fabric.Point(x, y);
 
-      setCurrentPath((prev) => {
-        let updatedPath: fabric.Point[];
+      setCurrentPath((prev) => [...prev, newPoint]);
 
-        if (prev.length > 0) {
-          updatedPath = [...prev, newPoint];
-        } else {
-          updatedPath = [newPoint];
-        }
+      if (currentPath.length > 0) {
+        const prevPoint = currentPath[currentPath.length - 1];
+        const newWall = createWallPath(prevPoint.x, prevPoint.y, x, y);
+        canvas.add(newWall);
+        setCompletedWalls((prev) => [...prev, newWall]);
+      }
 
-        // 創建或更新牆體
-        if (updatedPath.length >= 2) {
-          let wall = createContinuousWall(updatedPath);
-          if (wall) {
-            if (currentLineRef.current) {
-              canvas.remove(currentLineRef.current);
-            }
-            canvas.add(wall);
-            currentLineRef.current = wall;
-            setCompletedWalls([wall]);
-          }
-        }
-
-        // 更新參考點和指引線
-        createOrUpdatePoint(
-          updatedPath[0].x,
-          updatedPath[0].y,
-          startPointRef,
-          "startPoint"
-        );
-        createOrUpdatePoint(
-          updatedPath[updatedPath.length - 1].x,
-          updatedPath[updatedPath.length - 1].y,
-          endPointRef,
-          "endPoint"
-        );
-        if (updatedPath.length >= 2) {
-          const prevPoint = updatedPath[updatedPath.length - 2];
-          const lastPoint = updatedPath[updatedPath.length - 1];
-          createOrUpdateGuideLine(
-            prevPoint.x,
-            prevPoint.y,
-            lastPoint.x,
-            lastPoint.y
-          );
-        }
-
-        return updatedPath;
-      });
+      createOrUpdatePreviewLine(x, y, x, y);
+      createOrUpdatePoint(x, y, startPointRef);
+      createOrUpdatePoint(x, y, endPointRef);
+      createOrUpdateGuideLine(x, y, x, y);
 
       canvas.renderAll();
       save();
@@ -434,7 +356,9 @@ export const useDrawWall = ({
       isDrawingMode,
       canvas,
       snapToGrid,
-      createContinuousWall,
+      currentPath,
+      createWallPath,
+      createOrUpdatePreviewLine,
       createOrUpdatePoint,
       createOrUpdateGuideLine,
       save,
@@ -450,7 +374,7 @@ export const useDrawWall = ({
       const startPoint = currentPath[currentPath.length - 1];
 
       createOrUpdatePreviewLine(startPoint.x, startPoint.y, x, y);
-      createOrUpdatePoint(x, y, endPointRef, "endPoint");
+      createOrUpdatePoint(x, y, endPointRef);
       createOrUpdateGuideLine(startPoint.x, startPoint.y, x, y);
       canvas.renderAll();
     },
@@ -492,6 +416,8 @@ export const useDrawWall = ({
 
       const newRoom = new fabric.Polygon(points, {
         fill: "rgba(200, 200, 200, 0.4)",
+        stroke: color.wall.fill,
+        strokeWidth: 1,
         selectable: true,
         evented: true,
         hasBorders: true,
@@ -532,42 +458,6 @@ export const useDrawWall = ({
     ]
   );
 
-  const createClosedSpaceCorner = (
-    point: fabric.Point,
-    prevWall: fabric.Group,
-    nextWall: fabric.Group
-  ) => {
-    if (!canvas) return;
-
-    // 獲取前一個牆和下一個牆的方向向量
-    const prevDir = {
-      x: point.x - (prevWall.get("startPoint") as fabric.Point).x,
-      y: point.y - (prevWall.get("startPoint") as fabric.Point).y,
-    };
-    const nextDir = {
-      x: (nextWall.get("endPoint") as fabric.Point).x - point.x,
-      y: (nextWall.get("endPoint") as fabric.Point).y - point.y,
-    };
-
-    // 計算角度
-    const angle =
-      Math.atan2(prevDir.y, prevDir.x) - Math.atan2(nextDir.y, nextDir.x);
-
-    // 創建轉角
-    const cornerSize = WALL_THICKNESS * 1.5;
-    const corner = new fabric.Circle({
-      left: point.x - cornerSize / 2,
-      top: point.y - cornerSize / 2,
-      radius: cornerSize / 2,
-      fill: color.wall.fill,
-      selectable: false,
-      evented: false,
-      name: "wallCorner",
-    });
-
-    canvas.add(corner);
-  };
-
   //結束繪製
   const finishDrawWall = useCallback(() => {
     if (!canvas || !isDrawingRef.current) return;
@@ -575,8 +465,8 @@ export const useDrawWall = ({
     setIsDrawingMode(false);
     isDrawingRef.current = false;
 
-    // 清理臨時物件
-    [guideLineRef, startPointRef, endPointRef, currentLineRef].forEach(
+    // 清理臨時對象
+    [currentLineRef, guideLineRef, startPointRef, endPointRef].forEach(
       (ref) => {
         if (ref.current) {
           canvas.remove(ref.current);
@@ -585,104 +475,71 @@ export const useDrawWall = ({
       }
     );
 
-    if (completedWalls.length > 0) {
-      const wall = completedWalls[0];
-      //@ts-ignore
-      const allPoints = wall.get("allPoints") as fabric.Point[];
-
-      if (allPoints.length < 2) {
-        console.log("點的數量不足，刪除當前點");
-        canvas.remove(wall);
-        setCompletedWalls([]);
-        setCurrentPath([]);
-        setUnfinishedWall(null);
-      } else {
-        const firstPoint = allPoints[0];
-        const lastPoint = allPoints[allPoints.length - 1];
-
-        const dx = Math.abs(firstPoint.x - lastPoint.x);
-        const dy = Math.abs(firstPoint.y - lastPoint.y);
-
-        if (
-          allPoints.length > 2 &&
-          dx < SNAP_THRESHOLD &&
-          dy < SNAP_THRESHOLD
-        ) {
-          console.log("檢測到封閉空間");
-
-          // 創建封閉空間的轉角
-          const closingPoint = new fabric.Point(
-            (firstPoint.x + lastPoint.x) / 2,
-            (firstPoint.y + lastPoint.y) / 2
-          );
-
-          // 獲取最後一個牆體和第一個牆體
-          const lastWall = completedWalls[
-            completedWalls.length - 1
-          ] as fabric.Group;
-          const firstWall = completedWalls[0] as fabric.Group;
-
-          createClosedSpaceCorner(closingPoint, lastWall, firstWall);
-
-          createPolygonWithPattern(allPoints);
-
-          // 找到所有的 wallGroup 物件
-          const wallGroups = canvas
-            .getObjects()
-            .filter((obj) => obj.name === "wallGroup") as fabric.Group[];
-
-          // 從每個 wallGroup 中移除端點
-          wallGroups.forEach((wallGroup) => {
-            const allObjects = wallGroup.getObjects();
-            const objectsToRemove = allObjects.filter(
-              (obj) =>
-                obj.name &&
-                (obj.name === "wallEndpoint_start" ||
-                  obj.name === "wallEndpoint_end")
-            );
-
-            objectsToRemove.forEach((obj) => wallGroup.remove(obj));
-
-            wallGroup.addWithUpdate(); // 更新 wallGroup
-          });
-
-          setCompletedWalls([]);
-          setCurrentPath([]);
-          setUnfinishedWall(null);
-          save();
-        } else {
-          console.log("沒有形成封閉空間，保留當前牆體為未完成狀態");
-          setUnfinishedWall(wall);
-          console.log("在finishDrawWall存進unfinishedWall", unfinishedWall);
-          setCurrentPath([]);
-          setCompletedWalls([]);
-          save();
-        }
+    // 清除所有顯示的臨時端點
+    canvas.getObjects().forEach((obj) => {
+      if (obj.type === "circle" && !obj.selectable) {
+        canvas.remove(obj);
       }
-    } else {
-      console.log("沒有完成的牆體，清除所有當前繪製狀態");
+    });
+
+    // 从 completedWalls 中提取点
+    const points = completedWalls.reduce((acc: fabric.Point[], wall, index) => {
+      //@ts-ignore
+      const startPoint = wall.get("startPoint") as fabric.Point;
+      if (index === 0) acc.push(startPoint);
+      //@ts-ignore
+      const endPoint = wall.get("endPoint") as fabric.Point;
+      acc.push(endPoint);
+      return acc;
+    }, []);
+
+    // 创建新的连续墙体
+    if (points.length >= 2) {
+      const newWallSegment = createContinuousWall(points);
+      if (newWallSegment) {
+        setAllWallPaths((prevPaths) => [...prevPaths, newWallSegment]);
+      }
+    }
+
+    // 检查是否形成封闭空间
+    const firstPoint = points[0];
+    const lastPoint = points[points.length - 1];
+    if (
+      points.length > 2 &&
+      Math.abs(firstPoint.x - lastPoint.x) < SNAP_THRESHOLD &&
+      Math.abs(firstPoint.y - lastPoint.y) < SNAP_THRESHOLD
+    ) {
+      createPolygonWithPattern(points);
+
+      // 清除所有墙体路径和预览线
+      allWallPaths.forEach((path) => canvas.remove(path));
+      completedWalls.forEach((wall) => canvas.remove(wall));
+      if (currentLineRef.current) {
+        canvas.remove(currentLineRef.current);
+        currentLineRef.current = null;
+      }
+      setAllWallPaths([]);
+      setCompletedWalls([]);
       setCurrentPath([]);
-      setUnfinishedWall(null);
-      save();
+    } else {
+      // 如果没有形成封闭空间，保留最后一个点作为下一段的起点
+      setCurrentPath([lastPoint]);
+      // 清除临时的完成墙体，因为我们已经创建了连续的墙体
+      completedWalls.forEach((wall) => canvas.remove(wall));
+      setCompletedWalls([]);
     }
 
     canvas.renderAll();
+    save();
   }, [
     canvas,
-    SNAP_THRESHOLD,
     completedWalls,
+    allWallPaths,
+    SNAP_THRESHOLD,
+    createContinuousWall,
     createPolygonWithPattern,
     save,
-    color.wall.fill,
-    WALL_THICKNESS,
   ]);
-
-  //刪除牆體，需將未完成牆體的狀態也一併刪除
-  // const handleWallDelete = useCallback((deletedWallId: string) => {
-  //   setUnfinishedWall((prevWall) =>
-  //     prevWall && prevWall.get("id") === deletedWallId ? null : prevWall
-  //   );
-  // }, []);
 
   return {
     isDrawingMode,
@@ -691,6 +548,7 @@ export const useDrawWall = ({
     startDrawing,
     draw,
     finishDrawWall,
+    rooms,
     createPolygonWithPattern,
     createContinuousWall,
   };

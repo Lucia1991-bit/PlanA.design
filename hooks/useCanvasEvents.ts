@@ -36,8 +36,37 @@ const useCanvasEvents = ({
     (e: fabric.IEvent) => {
       const selected = (e as any).selected || [];
       setSelectedObjects(selected);
+
+      // 檢查是否創建了 activeSelection
+      if (e.target && e.target.type === "activeSelection") {
+        const activeSelection = e.target as fabric.ActiveSelection;
+
+        // 檢查 activeSelection 中是否包含 wallGroup
+        const containsWallGroup = activeSelection
+          .getObjects()
+          .some((obj) => obj.name === "wallGroup");
+
+        if (containsWallGroup) {
+          // 如果包含 wallGroup，應用 wallGroup 的屬性到 activeSelection
+          activeSelection.set({
+            hasControls: false,
+            lockMovementX: true,
+            lockMovementY: true,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            selectable: true,
+            evented: false,
+            objectCaching: false,
+          });
+        }
+        // 確保更新應用到畫布
+        if (canvas) {
+          canvas.requestRenderAll();
+        }
+      }
     },
-    [setSelectedObjects]
+    [setSelectedObjects, canvas]
   );
 
   const handleSelectionUpdated = useCallback(
