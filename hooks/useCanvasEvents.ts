@@ -173,8 +173,8 @@ const useCanvasEvents = ({
         return;
       }
 
-      // 空白鍵按下時進入拖動模式
-      if (isSpacebarDownRef.current) {
+      // 當 isPanMode 為 true 或空白鍵被按下時進入拖動模式
+      if (isPanMode || isSpacebarDownRef.current) {
         isDraggingRef.current = true;
         lastPosXRef.current = evt.clientX;
         lastPosYRef.current = evt.clientY;
@@ -362,6 +362,11 @@ const useCanvasEvents = ({
     handleSelectionUpdated,
     handleSelectionCleared,
   ]);
+
+  return {
+    isPanMode,
+    setIsPanMode,
+  };
 };
 
 export default useCanvasEvents;

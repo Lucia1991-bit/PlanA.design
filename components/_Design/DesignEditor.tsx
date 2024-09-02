@@ -42,28 +42,36 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
 
   const color = useDesignPageColor();
 
+  const { initCanvas, design } = useDesign({
+    defaultState: board.fabricData,
+    saveDesign,
+  });
+
   const onChangeActiveTool = useCallback(
     (tool: ActiveTool) => {
       if (tool === activeTool) {
         setActiveTool("select");
         setIsSidePanelOpen(false);
+        if (design?.isPanMode) {
+          design.togglePanMode();
+        }
       } else {
         setActiveTool(tool);
         setIsSidePanelOpen(shouldOpenSidebar(tool));
+        if (tool === "pan") {
+          design?.togglePanMode();
+        } else if (design?.isPanMode) {
+          design.togglePanMode();
+        }
       }
     },
-    [activeTool]
+    [activeTool, design]
   );
 
   const closeSidePanel = useCallback(() => {
     setActiveTool("select");
     setIsSidePanelOpen(false);
   }, []);
-
-  const { initCanvas, design } = useDesign({
-    defaultState: board.fabricData,
-    saveDesign,
-  });
 
   //防止按右鍵的預設行為
   const handleContextMenu = useCallback((e: React.MouseEvent) => {

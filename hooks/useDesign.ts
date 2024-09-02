@@ -35,6 +35,8 @@ const buildDesign = ({
   setIsDrawingMode,
   startDrawWall,
   finishDrawWall,
+  isPanMode,
+  togglePanMode,
   applyPattern,
   contextMenuPosition,
   handleContextMenuAction,
@@ -104,6 +106,8 @@ const buildDesign = ({
     setIsDrawingMode,
     startDrawWall,
     finishDrawWall,
+    isPanMode,
+    togglePanMode,
     applyPattern,
     contextMenuPosition,
     handleContextMenuAction,
@@ -122,10 +126,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
-
-  //管理平移模式
-  const [isPanMode, setIsPanMode] = useState(false);
-
   //保存未完成的牆體
   const [unfinishedWall, setUnfinishedWall] = useState<fabric.Object | null>(
     null
@@ -396,7 +396,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   });
 
   //處理畫布事件
-  useCanvasEvents({
+  const { isPanMode, setIsPanMode } = useCanvasEvents({
     canvas,
     isDrawingMode,
     onStartDrawing: startDrawing,
@@ -406,6 +406,14 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     openContextMenu,
     closeContextMenu,
   });
+
+  //管理平移模式與繪圖模式之間的切換
+  const togglePanMode = useCallback(() => {
+    setIsPanMode((prev) => !prev);
+    if (isDrawingMode) {
+      setIsDrawingMode(false);
+    }
+  }, [isDrawingMode, setIsDrawingMode, setIsPanMode]);
 
   //畫布操作快捷鍵
   useHotkeys({
@@ -537,6 +545,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         saveToDatabase,
         isDrawingMode,
         setIsDrawingMode,
+        isPanMode,
+        togglePanMode,
         startDrawWall,
         finishDrawWall,
         applyPattern,
@@ -559,6 +569,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     saveToDatabase,
     isDrawingMode,
     setIsDrawingMode,
+    isPanMode,
+    togglePanMode,
     startDrawWall,
     finishDrawWall,
     applyPattern,

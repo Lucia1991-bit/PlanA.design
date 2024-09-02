@@ -128,6 +128,8 @@ export type BuildDesignProps = {
   setIsDrawingMode: (mode: boolean) => void;
   startDrawWall: () => void;
   finishDrawWall: () => void;
+  isPanMode: boolean;
+  togglePanMode: () => void;
   applyPattern: (
     object: fabric.Object,
     imageUrl: string,
@@ -182,6 +184,8 @@ export interface Design {
   setIsDrawingMode: (mode: boolean) => void;
   startDrawWall: () => void;
   finishDrawWall: () => void;
+  isPanMode: boolean;
+  togglePanMode: () => void;
   // autoZoom: () => void;
   // zoomIn: () => void;
   // zoomOut: () => void;
