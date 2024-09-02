@@ -126,11 +126,15 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
-  //保存未完成的牆體
+
+  //保存未完成的牆體(結束繪製時形成的連續牆體)
   const [unfinishedWall, setUnfinishedWall] = useState<fabric.Object | null>(
     null
   );
   const unfinishedWallRef = useRef<fabric.Object | null>(null);
+  //保存繪製的所有原本的獨立牆體
+  const [completedWalls, setCompletedWalls] = useState<fabric.Object[]>([]);
+  const completedWallsRef = useRef<fabric.Object[]>([]);
 
   //Pattern相關狀態
   const [canvasLayers, setCanvasLayers] = useState<CanvasLayer[]>([]);
@@ -152,6 +156,30 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
       console.log("設置 unfinishedWall:", wall);
       setUnfinishedWall(wall);
       unfinishedWallRef.current = wall;
+    },
+    []
+  );
+
+  // 改變 completedWalls 的狀態
+  const memoizedSetCompletedWalls = useCallback(
+    (
+      wallsOrUpdater:
+        | fabric.Object[]
+        | ((prev: fabric.Object[]) => fabric.Object[])
+    ) => {
+      setCompletedWalls((prevWalls) => {
+        let newWalls: fabric.Object[];
+
+        if (typeof wallsOrUpdater === "function") {
+          newWalls = wallsOrUpdater(prevWalls);
+        } else {
+          newWalls = wallsOrUpdater;
+        }
+
+        console.log("設置 completedWalls:", newWalls);
+        completedWallsRef.current = newWalls;
+        return newWalls;
+      });
     },
     []
   );
@@ -318,8 +346,10 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setCanvasLayers,
     imageResources,
     setImageResources,
-    // unfinishedWallRef,
-    // setUnfinishedWall: memoizedSetUnfinishedWall,
+    unfinishedWall: unfinishedWallRef,
+    setUnfinishedWall: memoizedSetUnfinishedWall,
+    completedWalls: completedWallsRef,
+    setCompletedWalls: memoizedSetCompletedWalls,
   });
 
   //材質 pattern
@@ -342,6 +372,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     adjustPatternScale,
     unfinishedWall: unfinishedWallRef,
     setUnfinishedWall: memoizedSetUnfinishedWall,
+    completedWalls: completedWallsRef,
+    setCompletedWalls: memoizedSetCompletedWalls,
   });
 
   //畫布的物件互動操作

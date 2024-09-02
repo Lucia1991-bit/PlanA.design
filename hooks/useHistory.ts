@@ -14,8 +14,12 @@ interface useHistoryProps {
   setImageResources: React.Dispatch<
     React.SetStateAction<Record<string, string>>
   >;
-  // unfinishedWallRef: React.MutableRefObject<fabric.Object | null>;
-  // setUnfinishedWall: (wall: fabric.Object | null) => void;
+  unfinishedWall: React.MutableRefObject<fabric.Object | null>;
+  completedWalls: React.MutableRefObject<fabric.Object[] | null>;
+  setUnfinishedWall: (wall: fabric.Object | null) => void;
+  setCompletedWalls: (
+    walls: fabric.Object[] | ((prev: fabric.Object[]) => fabric.Object[])
+  ) => void;
 }
 
 export const useHistory = ({
@@ -28,9 +32,11 @@ export const useHistory = ({
   setCanvasLayers,
   imageResources,
   setImageResources,
-}: // unfinishedWallRef,
-// setUnfinishedWall,
-useHistoryProps) => {
+  unfinishedWall,
+  setUnfinishedWall,
+  completedWalls,
+  setCompletedWalls,
+}: useHistoryProps) => {
   // 當前歷史記錄的索引
   const [historyIndex, setHistoryIndex] = useState(-1);
   // 存儲畫布狀態歷史的陣列
@@ -169,15 +175,27 @@ useHistoryProps) => {
     setCanvasLayers(newCanvasLayers);
     setImageResources(newImageResources);
 
-    return JSON.stringify({
+    const savedData = JSON.stringify({
       canvasState: currentState,
       canvasLayers: newCanvasLayers,
       imageResources: newImageResources,
-      // unfinishedWall: unfinishedWallRef.current
-      //   ? unfinishedWallRef.current.toObject(OBJECT_STATE)
-      //   : null,
+      unfinishedWallId: unfinishedWall.current
+        ? unfinishedWall.current.get("id")
+        : null,
+      completedWallIds: completedWalls.current
+        ? completedWalls.current.map((wall) => wall.get("id"))
+        : [],
     });
-  }, [canvas, gridRef, setCanvasLayers, setImageResources]);
+
+    return savedData;
+  }, [
+    canvas,
+    gridRef,
+    setCanvasLayers,
+    setImageResources,
+    unfinishedWall,
+    completedWalls,
+  ]);
 
   // 保存當前狀態到歷史記錄
   const save = useCallback(() => {
@@ -226,8 +244,12 @@ useHistoryProps) => {
         canvasState,
         canvasLayers: newCanvasLayers,
         imageResources: newImageResources,
-        // unfinishedWall: unfinishedWallState,
+        unfinishedWallId,
+        completedWallIds,
       } = JSON.parse(stateString);
+
+      console.log("unfinishedWallId", unfinishedWallId);
+      console.log("completedWallIds", completedWallIds);
 
       // 預加載所有圖像
       const imageLoadPromises = Object.entries(newImageResources).map(
@@ -284,6 +306,20 @@ useHistoryProps) => {
               }
             }
           });
+
+          // 恢復 completedWalls
+          const restoredCompletedWalls = completedWallIds
+            .map((id) =>
+              canvas.getObjects().find((obj) => obj.get("id") === id)
+            )
+            .filter(Boolean);
+          setCompletedWalls(restoredCompletedWalls);
+
+          // 恢復 unfinishedWall
+          const restoredUnfinishedWall = canvas
+            .getObjects()
+            .find((obj) => obj.get("id") === unfinishedWallId);
+          setUnfinishedWall(restoredUnfinishedWall || null);
 
           // 恢復 unfinishedWall
           // if (unfinishedWallState) {
