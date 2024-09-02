@@ -38,6 +38,7 @@ const buildDesign = ({
   applyPattern,
   contextMenuPosition,
   handleContextMenuAction,
+  canCopy,
   canPaste,
   clearCanvas,
 }: BuildDesignProps): Design => {
@@ -106,6 +107,7 @@ const buildDesign = ({
     applyPattern,
     contextMenuPosition,
     handleContextMenuAction,
+    canCopy,
     canPaste,
     clearCanvas,
   };
@@ -120,6 +122,9 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
+
+  //管理平移模式
+  const [isPanMode, setIsPanMode] = useState(false);
 
   //保存未完成的牆體
   const [unfinishedWall, setUnfinishedWall] = useState<fabric.Object | null>(
@@ -340,7 +345,15 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   });
 
   //畫布的物件互動操作
-  const { copy, paste, canPaste, deleteObjects } = useClipboard({
+  const {
+    copy,
+    paste,
+    canCopy,
+    canPaste,
+    deleteObjects,
+    mirrorHorizontally,
+    mirrorVertically,
+  } = useClipboard({
     canvas,
   });
 
@@ -351,9 +364,12 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     close: closeContextMenu,
     handleAction: handleContextMenuAction,
   } = useContextMenu({
+    canvas,
     copy,
     paste,
     deleteObjects,
+    mirrorHorizontally,
+    mirrorVertically,
   });
 
   // 畫布尺寸隨視窗縮放改變
@@ -493,21 +509,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setImageResources,
   ]);
 
-  // 新增：保存初始狀態的函數
-  // const saveInitialState = useCallback(() => {
-  //   if (canvas && gridRef.current) {
-  //     const grid = gridRef.current;
-  //     canvas.remove(grid);
-  //     const currentState = JSON.stringify(canvas.toJSON(OBJECT_STATE));
-  //     canvas.add(grid);
-  //     canvas.sendToBack(grid);
-
-  //     canvasHistory.current = [currentState];
-  //     setHistoryIndex(0);
-  //     // 調用 save 來確保初始狀態被正確記錄
-  //   }
-  // }, [canvas, gridRef, canvasHistory, setHistoryIndex, save]);
-
   useEffect(() => {
     if (isCanvasReady && canvas) {
       updateGridPosition();
@@ -541,6 +542,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         applyPattern,
         contextMenuPosition,
         handleContextMenuAction,
+        canCopy,
         canPaste,
         clearCanvas,
       });
@@ -562,6 +564,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     applyPattern,
     contextMenuPosition,
     handleContextMenuAction,
+    canCopy,
     canPaste,
     clearCanvas,
   ]);

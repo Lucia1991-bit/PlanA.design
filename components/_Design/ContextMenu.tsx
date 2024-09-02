@@ -1,29 +1,41 @@
 import React from "react";
-import { Box, VStack, Button, HStack, Text } from "@chakra-ui/react";
+import { Box, VStack, Button, HStack, Text, Divider } from "@chakra-ui/react";
 import { MdKeyboardCommandKey } from "react-icons/md";
-import { LuClipboard, LuTrash2, LuCopy } from "react-icons/lu";
+import {
+  LuClipboard,
+  LuTrash2,
+  LuCopy,
+  LuFlipHorizontal2,
+  LuFlipVertical2,
+} from "react-icons/lu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 interface ContextMenuProps {
   x: number;
   y: number;
   hasActiveObject: boolean;
+  canCopy: () => boolean;
   canPaste: () => boolean;
   onClose: () => void;
   onCopy: () => void;
   onPaste: () => void;
   onDelete: () => void;
+  onMirrorHorizontally: () => void;
+  onMirrorVertically: () => void;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
   x,
   y,
   hasActiveObject,
+  canCopy,
   canPaste,
   onClose,
   onCopy,
   onPaste,
   onDelete,
+  onMirrorHorizontally,
+  onMirrorVertically,
 }) => {
   const handleAction = (action: () => void) => {
     action();
@@ -35,7 +47,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   return (
     <Box
       position="fixed"
-      width="150px"
+      width="180px"
       left={x}
       top={y}
       zIndex={20}
@@ -61,7 +73,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             bg: color.toolBar.hover,
           }}
           fontWeight="500"
-          isDisabled={!hasActiveObject}
+          isDisabled={!canCopy()}
           _disabled={{
             opacity: 0.4,
             cursor: "default",
@@ -159,6 +171,71 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             >
               DELETE
             </Text>
+          </HStack>
+        </Button>
+        <Divider
+          orientation="horizontal"
+          height="100%"
+          borderColor={color.navBar.hover}
+        />
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onMirrorHorizontally)}
+          leftIcon={<LuFlipHorizontal2 />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!hasActiveObject}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>水平鏡射</Text>
+          </HStack>
+        </Button>
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onMirrorVertically)}
+          leftIcon={<LuFlipVertical2 />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!hasActiveObject}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>垂直鏡射</Text>
           </HStack>
         </Button>
       </VStack>

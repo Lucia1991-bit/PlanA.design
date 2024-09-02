@@ -143,8 +143,15 @@ export type BuildDesignProps = {
     hasActiveObject: boolean;
   } | null;
   handleContextMenuAction: (
-    action: "copy" | "paste" | "delete" | "close"
+    action:
+      | "copy"
+      | "paste"
+      | "delete"
+      | "close"
+      | "mirrorHorizontally"
+      | "mirrorVertically"
   ) => void;
+  canCopy: () => boolean;
   canPaste: () => boolean;
   clearCanvas: () => void;
   // fillColor: string;
@@ -199,8 +206,15 @@ export interface Design {
     hasActiveObject: boolean;
   } | null;
   handleContextMenuAction: (
-    action: "copy" | "paste" | "delete" | "close"
+    action:
+      | "copy"
+      | "paste"
+      | "delete"
+      | "close"
+      | "mirrorHorizontally"
+      | "mirrorVertically"
   ) => void;
+  canCopy: () => boolean;
   canPaste: () => boolean;
   clearCanvas: () => void;
   // addPatternPath: (imageUrl: string) => void;

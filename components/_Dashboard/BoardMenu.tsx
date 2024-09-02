@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import BoardActionsModal from "../_UI/BoardActionsModal";
 import { useBoardOperations } from "@/hooks/useBoardOperations ";
+import { LuTrash2 } from "react-icons/lu";
 
 interface BoardMenuProps {
   boardId: string;
@@ -149,7 +150,7 @@ const BoardMenu = ({ boardId, boardName }: BoardMenuProps) => {
                   fontWeight="500"
                   borderRadius={0}
                   color="brand.dark"
-                  leftIcon={<DeleteIcon />}
+                  leftIcon={<LuTrash2 />}
                   justifyContent="flex-start"
                   variant="ghost"
                   size="sm"

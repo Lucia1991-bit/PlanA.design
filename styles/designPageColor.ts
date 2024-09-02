@@ -19,7 +19,7 @@ export const designPageColor = {
       backgroundColor: "rgba(255, 255, 255, 0.4)",
       text: "#555352",
       subText: "#9b9b9b",
-      hover: "rgba(199,200,201, 0.5)",
+      hover: "rgba(199,200,201, 0.4)",
     },
     tooltip: {
       backgroundColor: "#555352",

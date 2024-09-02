@@ -16,10 +16,50 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
     if (!canvas) return;
     const activeObject = canvas.getActiveObject();
     if (activeObject) {
+      // 檢查是否為單一物件且名稱為 "room"
+      if (activeObject.name === "room") {
+        console.log("Cannot copy room object");
+        return;
+      }
+
+      // 檢查是否為多重選擇
+      if (activeObject.type === "activeSelection") {
+        const selection = activeObject as fabric.ActiveSelection;
+        // 檢查是否有任何 "room" 物件
+        const hasRoomObject = selection
+          .getObjects()
+          .some((obj) => obj.name === "room");
+
+        if (hasRoomObject) {
+          console.log("Cannot copy selection containing room object");
+          return;
+        }
+      }
+
+      // 如果通過了上面的檢查，直接複製整個選擇
       activeObject.clone((cloned: fabric.Object) => {
         setClipboardData(cloned);
       });
     }
+  }, [canvas]);
+
+  // 檢查是否可以複製，需排除掉 "room" 物件
+  const canCopy = useCallback(() => {
+    if (!canvas) return false;
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject) return false;
+
+    // 檢查是否為單一物件且名稱為 "room"
+    if (activeObject.name === "room") return false;
+
+    // 檢查是否為多重選擇
+    if (activeObject.type === "activeSelection") {
+      const selection = activeObject as fabric.ActiveSelection;
+      // 檢查是否有任何 "room" 物件
+      return !selection.getObjects().some((obj) => obj.name === "room");
+    }
+
+    return true;
   }, [canvas]);
 
   // 貼上功能
@@ -32,6 +72,7 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
         top: clonedObj.top! + 20,
         evented: true,
       });
+
       if (clonedObj.type === "activeSelection") {
         // 如果是多重選擇，需要逐個添加到畫布
         (clonedObj as fabric.ActiveSelection).canvas = canvas;
@@ -65,5 +106,33 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
     }
   }, [canvas]);
 
-  return { copy, paste, canPaste, deleteObjects };
+  // 水平鏡射功能
+  const mirrorHorizontally = useCallback(() => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      activeObject.set("flipX", !activeObject.flipX);
+      canvas.requestRenderAll();
+    }
+  }, [canvas]);
+
+  // 垂直鏡射功能
+  const mirrorVertically = useCallback(() => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      activeObject.set("flipY", !activeObject.flipY);
+      canvas.requestRenderAll();
+    }
+  }, [canvas]);
+
+  return {
+    copy,
+    paste,
+    canCopy,
+    canPaste,
+    deleteObjects,
+    mirrorHorizontally,
+    mirrorVertically,
+  };
 };

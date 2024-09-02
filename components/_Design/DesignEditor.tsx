@@ -149,11 +149,18 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
             x={design.contextMenuPosition.x}
             y={design.contextMenuPosition.y}
             hasActiveObject={design.contextMenuPosition.hasActiveObject}
+            canCopy={design.canCopy}
             canPaste={design.canPaste}
             onClose={() => design.handleContextMenuAction("close")}
             onCopy={() => design.handleContextMenuAction("copy")}
             onPaste={() => design.handleContextMenuAction("paste")}
             onDelete={() => design.handleContextMenuAction("delete")}
+            onMirrorHorizontally={() =>
+              design.handleContextMenuAction("mirrorHorizontally")
+            }
+            onMirrorVertically={() =>
+              design.handleContextMenuAction("mirrorVertically")
+            }
           />
         )}
       </Box>

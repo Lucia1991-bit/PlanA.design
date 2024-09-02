@@ -132,6 +132,30 @@ const DesignNavBar = ({
                 }}
               />
             </Tooltip>
+            <Tooltip
+              px="8px"
+              py="4px"
+              borderRadius="3px"
+              fontSize="13px"
+              label="平移畫布"
+              placement="bottom"
+              bg={color.tooltip.backgroundColor}
+              color={color.tooltip.text}
+              offset={[0, 15]}
+            >
+              <IconButton
+                onClick={() => onChangeActiveTool("pan")}
+                size="md"
+                bg={activeTool === "pan" ? color.toolBar.hover : "transparent"}
+                color={color.toolBar.text}
+                aria-label={"panMode"}
+                icon={<LuHand fontSize="20px" />}
+                _hover={{ bg: color.toolBar.hover }}
+                _active={{
+                  bg: color.toolBar.hover,
+                }}
+              />
+            </Tooltip>
 
             <CustomTooltip mainText="復原" shortcutText="Z">
               <IconButton
