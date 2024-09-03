@@ -117,7 +117,6 @@ export const useLoadDesign = ({
 
           canvas.renderAll();
         });
-
         initialized.current = true;
       } catch (error) {
         console.error("Error processing initial state:", error);
@@ -133,5 +132,6 @@ export const useLoadDesign = ({
     setHistoryIndex,
     setCanvasLayers,
     setImageResources,
+    initializeCanvasState,
   ]);
 };

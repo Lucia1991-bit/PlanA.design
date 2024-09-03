@@ -93,7 +93,7 @@ export const useHistory = ({
         });
 
         // 另外處理 wallGroup 牆體的屬性
-        if (obj.name === "wallGroup" || obj.name === "wallCorner") {
+        if (obj.name === "wallGroup" || obj.name === "finishedWall") {
           baseObject.selectable = false;
           baseObject.evented = false;
           baseObject.hasControls = false;

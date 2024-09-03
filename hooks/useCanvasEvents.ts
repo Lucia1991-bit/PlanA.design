@@ -53,7 +53,7 @@ const useCanvasEvents = ({
         });
 
         // 特殊處理 wallGroup
-        if (target.name === "wallGroup" || target.name === "wallCorner") {
+        if (target.name === "wallGroup" || target.name === "finishedWall") {
           target.set({
             lockMovementX: true,
             lockMovementY: true,
