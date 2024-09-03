@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
-import {
-  addBoard,
-  updateBoard,
-  deleteBoard,
-} from "@/operations/BoardOperation";
+import { addBoard, updateBoard, deleteBoard } from "@/utils/BoardOperation";
 import { useToast } from "@chakra-ui/react";
 import { NewBoard } from "@/types/BoardType";
 import { useCustomToast } from "./useCustomToast";

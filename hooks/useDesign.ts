@@ -93,7 +93,7 @@ const buildDesign = ({
     addDoorWindow: (imageUrl: string) => {
       fabric.loadSVGFromURL(imageUrl, (objects, options) => {
         const svg = fabric.util.groupSVGElements(objects, options);
-        svg.scale(1.8);
+        svg.scale(1.9);
         svg.objectCaching = false;
         centerObjectOnCanvas(canvas, svg);
         canvas.add(svg);
@@ -520,10 +520,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     unfinishedWallRef.current = null;
     setCanvasLayers([]);
     setImageResources({});
-
-    // 更新網格位置和顏色
-    updateGridPosition();
-    updateGridColor();
 
     // 重新渲染畫布
     canvas.renderAll();

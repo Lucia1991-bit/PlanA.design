@@ -65,7 +65,7 @@ export const useDrawWall = ({
   const currentReversedRef = useRef(false);
 
   const defaultPatternUrl =
-    "https://res.cloudinary.com/datj4og4i/image/upload/v1723533704/plan-a/material/%E6%9C%A8%E5%9C%B0%E6%9D%BF/wood25_small.jpg";
+    "https://res.cloudinary.com/datj4og4i/image/upload/v1725103376/plan-a/material/%E7%A3%81%E7%A3%9A/tile16_small.jpg";
 
   const WALL_THICKNESS = 20;
   const PREVIEW_LINE_COLOR = "rgba(0, 123, 255, 0.5)";
@@ -509,6 +509,8 @@ export const useDrawWall = ({
         name: "room",
       });
 
+      // setupRoomEvents(canvas, newRoom);
+
       canvas.add(newRoom);
       applyPattern(newRoom, defaultPatternUrl, { scaleX: 1, scaleY: 1 });
       adjustPatternScale(newRoom, 10, 10);
@@ -631,12 +633,12 @@ export const useDrawWall = ({
     canvas.renderAll();
   }, [
     canvas,
-    SNAP_THRESHOLD,
+    setIsDrawingMode,
     completedWalls,
     updateWalls,
-    setCurrentPath,
-    setCompletedWalls,
+    color.wall.fill,
     createPolygonWithPattern,
+    setCompletedWalls,
     save,
   ]);
 

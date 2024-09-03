@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect, useRef } from "react";
 import { fabric } from "fabric";
-import { MIN_ZOOM, MAX_ZOOM_LEVEL } from "@/types/DesignType";
+import { MIN_ZOOM, MAX_ZOOM_LEVEL, SUB_GRID_SIZE } from "@/types/DesignType";
 
 interface UseCanvasEventsProps {
   canvas: fabric.Canvas | null;
@@ -281,6 +281,22 @@ const useCanvasEvents = ({
     }
   }, [isDrawingMode, save]);
 
+  const snapToGrid = useCallback(
+    (x: number, y: number): [number, number] => {
+      const gridOffsetX = canvas ? canvas.width! / 2 : 0;
+      const gridOffsetY = canvas ? canvas.height! / 2 : 0;
+      const adjustedX = x - gridOffsetX;
+      const adjustedY = y - gridOffsetY;
+      const snappedX = Math.round(adjustedX / SUB_GRID_SIZE) * SUB_GRID_SIZE;
+      const snappedY = Math.round(adjustedY / SUB_GRID_SIZE) * SUB_GRID_SIZE;
+      return [
+        Number((snappedX + gridOffsetX).toFixed(2)),
+        Number((snappedY + gridOffsetY).toFixed(2)),
+      ];
+    },
+    [canvas]
+  );
+
   // 處理物件旋轉，實現旋轉吸附
   const handleObjectRotate = useCallback(
     (event: fabric.IEvent) => {
@@ -288,7 +304,7 @@ const useCanvasEvents = ({
       const targetObject = event.target as fabric.Object;
       if (!targetObject) return;
 
-      const rotationStep = 10;
+      const rotationStep = 1;
       let currentAngle = targetObject.angle || 0;
 
       const snappedAngle =

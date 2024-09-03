@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { updateBoard } from "@/operations/BoardOperation";
+import { updateBoard } from "@/utils/BoardOperation";
 
 interface UseUpdateDesignProps {
   userId: string;
