@@ -70,7 +70,6 @@ export const useContextMenu = ({
       }
 
       const activeObject = canvas.getActiveObject();
-      console.log("Active object:", activeObject);
 
       let hasActiveObject = false;
 

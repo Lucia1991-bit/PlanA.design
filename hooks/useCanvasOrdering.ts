@@ -17,8 +17,6 @@ export const useCanvasOrdering = ({
 
   const fixedElementNames = ["room", "wallGroup", "finishedWall", "designGrid"];
 
-  //確認牆體、網格、Pattern之間的順序，並且要在畫布底部
-  //確認牆體、網格、Pattern之間的順序
   const ensureDesignElementsAtBottom = useCallback(() => {
     if (!canvas || !gridRef.current) return;
 
@@ -69,15 +67,26 @@ export const useCanvasOrdering = ({
       fixedElementNames.includes(obj.name as string)
     );
 
+    const nonFixedObjects = canvasObjects.filter(
+      (obj) => !fixedElementNames.includes(obj.name as string)
+    );
+
     const highestActiveObjectIndex = Math.max(
       ...activeObjects.map((obj) => canvasObjects.indexOf(obj))
     );
-    setCanMoveUp(highestActiveObjectIndex < canvasObjects.length - 1);
+
+    // Check if any active object is not a fixed element and can move up
+    const canMoveUpValue = activeObjects.some(
+      (obj) =>
+        !fixedElementNames.includes(obj.name as string) &&
+        canvasObjects.indexOf(obj) < canvasObjects.length - 1
+    );
+    setCanMoveUp(canMoveUpValue);
 
     const lowestActiveObjectIndex = Math.min(
-      ...activeObjects.map((obj) => canvasObjects.indexOf(obj))
+      ...activeObjects.map((obj) => nonFixedObjects.indexOf(obj))
     );
-    setCanMoveDown(lowestActiveObjectIndex > fixedTopIndex + 1);
+    setCanMoveDown(lowestActiveObjectIndex > 0);
   }, [canvas]);
 
   const bringForward = useCallback(() => {
@@ -89,9 +98,11 @@ export const useCanvasOrdering = ({
       (a, b) => canvasObjects.indexOf(b) - canvasObjects.indexOf(a)
     );
     activeObjects.forEach((object) => {
-      const currentIndex = canvasObjects.indexOf(object);
-      if (currentIndex < canvasObjects.length - 1) {
-        canvas.bringForward(object);
+      if (!fixedElementNames.includes(object.name as string)) {
+        const currentIndex = canvasObjects.indexOf(object);
+        if (currentIndex < canvasObjects.length - 1) {
+          canvas.bringForward(object);
+        }
       }
     });
     canvas.renderAll();
@@ -112,10 +123,12 @@ export const useCanvasOrdering = ({
     );
     let moved = false;
     activeObjects.forEach((object) => {
-      const currentIndex = canvasObjects.indexOf(object);
-      if (currentIndex > fixedTopIndex + 1) {
-        canvas.sendBackwards(object);
-        moved = true;
+      if (!fixedElementNames.includes(object.name as string)) {
+        const currentIndex = canvasObjects.indexOf(object);
+        if (currentIndex > fixedTopIndex + 1) {
+          canvas.sendBackwards(object);
+          moved = true;
+        }
       }
     });
     if (moved) {
