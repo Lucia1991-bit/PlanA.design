@@ -1,17 +1,17 @@
 import { HStack, Tooltip, Text } from "@chakra-ui/react";
-import { MdKeyboardCommandKey } from "react-icons/md";
+import { ReactNode } from "react";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 
 interface CustomTooltipProps {
-  children: React.ReactNode;
+  children: ReactNode;
   mainText: string;
-  shortcutText: string;
+  shortcutContent: ReactNode;
 }
 
 const CustomTooltip = ({
   children,
   mainText,
-  shortcutText,
+  shortcutContent,
 }: CustomTooltipProps) => {
   const color = useDesignPageColor();
 
@@ -34,8 +34,7 @@ const CustomTooltip = ({
             fontWeight="300"
             spacing={0}
           >
-            <MdKeyboardCommandKey />
-            <Text>{shortcutText}</Text>
+            {shortcutContent}
           </HStack>
         </HStack>
       }

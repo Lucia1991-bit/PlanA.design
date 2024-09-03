@@ -7,6 +7,8 @@ import {
   LuCopy,
   LuFlipHorizontal2,
   LuFlipVertical2,
+  LuArrowUp,
+  LuArrowDown,
 } from "react-icons/lu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 
@@ -22,6 +24,10 @@ interface ContextMenuProps {
   onDelete: () => void;
   onMirrorHorizontally: () => void;
   onMirrorVertically: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onBringForward: () => void;
+  onSendBackwards: () => void;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -36,6 +42,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   onDelete,
   onMirrorHorizontally,
   onMirrorVertically,
+  canMoveUp,
+  canMoveDown,
+  onBringForward,
+  onSendBackwards,
 }) => {
   const handleAction = (action: () => void) => {
     action();
@@ -236,6 +246,71 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             alignItems="center"
           >
             <Text>垂直鏡射</Text>
+          </HStack>
+        </Button>
+        <Divider
+          orientation="horizontal"
+          height="100%"
+          borderColor={color.navBar.hover}
+        />
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onBringForward)}
+          leftIcon={<LuArrowUp />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!canMoveUp}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>上移一層</Text>
+          </HStack>
+        </Button>
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onSendBackwards)}
+          leftIcon={<LuArrowDown />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!canMoveDown}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>下移一層</Text>
           </HStack>
         </Button>
       </VStack>

@@ -348,7 +348,7 @@ export const useHistory = ({
 
           // 更新網格顏色及位置
           updateGridColor();
-          updateGridPosition();
+          // updateGridPosition();
 
           // 更新 pattern 相關狀態
           setCanvasLayers(newCanvasLayers);

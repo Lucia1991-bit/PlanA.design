@@ -23,8 +23,10 @@ import {
   LuUndo2,
   LuEraser,
   LuHand,
+  LuSpace,
 } from "react-icons/lu";
 import { BsCloudCheck, BsCloudSlash } from "react-icons/bs";
+import { MdKeyboardCommandKey, MdOutlineSpaceBar } from "react-icons/md";
 import ProfileMenu from "../_Profile/ProfileMenu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import Logo from "./Logo";
@@ -34,6 +36,7 @@ import { ActiveTool, Design } from "@/types/DesignType";
 import { useCallback, useEffect, useState } from "react";
 import CustomTooltip from "../_UI/CustomTooltip";
 import ClearCanvasModal from "../_UI/ClearCanvasModal";
+import { PiMouseLeftClick } from "react-icons/pi";
 
 interface DesignNavBarProps {
   boardId: string;
@@ -132,16 +135,14 @@ const DesignNavBar = ({
                 }}
               />
             </Tooltip>
-            <Tooltip
-              px="8px"
-              py="4px"
-              borderRadius="3px"
-              fontSize="13px"
-              label="平移畫布"
-              placement="bottom"
-              bg={color.tooltip.backgroundColor}
-              color={color.tooltip.text}
-              offset={[0, 15]}
+            <CustomTooltip
+              mainText="平移畫布"
+              shortcutContent={
+                <>
+                  <LuSpace />
+                  <PiMouseLeftClick />
+                </>
+              }
             >
               <IconButton
                 onClick={() => onChangeActiveTool("pan")}
@@ -155,9 +156,17 @@ const DesignNavBar = ({
                   bg: color.toolBar.hover,
                 }}
               />
-            </Tooltip>
+            </CustomTooltip>
 
-            <CustomTooltip mainText="復原" shortcutText="Z">
+            <CustomTooltip
+              mainText="復原"
+              shortcutContent={
+                <>
+                  <MdKeyboardCommandKey />
+                  <Text>Z</Text>
+                </>
+              }
+            >
               <IconButton
                 isDisabled={!design?.canUndo()}
                 color={color.toolBar.text}
@@ -175,7 +184,15 @@ const DesignNavBar = ({
               />
             </CustomTooltip>
 
-            <CustomTooltip mainText="取消復原" shortcutText="Y">
+            <CustomTooltip
+              mainText="取消復原"
+              shortcutContent={
+                <>
+                  <MdKeyboardCommandKey />
+                  <Text>Y</Text>
+                </>
+              }
+            >
               <IconButton
                 isDisabled={!design?.canRedo()}
                 color={color.toolBar.text}
@@ -193,7 +210,15 @@ const DesignNavBar = ({
               />
             </CustomTooltip>
 
-            <CustomTooltip mainText="存檔" shortcutText="S">
+            <CustomTooltip
+              mainText="存檔"
+              shortcutContent={
+                <>
+                  <MdKeyboardCommandKey />
+                  <Text>Y</Text>
+                </>
+              }
+            >
               <IconButton
                 color={color.toolBar.text}
                 size="md"

@@ -13,6 +13,8 @@ interface UseContextMenuProps {
   deleteObjects: () => void;
   mirrorHorizontally: () => void;
   mirrorVertically: () => void;
+  isPanMode: boolean;
+  isDrawingMode: boolean;
 }
 
 export const useContextMenu = ({
@@ -22,6 +24,8 @@ export const useContextMenu = ({
   deleteObjects,
   mirrorHorizontally,
   mirrorVertically,
+  isPanMode,
+  isDrawingMode,
 }: UseContextMenuProps) => {
   const [position, setPosition] = useState<ContextMenuPosition | null>(null);
 
@@ -61,8 +65,7 @@ export const useContextMenu = ({
 
   const open = useCallback(
     (x: number, y: number) => {
-      if (!canvas) {
-        console.log("Canvas is null, cannot open context menu");
+      if (!canvas || isPanMode || isDrawingMode) {
         return;
       }
 
@@ -81,11 +84,9 @@ export const useContextMenu = ({
         }
       }
 
-      console.log("Context menu state:", { hasActiveObject });
-
       setPosition({ x, y, hasActiveObject });
     },
-    [canvas]
+    [canvas, isDrawingMode, isPanMode]
   );
 
   const close = useCallback(() => {

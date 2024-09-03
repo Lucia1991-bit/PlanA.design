@@ -4,6 +4,8 @@ import { MIN_ZOOM, MAX_ZOOM_LEVEL, SUB_GRID_SIZE } from "@/types/DesignType";
 
 interface UseCanvasEventsProps {
   canvas: fabric.Canvas | null;
+  isPanMode: boolean;
+  setIsPanMode: React.Dispatch<React.SetStateAction<boolean>>;
   isDrawingMode: boolean;
   onStartDrawing: (event: fabric.IEvent) => void;
   onDrawing: (event: fabric.IEvent) => void;
@@ -11,12 +13,15 @@ interface UseCanvasEventsProps {
   setSelectedObjects: React.Dispatch<React.SetStateAction<fabric.Object[]>>;
   openContextMenu: (x: number, y: number, hasActiveObject: boolean) => void;
   closeContextMenu: () => void;
+  updateMoveStatus: () => void;
 }
 
 type CursorType = "default" | "crosshair" | "grab" | "grabbing";
 
 const useCanvasEvents = ({
   canvas,
+  isPanMode,
+  setIsPanMode,
   isDrawingMode,
   onStartDrawing,
   onDrawing,
@@ -24,9 +29,10 @@ const useCanvasEvents = ({
   setSelectedObjects,
   openContextMenu,
   closeContextMenu,
+  updateMoveStatus,
 }: UseCanvasEventsProps) => {
   //平移模式
-  const [isPanMode, setIsPanMode] = useState(false);
+
   const [cursorType, setCursorType] = useState<CursorType>("default");
 
   // 用於追踪畫布是否正在被拖動
@@ -80,21 +86,24 @@ const useCanvasEvents = ({
         setSelectedObjects([target]);
         canvas.requestRenderAll();
       }
+      updateMoveStatus();
     },
-    [canvas, setSelectedObjects]
+    [canvas, setSelectedObjects, updateMoveStatus]
   );
 
   const handleSelectionUpdated = useCallback(
     (e: fabric.IEvent) => {
       const selected = (e as any).selected || [];
       setSelectedObjects(selected);
+      updateMoveStatus();
     },
-    [setSelectedObjects]
+    [setSelectedObjects, updateMoveStatus]
   );
 
   const handleSelectionCleared = useCallback(() => {
     setSelectedObjects([]);
-  }, [setSelectedObjects]);
+    updateMoveStatus();
+  }, [setSelectedObjects, updateMoveStatus]);
 
   // 更新鼠標樣式
   const updateCursorType = useCallback(() => {
@@ -151,8 +160,8 @@ const useCanvasEvents = ({
         let y = evt.clientY;
 
         // 使用實際的 ContextMenu 寬度和高度
-        const menuWidth = 150;
-        const menuHeight = 200; // 估計高度，可能需要根據實際情況調整
+        const menuWidth = 180;
+        const menuHeight = 300; // 估計高度，可能需要根據實際情況調整
 
         // 確保右鍵選單不會超出畫布邊界
         if (x + menuWidth > canvasRect.right) {
@@ -278,24 +287,9 @@ const useCanvasEvents = ({
   const handleObjectModification = useCallback(() => {
     if (!isDrawingMode) {
       save(); // 只在非繪製模式下保存狀態
+      updateMoveStatus();
     }
-  }, [isDrawingMode, save]);
-
-  const snapToGrid = useCallback(
-    (x: number, y: number): [number, number] => {
-      const gridOffsetX = canvas ? canvas.width! / 2 : 0;
-      const gridOffsetY = canvas ? canvas.height! / 2 : 0;
-      const adjustedX = x - gridOffsetX;
-      const adjustedY = y - gridOffsetY;
-      const snappedX = Math.round(adjustedX / SUB_GRID_SIZE) * SUB_GRID_SIZE;
-      const snappedY = Math.round(adjustedY / SUB_GRID_SIZE) * SUB_GRID_SIZE;
-      return [
-        Number((snappedX + gridOffsetX).toFixed(2)),
-        Number((snappedY + gridOffsetY).toFixed(2)),
-      ];
-    },
-    [canvas]
-  );
+  }, [isDrawingMode, save, updateMoveStatus]);
 
   // 處理物件旋轉，實現旋轉吸附
   const handleObjectRotate = useCallback(
@@ -379,11 +373,6 @@ const useCanvasEvents = ({
     handleSelectionUpdated,
     handleSelectionCleared,
   ]);
-
-  return {
-    isPanMode,
-    setIsPanMode,
-  };
 };
 
 export default useCanvasEvents;

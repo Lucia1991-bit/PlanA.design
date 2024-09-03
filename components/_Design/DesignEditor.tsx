@@ -169,6 +169,10 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
             onMirrorVertically={() =>
               design.handleContextMenuAction("mirrorVertically")
             }
+            canMoveUp={design.canMoveUp}
+            canMoveDown={design.canMoveDown}
+            onBringForward={() => design.bringForward()}
+            onSendBackwards={() => design.sendBackward()}
           />
         )}
       </Box>

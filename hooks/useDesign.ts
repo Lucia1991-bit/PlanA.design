@@ -21,6 +21,7 @@ import { useLoadDesign } from "./useLoadDesign";
 import { useDrawWall } from "./useDrawWall";
 import { usePattern } from "./usePattern";
 import { useContextMenu } from "./useContextMenu";
+import { useCanvasOrdering } from "./useCanvasOrdering";
 
 //所有設計功能的邏輯
 const buildDesign = ({
@@ -43,6 +44,10 @@ const buildDesign = ({
   canCopy,
   canPaste,
   clearCanvas,
+  canMoveUp,
+  canMoveDown,
+  bringForward,
+  sendBackward,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -101,7 +106,8 @@ const buildDesign = ({
         canvas.renderAll();
       });
     },
-
+    canMoveUp,
+    canMoveDown,
     isDrawingMode,
     setIsDrawingMode,
     startDrawWall,
@@ -114,6 +120,8 @@ const buildDesign = ({
     canCopy,
     canPaste,
     clearCanvas,
+    bringForward,
+    sendBackward,
   };
 };
 
@@ -129,6 +137,9 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
 
   //管理繪圖模式(useHistory也會使用所以提取出來)
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+
+  //管理畫布平移模式
+  const [isPanMode, setIsPanMode] = useState(false);
 
   //保存未完成的牆體(結束繪製時形成的連續牆體)
   const [unfinishedWall, setUnfinishedWall] = useState<fabric.Object | null>(
@@ -397,6 +408,8 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     deleteObjects,
     mirrorHorizontally,
     mirrorVertically,
+    isPanMode,
+    isDrawingMode,
   });
 
   // 畫布尺寸隨視窗縮放改變
@@ -422,9 +435,25 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setImageResources,
   });
 
-  //處理畫布事件
-  const { isPanMode, setIsPanMode } = useCanvasEvents({
+  //處理物件順序
+  const {
+    canMoveUp,
+    canMoveDown,
+    bringForward,
+    sendBackward,
+    updateMoveStatus,
+    ensureDesignElementsAtBottom,
+  } = useCanvasOrdering({
     canvas,
+    gridRef,
+    updateGridColor,
+  });
+
+  //處理畫布事件
+  useCanvasEvents({
+    canvas,
+    isPanMode,
+    setIsPanMode,
     isDrawingMode,
     onStartDrawing: startDrawing,
     onDrawing: draw,
@@ -432,6 +461,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setSelectedObjects,
     openContextMenu,
     closeContextMenu,
+    updateMoveStatus,
   });
 
   //管理平移模式與繪圖模式之間的切換
@@ -531,8 +561,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   }, [
     canvas,
     gridRef,
-    updateGridPosition,
-    updateGridColor,
     save,
     setSelectedObjects,
     setUnfinishedWall,
@@ -578,6 +606,10 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         canCopy,
         canPaste,
         clearCanvas,
+        canMoveUp,
+        canMoveDown,
+        bringForward,
+        sendBackward,
       });
     }
 
@@ -602,6 +634,10 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canCopy,
     canPaste,
     clearCanvas,
+    canMoveUp,
+    canMoveDown,
+    bringForward,
+    sendBackward,
   ]);
 
   return { initCanvas, design };

@@ -216,11 +216,15 @@ export const useDrawWall = ({
       .filter((obj) => obj.name === "room");
     const wallObjects = canvas
       .getObjects()
-      .filter((obj) => obj.name === "wallLine");
+      .filter((obj) => obj.name === "wallGroup" || obj.name === "finishedWall");
     const otherObjects = canvas
       .getObjects()
       .filter(
-        (obj) => obj !== grid && obj.name !== "room" && obj.name !== "wallLine"
+        (obj) =>
+          obj !== grid &&
+          obj.name !== "room" &&
+          obj.name !== "wallGroup" &&
+          obj.name !== "finishedWall"
       );
 
     canvas.clear();
