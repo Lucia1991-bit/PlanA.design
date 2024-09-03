@@ -127,6 +127,9 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [isCanvasReady, setIsCanvasReady] = useState(false);
   const [selectedObjects, setSelectedObjects] = useState<fabric.Object[]>([]);
 
+  //管理繪圖模式(useHistory也會使用所以提取出來)
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+
   //保存未完成的牆體(結束繪製時形成的連續牆體)
   const [unfinishedWall, setUnfinishedWall] = useState<fabric.Object | null>(
     null
@@ -141,10 +144,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   const [imageResources, setImageResources] = useState<Record<string, string>>(
     {}
   );
-
-  // const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
-  // const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
-
   const { designColorMode } = useDesignColorMode();
 
   //獲取 light模式及dark模式顏色
@@ -350,22 +349,18 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     setUnfinishedWall: memoizedSetUnfinishedWall,
     completedWalls: completedWallsRef,
     setCompletedWalls: memoizedSetCompletedWalls,
+    isDrawingMode,
   });
 
   //材質 pattern
   const { applyPattern, adjustPatternScale } = usePattern({ canvas, save });
 
   //繪製牆體
-  const {
-    isDrawingMode,
-    setIsDrawingMode,
-    startDrawWall,
-    startDrawing,
-    draw,
-    finishDrawWall,
-  } = useDrawWall({
+  const { startDrawWall, startDrawing, draw, finishDrawWall } = useDrawWall({
     canvas,
     gridRef,
+    isDrawingMode,
+    setIsDrawingMode,
     save,
     updateGridColor,
     applyPattern,

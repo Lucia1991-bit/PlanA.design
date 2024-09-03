@@ -28,11 +28,15 @@ interface UseDrawWallProps {
   setCompletedWalls: (
     walls: fabric.Object[] | ((prev: fabric.Object[]) => fabric.Object[])
   ) => void;
+  isDrawingMode: boolean;
+  setIsDrawingMode: (mode: boolean) => void;
 }
 
 export const useDrawWall = ({
   canvas,
   gridRef,
+  isDrawingMode,
+  setIsDrawingMode,
   save,
   updateGridColor,
   applyPattern,
@@ -42,7 +46,6 @@ export const useDrawWall = ({
   completedWalls,
   setCompletedWalls,
 }: UseDrawWallProps) => {
-  const [isDrawingMode, setIsDrawingMode] = useState(false);
   const isDrawingRef = useRef(false);
   const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
 
@@ -350,9 +353,8 @@ export const useDrawWall = ({
     console.log("檢查未完成的牆體", unfinishedWall.current);
 
     if (unfinishedWall.current && unfinishedWall.current.get) {
-      console.log("存在未完成的牆體，繼續繪製");
-      console.log(unfinishedWall.current.get("id"));
       const wallPoints = unfinishedWall.current.get(
+        //@ts-ignore
         "allPoints"
       ) as fabric.Point[];
       setCurrentPath(wallPoints);
@@ -558,100 +560,100 @@ export const useDrawWall = ({
   // };
 
   //填補終點轉角的缺角
-  const createClosedSpaceCorner = (
-    point: fabric.Point,
-    prevWall: fabric.Group,
-    nextWall: fabric.Group
-  ) => {
-    if (!canvas) return;
+  // const createClosedSpaceCorner = (
+  //   point: fabric.Point,
+  //   prevWall: fabric.Group,
+  //   nextWall: fabric.Group
+  // ) => {
+  //   if (!canvas) return;
 
-    // 獲取前一個牆和下一個牆的方向向量
-    const prevDir = {
-      x: point.x - (prevWall.get("startPoint") as fabric.Point).x,
-      y: point.y - (prevWall.get("startPoint") as fabric.Point).y,
-    };
-    const nextDir = {
-      x: (nextWall.get("endPoint") as fabric.Point).x - point.x,
-      y: (nextWall.get("endPoint") as fabric.Point).y - point.y,
-    };
+  //   // 獲取前一個牆和下一個牆的方向向量
+  //   const prevDir = {
+  //     x: point.x - (prevWall.get("startPoint") as fabric.Point).x,
+  //     y: point.y - (prevWall.get("startPoint") as fabric.Point).y,
+  //   };
+  //   const nextDir = {
+  //     x: (nextWall.get("endPoint") as fabric.Point).x - point.x,
+  //     y: (nextWall.get("endPoint") as fabric.Point).y - point.y,
+  //   };
 
-    // 計算角度
-    const prevAngle = Math.atan2(prevDir.y, prevDir.x);
-    const nextAngle = Math.atan2(nextDir.y, nextDir.x);
-    const cornerAngle = nextAngle - prevAngle;
+  //   // 計算角度
+  //   const prevAngle = Math.atan2(prevDir.y, prevDir.x);
+  //   const nextAngle = Math.atan2(nextDir.y, nextDir.x);
+  //   const cornerAngle = nextAngle - prevAngle;
 
-    // 創建轉角
-    const cornerSize = WALL_THICKNESS;
-    const halfSize = cornerSize / 2;
+  //   // 創建轉角
+  //   const cornerSize = WALL_THICKNESS;
+  //   const halfSize = cornerSize / 2;
 
-    // 計算轉角的四個點
-    const p1 = {
-      x:
-        point.x -
-        halfSize * Math.cos(prevAngle) -
-        halfSize * Math.sin(prevAngle),
-      y:
-        point.y -
-        halfSize * Math.sin(prevAngle) +
-        halfSize * Math.cos(prevAngle),
-    };
-    const p2 = {
-      x:
-        point.x +
-        halfSize * Math.cos(prevAngle) -
-        halfSize * Math.sin(prevAngle),
-      y:
-        point.y +
-        halfSize * Math.sin(prevAngle) +
-        halfSize * Math.cos(prevAngle),
-    };
-    const p3 = {
-      x:
-        point.x +
-        halfSize * Math.cos(nextAngle) +
-        halfSize * Math.sin(nextAngle),
-      y:
-        point.y +
-        halfSize * Math.sin(nextAngle) -
-        halfSize * Math.cos(nextAngle),
-    };
-    const p4 = {
-      x:
-        point.x -
-        halfSize * Math.cos(nextAngle) +
-        halfSize * Math.sin(nextAngle),
-      y:
-        point.y -
-        halfSize * Math.sin(nextAngle) -
-        halfSize * Math.cos(nextAngle),
-    };
+  //   // 計算轉角的四個點
+  //   const p1 = {
+  //     x:
+  //       point.x -
+  //       halfSize * Math.cos(prevAngle) -
+  //       halfSize * Math.sin(prevAngle),
+  //     y:
+  //       point.y -
+  //       halfSize * Math.sin(prevAngle) +
+  //       halfSize * Math.cos(prevAngle),
+  //   };
+  //   const p2 = {
+  //     x:
+  //       point.x +
+  //       halfSize * Math.cos(prevAngle) -
+  //       halfSize * Math.sin(prevAngle),
+  //     y:
+  //       point.y +
+  //       halfSize * Math.sin(prevAngle) +
+  //       halfSize * Math.cos(prevAngle),
+  //   };
+  //   const p3 = {
+  //     x:
+  //       point.x +
+  //       halfSize * Math.cos(nextAngle) +
+  //       halfSize * Math.sin(nextAngle),
+  //     y:
+  //       point.y +
+  //       halfSize * Math.sin(nextAngle) -
+  //       halfSize * Math.cos(nextAngle),
+  //   };
+  //   const p4 = {
+  //     x:
+  //       point.x -
+  //       halfSize * Math.cos(nextAngle) +
+  //       halfSize * Math.sin(nextAngle),
+  //     y:
+  //       point.y -
+  //       halfSize * Math.sin(nextAngle) -
+  //       halfSize * Math.cos(nextAngle),
+  //   };
 
-    // 定義轉角路徑
-    const pathData = [
-      "M",
-      p1.x,
-      p1.y,
-      "L",
-      p2.x,
-      p2.y,
-      "L",
-      p3.x,
-      p3.y,
-      "L",
-      p4.x,
-      p4.y,
-      "Z",
-    ].join(" ");
+  //   // 定義轉角路徑
+  //   const pathData = [
+  //     "M",
+  //     p1.x,
+  //     p1.y,
+  //     "L",
+  //     p2.x,
+  //     p2.y,
+  //     "L",
+  //     p3.x,
+  //     p3.y,
+  //     "L",
+  //     p4.x,
+  //     p4.y,
+  //     "Z",
+  //   ].join(" ");
 
-    const corner = new fabric.Path(pathData, {
-      fill: color.wall.fill,
-      selectable: false,
-      evented: false,
-      name: "wallCorner",
-    });
+  //   const corner = new fabric.Path(pathData, {
+  //     fill: color.wall.fill,
+  //     selectable: false,
+  //     evented: false,
+  //     name: "wallCorner",
+  //   });
 
-    canvas.add(corner);
-  };
+  //   canvas.add(corner);
+  // };
 
   //結束繪製
   const finishDrawWall = useCallback(() => {
@@ -796,25 +798,6 @@ export const useDrawWall = ({
 
     console.log("所有牆面已被刪除");
   }, [canvas, setCompletedWalls, setCurrentPath, setUnfinishedWall, save]);
-
-  //更新歷史紀錄的未完成牆體狀態，要傳給 useHistory
-  const handleUnfinishedWallChange = useCallback(
-    (wallData: { id: string; allPoints: fabric.Point[] } | null) => {
-      if (wallData) {
-        const wall = canvas
-          ?.getObjects()
-          .find((obj) => obj.get("id") === wallData.id);
-        if (wall) {
-          setCompletedWalls([wall]);
-          setUnfinishedWall(wall);
-        }
-      } else {
-        setCompletedWalls([]);
-        setUnfinishedWall(null);
-      }
-    },
-    [canvas, setUnfinishedWall]
-  );
 
   return {
     isDrawingMode,

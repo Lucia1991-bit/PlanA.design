@@ -20,6 +20,7 @@ interface useHistoryProps {
   setCompletedWalls: (
     walls: fabric.Object[] | ((prev: fabric.Object[]) => fabric.Object[])
   ) => void;
+  isDrawingMode: boolean;
 }
 
 export const useHistory = ({
@@ -36,6 +37,7 @@ export const useHistory = ({
   setUnfinishedWall,
   completedWalls,
   setCompletedWalls,
+  isDrawingMode,
 }: useHistoryProps) => {
   // 當前歷史記錄的索引
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -49,12 +51,16 @@ export const useHistory = ({
   const MAX_HISTORY_LENGTH = 50;
 
   // 檢查是否可以進行撤銷操作
-  const canUndo = useCallback(() => historyIndex > 0, [historyIndex]);
+  //在繪製模式時不允許執行撤銷操作
+  const canUndo = useCallback(() => {
+    return !isDrawingMode && historyIndex > 0;
+  }, [isDrawingMode, historyIndex]);
+
   // 檢查是否可以進行重做操作
-  const canRedo = useCallback(
-    () => historyIndex < canvasHistory.current.length - 1,
-    [historyIndex]
-  );
+  //在繪製模式時不允許執行重做操作
+  const canRedo = useCallback(() => {
+    return !isDrawingMode && historyIndex < canvasHistory.current.length - 1;
+  }, [isDrawingMode, historyIndex]);
 
   // 獲取當前畫布狀態
   const getCanvasState = useCallback(() => {
@@ -180,10 +186,12 @@ export const useHistory = ({
       canvasLayers: newCanvasLayers,
       imageResources: newImageResources,
       unfinishedWallId: unfinishedWall.current
-        ? unfinishedWall.current.get("id")
+        ? //@ts-ignore
+          unfinishedWall.current.get("id")
         : null,
       completedWallIds: completedWalls.current
-        ? completedWalls.current.map((wall) => wall.get("id"))
+        ? //@ts-ignore
+          completedWalls.current.map((wall) => wall.get("id"))
         : [],
     });
 
@@ -309,7 +317,9 @@ export const useHistory = ({
 
           // 恢復 completedWalls
           const restoredCompletedWalls = completedWallIds
+            //@ts-ignore
             .map((id) =>
+              //@ts-ignore
               canvas.getObjects().find((obj) => obj.get("id") === id)
             )
             .filter(Boolean);
@@ -318,23 +328,9 @@ export const useHistory = ({
           // 恢復 unfinishedWall
           const restoredUnfinishedWall = canvas
             .getObjects()
+            //@ts-ignore
             .find((obj) => obj.get("id") === unfinishedWallId);
           setUnfinishedWall(restoredUnfinishedWall || null);
-
-          // 恢復 unfinishedWall
-          // if (unfinishedWallState) {
-          //   fabric.util.enlivenObjects([unfinishedWallState], (objects) => {
-          //     if (objects[0]) {
-          //       const restoredWall = objects[0] as fabric.Object;
-          //       unfinishedWallRef.current = restoredWall;
-          //       setUnfinishedWall(restoredWall);
-          //       canvas.add(restoredWall);
-          //     }
-          //   });
-          // } else {
-          //   unfinishedWallRef.current = null;
-          //   setUnfinishedWall(null);
-          // }
 
           // 處理網格
           const loadedGrid = canvas
@@ -368,6 +364,8 @@ export const useHistory = ({
     [
       canvas,
       gridRef,
+      setCompletedWalls,
+      setUnfinishedWall,
       updateGridColor,
       updateGridPosition,
       setCanvasLayers,

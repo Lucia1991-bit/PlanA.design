@@ -194,9 +194,10 @@ const useCanvasEvents = ({
       canvas,
       isPanMode,
       isDrawingMode,
+      updateCursorType,
+      openContextMenu,
       onStartDrawing,
       closeContextMenu,
-      updateCursorType,
     ]
   );
 
@@ -241,7 +242,7 @@ const useCanvasEvents = ({
     if (isDraggingRef.current) {
       isDraggingRef.current = false;
       canvas.defaultCursor = isDrawingMode ? "crosshair" : "default";
-      if (!isDrawingMode) {
+      if (!isDrawingMode && !isPanMode) {
         save(); // 在非繪製模式下，拖動結束後保存狀態
       }
     }
