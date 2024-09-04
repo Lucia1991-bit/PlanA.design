@@ -81,6 +81,7 @@ export type ActiveTool =
   | "door"
   | "window"
   | "pan"
+  | "export"
   | "fill"
   | "stroke-color"
   | "stroke-width"
@@ -105,6 +106,9 @@ export type CanvasLayer = {
     scaleY: number;
   };
 };
+
+//export圖檔相關
+export type PaperSize = "A4" | "A3";
 
 export interface DesignHookProps {
   defaultState?: string;
@@ -151,6 +155,13 @@ export type BuildDesignProps = {
   canMoveDown: boolean;
   bringForward: () => void;
   sendBackward: () => void;
+  paperSize: PaperSize;
+  isExportMode: boolean;
+  isExportLoading: boolean;
+  getViewportDimensions: () => { width: number; height: number };
+  adjustToNewPaperSize: (newSize: PaperSize) => void;
+  handleExport: () => void;
+  cancelExport: () => void;
 };
 
 export interface Design {
@@ -199,4 +210,11 @@ export interface Design {
   canMoveDown: boolean;
   bringForward: () => void;
   sendBackward: () => void;
+  paperSize: PaperSize;
+  isExportMode: boolean;
+  isExportLoading: boolean;
+  getViewportDimensions: () => { width: number; height: number };
+  adjustToNewPaperSize: (newSize: PaperSize) => void;
+  handleExport: () => void;
+  cancelExport: () => void;
 }

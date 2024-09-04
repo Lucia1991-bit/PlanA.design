@@ -59,6 +59,12 @@ const LeftToolBar = ({
         isActive={activeTool === "furniture"}
         onClick={() => onChangeActiveTool("furniture")}
       />
+      <LeftToolBarItem
+        icon="/icons/export.svg"
+        label="匯出"
+        isActive={activeTool === "export"}
+        onClick={() => onChangeActiveTool("export")}
+      />
       {/* 添加其他工具按鈕 */}
     </VStack>
   );

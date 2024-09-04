@@ -13,6 +13,7 @@ import { ActiveTool, Design } from "@/types/DesignType";
 import { BoardType } from "@/types/BoardType";
 import ContextMenu from "./ContextMenu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
+import ExportSidePanel from "./ExportSidePanel";
 
 interface DesignEditorProps {
   board: BoardType;
@@ -23,7 +24,7 @@ const toolsWithSidebar: ActiveTool[] = [
   "material",
   "furniture",
   "draw",
-  "text",
+  "export",
 ];
 
 const shouldOpenSidebar = (tool: ActiveTool) => toolsWithSidebar.includes(tool);
@@ -142,6 +143,9 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
         {activeTool === "furniture" && (
           <FurnitureLibrary design={design} closeSidePanel={closeSidePanel} />
         )}
+        {activeTool === "export" && (
+          <ExportSidePanel design={design} closeSidePanel={closeSidePanel} />
+        )}
       </SidePanel>
       <Box
         w="100%"
@@ -152,6 +156,20 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
         onContextMenu={handleContextMenu}
       >
         <canvas ref={canvasRef} style={{ zIndex: "0" }} />
+        {/* {design?.isExportMode && (
+          <Box
+            id="export-viewport"
+            position="absolute"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            width={`${design.getViewportDimensions().width}px`}
+            height={`${design.getViewportDimensions().height}px`}
+            border="2px dashed red"
+            pointerEvents="none"
+            zIndex="1"
+          />
+        )} */}
         {design?.contextMenuPosition && (
           <ContextMenu
             x={design.contextMenuPosition.x}

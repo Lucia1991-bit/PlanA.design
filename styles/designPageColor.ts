@@ -10,7 +10,7 @@ export const designPageColor = {
     toolBar: {
       backgroundColor: "#f9f9f8",
       text: "#555352",
-      subText: "#9b9b9b",
+      subText: "#8c8c8c",
       hover: "rgba(199,200,201, 0.35)",
       furniture_hover: "rgba(85,83,82, 0.65)",
       furniture_text: "#ffffff",
@@ -39,7 +39,7 @@ export const designPageColor = {
     toolBar: {
       backgroundColor: "#4c4c4c",
       text: "#ffffff",
-      subText: "#9b9b9b",
+      subText: "#b2b2b2",
       hover: "rgba(199,200,201, 0.35)",
       furniture_hover: "rgba(255,255,255,0.6)",
       furniture_text: "#555352",

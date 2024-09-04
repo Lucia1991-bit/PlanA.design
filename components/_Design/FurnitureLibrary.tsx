@@ -75,7 +75,7 @@ const FurnitureLibrary = ({
         p={4}
         overflowX="hidden"
       >
-        <SidePanelHeader title="家具庫" description="請選擇家具組件" />
+        <SidePanelHeader title="家具庫" description="選擇家具組件" />
         <Select
           value={fetchType}
           onChange={handleFetchTypeChange}
@@ -190,6 +190,7 @@ const FurnitureLibrary = ({
                         <Box w="100%" h="100%" position="absolute">
                           <Image
                             fill
+                            draggable="false"
                             src={furniture.imageUrl}
                             alt={furniture.name}
                             style={{ objectFit: "contain" }}

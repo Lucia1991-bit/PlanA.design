@@ -22,6 +22,7 @@ import { useDrawWall } from "./useDrawWall";
 import { usePattern } from "./usePattern";
 import { useContextMenu } from "./useContextMenu";
 import { useCanvasOrdering } from "./useCanvasOrdering";
+import { useExport } from "./useExport";
 
 //所有設計功能的邏輯
 const buildDesign = ({
@@ -48,6 +49,13 @@ const buildDesign = ({
   canMoveDown,
   bringForward,
   sendBackward,
+  paperSize,
+  isExportMode,
+  isExportLoading,
+  getViewportDimensions,
+  adjustToNewPaperSize,
+  handleExport,
+  cancelExport,
 }: BuildDesignProps): Design => {
   //獲取畫布中心點
   const getCanvasCenter = (canvas: fabric.Canvas) => {
@@ -122,6 +130,13 @@ const buildDesign = ({
     clearCanvas,
     bringForward,
     sendBackward,
+    paperSize,
+    isExportMode,
+    isExportLoading,
+    getViewportDimensions,
+    adjustToNewPaperSize,
+    handleExport,
+    cancelExport,
   };
 };
 
@@ -485,6 +500,19 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     saveToDatabase,
   });
 
+  //處理檔案匯出成圖檔
+  const {
+    paperSize,
+    isExportMode,
+    isExportLoading,
+    getViewportDimensions,
+    adjustToNewPaperSize,
+    handleExport,
+    cancelExport,
+  } = useExport({
+    canvas,
+  });
+
   //初始化畫布
   const initCanvas = useCallback(
     ({
@@ -610,6 +638,13 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         canMoveDown,
         bringForward,
         sendBackward,
+        paperSize,
+        isExportMode,
+        isExportLoading,
+        getViewportDimensions,
+        adjustToNewPaperSize,
+        handleExport,
+        cancelExport,
       });
     }
 
@@ -638,6 +673,13 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canMoveDown,
     bringForward,
     sendBackward,
+    paperSize,
+    isExportMode,
+    isExportLoading,
+    getViewportDimensions,
+    adjustToNewPaperSize,
+    handleExport,
+    cancelExport,
   ]);
 
   return { initCanvas, design };

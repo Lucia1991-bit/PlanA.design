@@ -165,7 +165,7 @@ const MaterialsLibrary = ({
         p={4}
         overflowX="hidden"
       >
-        <SidePanelHeader title={"材質庫"} description={"請選擇地板材質"} />
+        <SidePanelHeader title={"材質庫"} description={"選擇地板材質"} />
         <Tabs
           isFitted
           isLazy
@@ -259,6 +259,7 @@ const MaterialsLibrary = ({
                         <Box w="100%" h="100%" position="absolute">
                           <Image
                             fill
+                            draggable="false"
                             src={material.small_imageUrl}
                             alt={material.name}
                             style={{ objectFit: "cover" }}

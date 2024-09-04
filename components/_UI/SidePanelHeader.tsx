@@ -28,11 +28,18 @@ const SidePanelHeader = ({
         {title}
       </Text>
 
-      <Text fontSize="13px" color={color.toolBar.subText} mb="5px">
+      <Text fontSize="14px" color={color.toolBar.subText} mb="5px">
         {description}
       </Text>
       {image && (
-        <Image priority src={image} width={300} height={100} alt="gif" />
+        <Image
+          priority
+          src={image}
+          width={300}
+          height={100}
+          alt="gif"
+          draggable="false"
+        />
       )}
       <Text fontSize="13px" color={color.toolBar.subText} mt="5px">
         {instruction}
