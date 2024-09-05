@@ -95,17 +95,18 @@ const HomePage = () => {
           bottom={0}
           display="flex"
           justifyContent="center"
-          px={{ base: "15px", md: "25px", lg: "40px" }}
+          px={{ base: "15px", md: "25px", lg: "30px" }}
         >
           <Box
             position="absolute"
             top={{ base: "25%", lg: "40%" }}
-            maxWidth="1500px"
+            maxWidth="1300px"
             width={{
               base: "90%",
               sm: "90%",
               md: "90%",
               lg: "90%",
+              xl: "1300px",
             }}
             height={{
               base: "30vh",

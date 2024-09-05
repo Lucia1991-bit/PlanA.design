@@ -122,8 +122,6 @@ export type BuildDesignProps = {
   saveToDatabase: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
-  getCanvasState: () => string | null;
-  restoreState: (stateString: string) => void;
   isDrawingMode: boolean;
   setIsDrawingMode: (mode: boolean) => void;
   startDrawWall: () => void;
@@ -177,8 +175,6 @@ export interface Design {
   onRedo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
-  getCanvasState: () => string | null;
-  restoreState: (stateString: string) => void;
   isDrawingMode: boolean;
   setIsDrawingMode: (mode: boolean) => void;
   startDrawWall: () => void;

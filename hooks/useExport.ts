@@ -15,17 +15,10 @@ const MARGIN_PX = 15;
 
 interface ExportProps {
   canvas: fabric.Canvas | null;
-  getCanvasState: () => string | null;
-  restoreState: (stateString: string) => void;
   saveToDatabase: () => void;
 }
 
-export const useExport = ({
-  canvas,
-  getCanvasState,
-  restoreState,
-  saveToDatabase,
-}: ExportProps) => {
+export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
   const [paperSize, setPaperSize] = useState<"A4" | "A3">("A4");
   const [isExportMode, setIsExportMode] = useState(false);
   const [isExportLoading, setExportLoading] = useState(false);
@@ -153,7 +146,7 @@ export const useExport = ({
     } else {
       setExportLoading(false);
     }
-  }, [canvas, getViewportDimensions, paperSize, getCanvasState, restoreState]);
+  }, [canvas, getViewportDimensions, paperSize, saveToDatabase]);
 
   const cancelExport = useCallback(() => {
     setIsExportMode(false);

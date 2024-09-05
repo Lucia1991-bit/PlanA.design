@@ -33,8 +33,6 @@ const buildDesign = ({
   canRedo,
   canUndo,
   saveToDatabase,
-  getCanvasState,
-  restoreState,
   isDrawingMode,
   setIsDrawingMode,
   startDrawWall,
@@ -91,11 +89,6 @@ const buildDesign = ({
       console.log("onSave called in buildDesign");
       return saveToDatabase();
     },
-    getCanvasState: () => {
-      console.log("getCanvasState called");
-      return getCanvasState();
-    },
-    restoreState,
     addFurniture: (imageUrl: string) => {
       fabric.Image.fromURL(
         imageUrl,
@@ -368,8 +361,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canvasHistory,
     saveToDatabase,
     initializeCanvasState,
-    getCanvasState,
-    restoreState,
   } = useHistory({
     canvas,
     gridRef,
@@ -520,8 +511,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     cancelExport,
   } = useExport({
     canvas,
-    getCanvasState,
-    restoreState,
     saveToDatabase,
   });
 
@@ -634,8 +623,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
         canUndo,
         canRedo,
         saveToDatabase,
-        getCanvasState,
-        restoreState,
         isDrawingMode,
         setIsDrawingMode,
         isPanMode,
@@ -671,8 +658,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     canUndo,
     canRedo,
     saveToDatabase,
-    getCanvasState,
-    restoreState,
     isDrawingMode,
     setIsDrawingMode,
     isPanMode,
