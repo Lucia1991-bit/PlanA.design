@@ -404,16 +404,7 @@ export const useDrawWall = ({
         if (prev.length > 0) {
           updatedPath = [...prev, newPoint];
         } else {
-          // 如果是開始新的繪製，檢查是否有未完成的牆體
-          if (unfinishedWall.current && unfinishedWall.current.get) {
-            const wallPoints = unfinishedWall.current.get(
-              //@ts-ignore
-              "allPoints"
-            ) as fabric.Point[];
-            updatedPath = [...wallPoints, newPoint];
-          } else {
-            updatedPath = [newPoint];
-          }
+          updatedPath = [newPoint];
         }
 
         // 創建或更新牆體
