@@ -256,9 +256,6 @@ export const useHistory = ({
         completedWallIds,
       } = JSON.parse(stateString);
 
-      console.log("unfinishedWallId", unfinishedWallId);
-      console.log("completedWallIds", completedWallIds);
-
       // 預加載所有圖像
       const imageLoadPromises = Object.entries(newImageResources).map(
         ([id, url]) =>
