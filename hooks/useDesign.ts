@@ -18,7 +18,7 @@ import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useHistory } from "./useHistory";
 import { useLoadDesign } from "./useLoadDesign";
-import { useDrawWall } from "./useDrawWall";
+import { useDrawWall } from "./useDrawWall2";
 import { usePattern } from "./usePattern";
 import { useContextMenu } from "./useContextMenu";
 import { useCanvasOrdering } from "./useCanvasOrdering";
