@@ -20,7 +20,7 @@ interface BoardListProps {
 
 const BoardList = ({ boards, fetching }: BoardListProps) => {
   const [skeletonCount, setSkeletonCount] = useState(0);
-  const columns = useBreakpointValue({ base: 1, md: 2, lg: 4, xl: 5 }) || 1;
+  const columns = useBreakpointValue({ base: 1, md: 2, lg: 4 }) || 1;
   //檢查是不是移動設備
   const [isMobileOrTablet] = useMediaQuery("(max-width: 1024px)");
 

@@ -84,7 +84,7 @@ const NavBar = () => {
         position="fixed"
         justifyContent="center"
         alignItems="center"
-        px={{ base: "15px", md: "25px", lg: "25px" }}
+        px={{ base: "15px", md: "25px" }}
         zIndex={10}
       >
         {/* 使用者往下滑時NavBar出現背景色 */}

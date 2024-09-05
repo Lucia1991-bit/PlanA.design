@@ -50,6 +50,8 @@ const EmptyBoard = () => {
       </Text>
       <Button
         mt={4}
+        py={3}
+        w={{ base: "110px", md: "180px" }}
         fontWeight="400"
         letterSpacing={2}
         bg="brand.primary"

@@ -43,15 +43,16 @@ const DashboardPage = () => {
     >
       <Box flex="0"></Box>
       <Container
-        maxWidth={{
+        maxWidth="1300px"
+        width={{
           base: "90%",
           sm: "90%",
           md: "90%",
-          lg: "1300px",
-          xl: "1500px",
+          lg: "100%",
+          xl: "1300px",
         }}
         h="100%"
-        px={{ base: "20px", md: "30px", lg: "40px" }}
+        px={{ base: "15px", md: "25px" }}
         py={{ base: 10, md: 4 }}
         display="flex"
         alignItems="center"
