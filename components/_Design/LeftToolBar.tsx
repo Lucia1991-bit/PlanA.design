@@ -48,13 +48,13 @@ const LeftToolBar = ({
         onClick={() => onChangeActiveTool("draw")}
       />
       <LeftToolBarItem
-        icon="/icons/material.png"
+        icon="/icons/material.svg"
         label="材質庫"
         isActive={activeTool === "material"}
         onClick={() => onChangeActiveTool("material")}
       />
       <LeftToolBarItem
-        icon="/icons/furniture.png"
+        icon="/icons/furniture.svg"
         label="家具庫"
         isActive={activeTool === "furniture"}
         onClick={() => onChangeActiveTool("furniture")}

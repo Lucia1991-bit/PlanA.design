@@ -45,7 +45,6 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
     try {
       // 保存當前畫布狀態
       await saveToDatabase();
-      console.log("畫布狀態已保存");
 
       const { width: targetWidth, height: targetHeight } =
         getViewportDimensions();
@@ -57,9 +56,8 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
       const tempContext = tempCanvas.getContext("2d");
 
       if (!tempContext) {
-        throw new Error("創建臨時畫布失敗");
+        throw new Error("Failed to create temporary canvas context");
       }
-
       tempContext.fillStyle = "white";
       tempContext.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
@@ -74,7 +72,7 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
             obj.name !== "viewport"
         );
 
-      // 將所有物件複製到臨時畫布
+      // 首先，將所有物件複製到臨時畫布
       objectsToExport.forEach((obj) => {
         const clonedObj = fabric.util.object.clone(obj);
         tempFabricCanvas.add(clonedObj);
@@ -109,7 +107,7 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
       const scaledWidth = boundingWidth * scale;
       const scaledHeight = boundingHeight * scale;
 
-      // 計算居中偏移，確保至少有 MARGIN_PX 像素的邊距
+      // 計算居中偏移，確保至少有 10 像素的邊距
       const offsetX = Math.max(MARGIN_PX, (targetWidth - scaledWidth) / 2);
       const offsetY = Math.max(MARGIN_PX, (targetHeight - scaledHeight) / 2);
 
@@ -125,30 +123,22 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
 
       tempFabricCanvas.renderAll();
 
-      // 使用 Promise 來處理異步操作
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          const dataUrl = tempFabricCanvas.toDataURL({
-            format: "png",
-            quality: 1,
-          });
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = `${uuidv4()}_${paperSize}.png`;
-          link.click();
+      // 使用 setTimeout 確保所有渲染都已完成
+      setTimeout(() => {
+        const dataUrl = tempFabricCanvas.toDataURL({
+          format: "png",
+          quality: 1,
+        });
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `${uuidv4()}_${paperSize}.png`;
+        link.click();
 
-          tempFabricCanvas.dispose();
-          resolve();
-        }, 100);
-      });
-
-      console.log("成功匯出圖片");
-
-      // 可選：重新加載頁面
-      window.location.reload();
+        tempFabricCanvas.dispose();
+        window.location.reload();
+      }, 100);
     } catch (error) {
-      console.error("匯出過程發生錯誤:", error);
-      // TODO:這裡可以添加其他錯誤處理邏輯，例如更新toast?
+      console.error("Error during export process:", error);
     } finally {
       setExportLoading(false);
     }

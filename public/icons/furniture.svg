@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 27.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 297.5 296.5" style="enable-background:new 0 0 297.5 296.5;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFFFF;}
+	.st1{fill:#C6C7C7;}
+	.st2{opacity:0.5;}
+	.st3{fill:#8C8C8C;}
+	.st4{fill:#FFFFFF;stroke:#C6C7C7;stroke-miterlimit:10;}
+	.st5{fill:#C5332E;}
+	.st6{fill:#C6C7C7;stroke:#8C8C8C;stroke-width:4;stroke-miterlimit:10;}
+	.st7{fill:#FFFFFF;stroke:#C6C7C7;stroke-width:0.75;stroke-miterlimit:10;}
+	.st8{opacity:0.7;fill:#FFFFFF;stroke:#C6C7C7;stroke-width:0.25;stroke-miterlimit:10;}
+	.st9{fill:#231815;}
+	.st10{fill:#FFFFFF;stroke:#C5332E;stroke-width:7.6923;stroke-miterlimit:10;}
+	.st11{clip-path:url(#SVGID_00000021837122773296180790000005261800559277378705_);}
+	.st12{fill:#FFFFFF;stroke:#FFFFFF;stroke-width:3.09;stroke-miterlimit:10;}
+	.st13{fill:#FFFFFF;stroke:#FFFFFF;stroke-width:0.515;stroke-miterlimit:10;}
+</style>
+<g>
+	
+		<ellipse transform="matrix(0.7071 -0.7071 0.7071 0.7071 -61.1104 148.5591)" class="st5" cx="148.8" cy="148" rx="147.1" ry="147.1"/>
+	<g>
+		<path class="st10" d="M197.8,204.4h-54.5c-12.8,0-23.2-10.4-23.2-23.2V97.6c0-12.8,10.4-23.2,23.2-23.2h54.5
+			c12.8,0,23.2,10.4,23.2,23.2v83.7C221,194,210.6,204.4,197.8,204.4z"/>
+		<path class="st10" d="M151.2,230.3H96.7c-12.8,0-23.2-10.4-23.2-23.2v-83.7c0-12.8,10.4-23.2,23.2-23.2h54.5
+			c12.8,0,23.2,10.4,23.2,23.2v83.7C174.4,219.9,164,230.3,151.2,230.3z"/>
+		<path class="st10" d="M79.5,223.2c0,0,5.5-75,94.9-73.4"/>
+		<g>
+			<defs>
+				<path id="SVGID_1_" d="M174.4,153.4v-27.3c0-12.3-10-22.3-22.3-22.3H95.8c-12.3,0-22.3,10-22.3,22.3v85.5c0,5.9,2.3,11.2,6,15.2
+					C79.5,226.7,85.1,151.8,174.4,153.4z"/>
+			</defs>
+			<clipPath id="SVGID_00000137117313160324056970000010253183241021600901_">
+				<use xlink:href="#SVGID_1_"  style="overflow:visible;"/>
+			</clipPath>
+			<g style="clip-path:url(#SVGID_00000137117313160324056970000010253183241021600901_);">
+				<line class="st5" x1="106.9" y1="80.3" x2="199.2" y2="180.8"/>
+				
+					<rect x="148.1" y="62.3" transform="matrix(0.7367 -0.6763 0.6763 0.7367 -47.9525 137.898)" class="st5" width="10" height="136.5"/>
+			</g>
+			<g style="clip-path:url(#SVGID_00000137117313160324056970000010253183241021600901_);">
+				<line class="st5" x1="69.6" y1="114.5" x2="161.9" y2="215"/>
+				
+					<rect x="110.8" y="96.5" transform="matrix(0.7367 -0.6763 0.6763 0.7367 -80.9232 121.6955)" class="st5" width="10" height="136.5"/>
+			</g>
+			<g style="clip-path:url(#SVGID_00000137117313160324056970000010253183241021600901_);">
+				<line class="st5" x1="88.3" y1="97.4" x2="180.6" y2="197.9"/>
+				
+					<rect x="129.4" y="79.4" transform="matrix(0.7367 -0.6763 0.6763 0.7367 -64.4375 129.7966)" class="st5" width="10" height="136.5"/>
+			</g>
+			<g style="clip-path:url(#SVGID_00000137117313160324056970000010253183241021600901_);">
+				<line class="st5" x1="50.1" y1="130.6" x2="142.4" y2="231.2"/>
+				
+					<rect x="91.3" y="112.7" transform="matrix(0.7367 -0.6763 0.6763 0.7367 -96.988 112.7391)" class="st5" width="10" height="136.5"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>
