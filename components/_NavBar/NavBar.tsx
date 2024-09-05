@@ -84,7 +84,7 @@ const NavBar = () => {
         position="fixed"
         justifyContent="center"
         alignItems="center"
-        px={{ base: "15px", md: "25px", lg: "40px" }}
+        px={{ base: "15px", md: "25px", lg: "25px" }}
         zIndex={10}
       >
         {/* 使用者往下滑時NavBar出現背景色 */}
@@ -96,7 +96,7 @@ const NavBar = () => {
             base: "90%",
             sm: "90%",
             md: "90%",
-            lg: "90%",
+            lg: "100%",
             xl: "1300px",
           }}
           display="flex"

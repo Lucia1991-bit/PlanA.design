@@ -49,7 +49,7 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
       const { width: targetWidth, height: targetHeight } =
         getViewportDimensions();
 
-      // 創建臨時畫布，使用精確的紙張尺寸
+      // 創建臨時畫布
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = targetWidth;
       tempCanvas.height = targetHeight;
@@ -58,58 +58,47 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
       if (!tempContext) {
         throw new Error("Failed to create temporary canvas context");
       }
+
       tempContext.fillStyle = "white";
       tempContext.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
       const tempFabricCanvas = new fabric.Canvas(tempCanvas);
 
+      // 過濾並複製對象
       const objectsToExport = canvas
         .getObjects()
-        .filter(
-          (obj) =>
-            obj.name !== "designGrid" &&
-            obj.name !== "wallGroup" &&
-            obj.name !== "viewport"
-        );
+        .filter((obj) => obj.name !== "designGrid" && obj.name !== "wallGroup");
 
-      // 首先，將所有物件複製到臨時畫布
       objectsToExport.forEach((obj) => {
         const clonedObj = fabric.util.object.clone(obj);
         tempFabricCanvas.add(clonedObj);
       });
 
       // 計算邊界框
-      const groupBoundingRect = tempFabricCanvas.getObjects().reduce(
-        (acc, obj) => {
-          const objRect = obj.getBoundingRect(true, true);
-          return {
-            left: Math.min(acc.left, objRect.left),
-            top: Math.min(acc.top, objRect.top),
-            right: Math.max(acc.right, objRect.left + objRect.width),
-            bottom: Math.max(acc.bottom, objRect.top + objRect.height),
-          };
-        },
-        { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }
+      const groupToExport = new fabric.Group(tempFabricCanvas.getObjects(), {
+        left: 0,
+        top: 0,
+        originX: "left",
+        originY: "top",
+      });
+
+      const groupBoundingRect = groupToExport.getBoundingRect(true, true);
+      groupToExport.destroy();
+
+      // 計算縮放
+      const scaleX = (targetWidth - 2 * MARGIN_PX) / groupBoundingRect.width;
+      const scaleY = (targetHeight - 2 * MARGIN_PX) / groupBoundingRect.height;
+      const scale = Math.min(Math.max(0.1, Math.min(scaleX, scaleY)), 2);
+
+      // 計算偏移
+      const offsetX = Math.max(
+        MARGIN_PX,
+        (targetWidth - groupBoundingRect.width * scale) / 2
       );
-
-      const boundingWidth = groupBoundingRect.right - groupBoundingRect.left;
-      const boundingHeight = groupBoundingRect.bottom - groupBoundingRect.top;
-
-      // 計算縮放比例，考慮邊距
-      const scaleX = (targetWidth - 2 * MARGIN_PX) / boundingWidth;
-      const scaleY = (targetHeight - 2 * MARGIN_PX) / boundingHeight;
-      let scale = Math.min(scaleX, scaleY);
-
-      // 限制縮放範圍在 0.1 到 2 之間
-      scale = Math.max(0.1, Math.min(scale, 2));
-
-      // 計算縮放後的尺寸
-      const scaledWidth = boundingWidth * scale;
-      const scaledHeight = boundingHeight * scale;
-
-      // 計算居中偏移，確保至少有 10 像素的邊距
-      const offsetX = Math.max(MARGIN_PX, (targetWidth - scaledWidth) / 2);
-      const offsetY = Math.max(MARGIN_PX, (targetHeight - scaledHeight) / 2);
+      const offsetY = Math.max(
+        MARGIN_PX,
+        (targetHeight - groupBoundingRect.height * scale) / 2
+      );
 
       // 應用縮放和偏移
       tempFabricCanvas.getObjects().forEach((obj) => {
@@ -119,28 +108,34 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
           scaleX: obj.scaleX! * scale,
           scaleY: obj.scaleY! * scale,
         });
+        obj.setCoords();
       });
 
+      tempFabricCanvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
       tempFabricCanvas.renderAll();
 
-      // 使用 setTimeout 確保所有渲染都已完成
-      setTimeout(() => {
-        const dataUrl = tempFabricCanvas.toDataURL({
-          format: "png",
-          quality: 1,
-        });
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = `${uuidv4()}_${paperSize}.png`;
-        link.click();
+      // 生成圖片
+      const dataUrl = tempFabricCanvas.toDataURL({
+        format: "png",
+        quality: 1,
+        width: targetWidth,
+        height: targetHeight,
+      });
 
-        tempFabricCanvas.dispose();
-        window.location.reload();
-      }, 100);
+      // 下載圖片
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `${uuidv4()}_${paperSize}.png`;
+      link.click();
+
+      tempFabricCanvas.dispose();
+
+      console.log("Export completed successfully");
     } catch (error) {
       console.error("Error during export process:", error);
     } finally {
       setExportLoading(false);
+      window.location.reload();
     }
   }, [canvas, getViewportDimensions, paperSize, saveToDatabase]);
 

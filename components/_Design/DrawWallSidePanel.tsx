@@ -79,7 +79,7 @@ const DrawWallSidePanel = ({
             iconWidth="90%"
             label="單開門"
             textFlex="0.1"
-            onClick={() => design?.addDoorWindow("/door.svg")}
+            onClick={() => design?.addDoorWindow("/door.png")}
           />
           <LeftToolBarItem
             buttonWidth="30%"
@@ -89,7 +89,7 @@ const DrawWallSidePanel = ({
             iconWidth="90%"
             label="普通窗"
             textFlex="0.1"
-            onClick={() => design?.addDoorWindow("/window.svg")}
+            onClick={() => design?.addDoorWindow("/window.png")}
           />
         </HStack>
       </VStack>

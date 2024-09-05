@@ -103,16 +103,30 @@ const buildDesign = ({
         { crossOrigin: "anonymous" }
       );
     },
+    // addDoorWindow: (imageUrl: string) => {
+    //   fabric.loadSVGFromURL(imageUrl, (objects, options) => {
+    //     const svg = fabric.util.groupSVGElements(objects, options);
+    //     svg.scale(1.9);
+    //     svg.objectCaching = false;
+    //     centerObjectOnCanvas(canvas, svg);
+    //     canvas.add(svg);
+    //     canvas.setActiveObject(svg);
+    //     canvas.renderAll();
+    //   });
+    // },
     addDoorWindow: (imageUrl: string) => {
-      fabric.loadSVGFromURL(imageUrl, (objects, options) => {
-        const svg = fabric.util.groupSVGElements(objects, options);
-        svg.scale(1.9);
-        svg.objectCaching = false;
-        centerObjectOnCanvas(canvas, svg);
-        canvas.add(svg);
-        canvas.setActiveObject(svg);
-        canvas.renderAll();
-      });
+      fabric.Image.fromURL(
+        imageUrl,
+        (img) => {
+          img.scale(GLOBAL_SCALE);
+          img.objectCaching = false;
+          centerObjectOnCanvas(canvas, img);
+          canvas.add(img);
+          canvas.setActiveObject(img);
+          canvas.renderAll();
+        },
+        { crossOrigin: "anonymous" }
+      );
     },
     canMoveUp,
     canMoveDown,

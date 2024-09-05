@@ -110,13 +110,12 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
     };
   }, [initCanvas]);
 
-  if (design?.isExportLoading) {
-    return <LogoLoadingPage text="Exporting..." />;
-  }
+  // if (design?.isExportLoading) {
+  //   return <LogoLoadingPage text="Exporting..." />;
+  // }
 
   return (
     <>
-      {/* {design?.isExportLoading && <LogoLoadingPage text="Exporting..." />} */}
       <Box
         position="relative"
         width="100%"
