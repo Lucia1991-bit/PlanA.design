@@ -393,7 +393,7 @@ export const useHistory = ({
     }
   }, [canRedo, historyIndex, restoreState]);
 
-  // 保存到數據庫
+  // 保存到資料庫
   const saveToDatabase = useCallback(async () => {
     if (!canvas || isInSaveOperation.current) return;
     isInSaveOperation.current = true;
