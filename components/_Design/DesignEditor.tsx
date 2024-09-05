@@ -14,6 +14,7 @@ import { BoardType } from "@/types/BoardType";
 import ContextMenu from "./ContextMenu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import ExportSidePanel from "./ExportSidePanel";
+import LogoLoadingPage from "../_Loading/LogoLoadingPage";
 
 interface DesignEditorProps {
   board: BoardType;
@@ -109,54 +110,63 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
     };
   }, [initCanvas]);
 
+  if (design?.isExportLoading) {
+    return <LogoLoadingPage text="Exporting..." />;
+  }
+
   return (
-    <Box
-      position="relative"
-      width="100%"
-      height="100vh"
-      overflow="hidden"
-      bg={color.canvas.backgroundColor}
-    >
-      <DesignNavBar
-        design={design}
-        boardId={board.id}
-        boardName={board.fileName}
-        activeTool={activeTool}
-        onChangeActiveTool={onChangeActiveTool}
-        saveDesign={saveDesign}
-        isUpdating={isUpdating}
-        error={error}
-        hasSaved={hasSaved}
-      />
-      <LeftToolBar
-        activeTool={activeTool}
-        onChangeActiveTool={onChangeActiveTool}
-        isSidePanelOpen={isSidePanelOpen}
-      />
-      <SidePanel isOpen={isSidePanelOpen}>
-        {activeTool === "draw" && (
-          <DrawWallSidePanel design={design} closeSidePanel={closeSidePanel} />
-        )}
-        {activeTool === "material" && (
-          <MaterialsLibrary design={design} closeSidePanel={closeSidePanel} />
-        )}
-        {activeTool === "furniture" && (
-          <FurnitureLibrary design={design} closeSidePanel={closeSidePanel} />
-        )}
-        {activeTool === "export" && (
-          <ExportSidePanel design={design} closeSidePanel={closeSidePanel} />
-        )}
-      </SidePanel>
+    <>
+      {/* {design?.isExportLoading && <LogoLoadingPage text="Exporting..." />} */}
       <Box
-        w="100%"
-        h="100vh"
-        overflow="hidden"
         position="relative"
-        ref={containerRef}
-        onContextMenu={handleContextMenu}
+        width="100%"
+        height="100vh"
+        overflow="hidden"
+        bg={color.canvas.backgroundColor}
       >
-        <canvas ref={canvasRef} style={{ zIndex: "0" }} />
-        {/* {design?.isExportMode && (
+        <DesignNavBar
+          design={design}
+          boardId={board.id}
+          boardName={board.fileName}
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+          saveDesign={saveDesign}
+          isUpdating={isUpdating}
+          error={error}
+          hasSaved={hasSaved}
+        />
+        <LeftToolBar
+          activeTool={activeTool}
+          onChangeActiveTool={onChangeActiveTool}
+          isSidePanelOpen={isSidePanelOpen}
+        />
+        <SidePanel isOpen={isSidePanelOpen}>
+          {activeTool === "draw" && (
+            <DrawWallSidePanel
+              design={design}
+              closeSidePanel={closeSidePanel}
+            />
+          )}
+          {activeTool === "material" && (
+            <MaterialsLibrary design={design} closeSidePanel={closeSidePanel} />
+          )}
+          {activeTool === "furniture" && (
+            <FurnitureLibrary design={design} closeSidePanel={closeSidePanel} />
+          )}
+          {activeTool === "export" && (
+            <ExportSidePanel design={design} closeSidePanel={closeSidePanel} />
+          )}
+        </SidePanel>
+        <Box
+          w="100%"
+          h="100vh"
+          overflow="hidden"
+          position="relative"
+          ref={containerRef}
+          onContextMenu={handleContextMenu}
+        >
+          <canvas ref={canvasRef} style={{ zIndex: "0" }} />
+          {/* {design?.isExportMode && (
           <Box
             id="export-viewport"
             position="absolute"
@@ -170,31 +180,32 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
             zIndex="1"
           />
         )} */}
-        {design?.contextMenuPosition && (
-          <ContextMenu
-            x={design.contextMenuPosition.x}
-            y={design.contextMenuPosition.y}
-            hasActiveObject={design.contextMenuPosition.hasActiveObject}
-            canCopy={design.canCopy}
-            canPaste={design.canPaste}
-            onClose={() => design.handleContextMenuAction("close")}
-            onCopy={() => design.handleContextMenuAction("copy")}
-            onPaste={() => design.handleContextMenuAction("paste")}
-            onDelete={() => design.handleContextMenuAction("delete")}
-            onMirrorHorizontally={() =>
-              design.handleContextMenuAction("mirrorHorizontally")
-            }
-            onMirrorVertically={() =>
-              design.handleContextMenuAction("mirrorVertically")
-            }
-            canMoveUp={design.canMoveUp}
-            canMoveDown={design.canMoveDown}
-            onBringForward={() => design.bringForward()}
-            onSendBackwards={() => design.sendBackward()}
-          />
-        )}
+          {design?.contextMenuPosition && (
+            <ContextMenu
+              x={design.contextMenuPosition.x}
+              y={design.contextMenuPosition.y}
+              hasActiveObject={design.contextMenuPosition.hasActiveObject}
+              canCopy={design.canCopy}
+              canPaste={design.canPaste}
+              onClose={() => design.handleContextMenuAction("close")}
+              onCopy={() => design.handleContextMenuAction("copy")}
+              onPaste={() => design.handleContextMenuAction("paste")}
+              onDelete={() => design.handleContextMenuAction("delete")}
+              onMirrorHorizontally={() =>
+                design.handleContextMenuAction("mirrorHorizontally")
+              }
+              onMirrorVertically={() =>
+                design.handleContextMenuAction("mirrorVertically")
+              }
+              canMoveUp={design.canMoveUp}
+              canMoveDown={design.canMoveDown}
+              onBringForward={() => design.bringForward()}
+              onSendBackwards={() => design.sendBackward()}
+            />
+          )}
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

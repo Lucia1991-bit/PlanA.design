@@ -15,12 +15,21 @@ const MARGIN_PX = 15;
 
 interface ExportProps {
   canvas: fabric.Canvas | null;
+  getCanvasState: () => string | null;
+  restoreState: (stateString: string) => void;
+  saveToDatabase: () => void;
 }
 
-export const useExport = ({ canvas }: ExportProps) => {
+export const useExport = ({
+  canvas,
+  getCanvasState,
+  restoreState,
+  saveToDatabase,
+}: ExportProps) => {
   const [paperSize, setPaperSize] = useState<"A4" | "A3">("A4");
   const [isExportMode, setIsExportMode] = useState(false);
   const [isExportLoading, setExportLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
 
   const getViewportDimensions = useCallback(() => {
     const dimensions = paperSizes[paperSize];
@@ -35,10 +44,18 @@ export const useExport = ({ canvas }: ExportProps) => {
     setIsExportMode(true);
   }, []);
 
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback(async () => {
     if (!canvas) return;
 
     setExportLoading(true);
+
+    // 保存當前畫布狀態
+    // const currentState = getCanvasState();
+    // if (currentState === null) {
+    //   console.error("Failed to get canvas state");
+    //   setExportLoading(false);
+    //   return;
+    // }
 
     const { width: targetWidth, height: targetHeight } =
       getViewportDimensions();
@@ -127,12 +144,16 @@ export const useExport = ({ canvas }: ExportProps) => {
         link.click();
 
         tempFabricCanvas.dispose();
-        setExportLoading(false);
+        saveToDatabase();
+        window.location.reload();
+        setTimeout(() => {
+          setExportLoading(false);
+        }, 1000);
       }, 100);
     } else {
       setExportLoading(false);
     }
-  }, [canvas, getViewportDimensions, paperSize]);
+  }, [canvas, getViewportDimensions, paperSize, getCanvasState, restoreState]);
 
   const cancelExport = useCallback(() => {
     setIsExportMode(false);
