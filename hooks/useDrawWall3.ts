@@ -318,6 +318,7 @@ export const useDrawWall = ({
       });
 
       canvas.add(group);
+      updateWalls(group, false); // 更新牆體狀態
       return group;
     },
     [canvas, color.wall.fill, WALL_THICKNESS, POINT_RADIUS, PREVIEW_LINE_COLOR]
@@ -327,10 +328,14 @@ export const useDrawWall = ({
   const updateWalls = useCallback(
     (newWall: fabric.Object | null, isCompleted: boolean = false) => {
       if (isCompleted) {
-        // setCompletedWalls((prev) => [...prev, newWall!]);
+        setCompletedWalls((prev) => [...prev, newWall!]);
         setUnfinishedWall(null);
       } else {
         setUnfinishedWall(newWall);
+        // 如果新牆不為 null，將其添加到已完成牆體列表中
+        if (newWall) {
+          setCompletedWalls((prev) => [...prev, newWall]);
+        }
       }
     },
     [setUnfinishedWall, setCompletedWalls]
@@ -535,30 +540,29 @@ export const useDrawWall = ({
       console.log("檢測到封閉空間");
       const closedPoints = [...currentPath, firstPoint];
 
-      // 移除所有構成此封閉空間的未完成牆體
-      const wallsToRemove = canvas
-        .getObjects()
-        .filter(
-          (obj) =>
-            obj.name === "wallGroup" &&
-            closedPoints.some((point) =>
-              obj.containsPoint(new fabric.Point(point.x, point.y))
-            )
-        );
-      wallsToRemove.forEach((wall) => {
-        canvas.remove(wall);
-        setCompletedWalls((prev) => prev.filter((w) => w !== wall));
-      });
-
-      // 創建帶有圖案的封閉房間
+      // 創建新的房間對象
       const roomPolygon = createPolygonWithPattern(closedPoints);
       if (roomPolygon) {
+        // 移除所有構成此封閉空間的未完成牆體
+        const wallsToRemove = canvas
+          .getObjects()
+          .filter(
+            (obj) =>
+              obj.name === "wallGroup" &&
+              closedPoints.some((point) =>
+                obj.containsPoint(new fabric.Point(point.x, point.y))
+              )
+          );
+        wallsToRemove.forEach((wall) => {
+          canvas.remove(wall);
+          setCompletedWalls((prev) => prev.filter((w) => w !== wall));
+        });
+
         canvas.add(roomPolygon);
         updateWalls(roomPolygon, true);
       }
     } else {
       console.log("未形成封閉空間，保存為未完成牆體");
-      // 直接使用當前的未完成牆體，無需重新創建
       if (currentLineRef.current) {
         updateWalls(currentLineRef.current, false);
       }
@@ -570,11 +574,11 @@ export const useDrawWall = ({
   }, [
     canvas,
     currentPath,
-    createContinuousWall,
     createPolygonWithPattern,
     updateWalls,
     setCompletedWalls,
     save,
+    SNAP_THRESHOLD,
   ]);
 
   // 刪除所有牆面
