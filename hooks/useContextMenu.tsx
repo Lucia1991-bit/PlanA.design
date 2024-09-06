@@ -65,22 +65,17 @@ export const useContextMenu = ({
 
   const open = useCallback(
     (x: number, y: number) => {
+      //如果是平移模式或者繪製模式，不可打開右鍵選單
       if (!canvas || isPanMode || isDrawingMode) {
         return;
       }
 
       const activeObject = canvas.getActiveObject();
+      const hasActiveObject = !!activeObject;
 
-      let hasActiveObject = false;
-
-      if (activeObject) {
-        if (activeObject.type === "activeSelection") {
-          const objects = (activeObject as fabric.ActiveSelection).getObjects();
-          console.log("Active selection objects:", objects);
-          hasActiveObject = objects.some((obj) => obj.name !== "room");
-        } else {
-          hasActiveObject = activeObject.name !== "room";
-        }
+      if (activeObject && activeObject.type === "activeSelection") {
+        const objects = (activeObject as fabric.ActiveSelection).getObjects();
+        console.log("Active selection objects:", objects);
       }
 
       setPosition({ x, y, hasActiveObject });

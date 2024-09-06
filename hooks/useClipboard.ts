@@ -43,7 +43,12 @@ export const useClipboard = ({ canvas }: UseClipboardProps) => {
     }
   }, [canvas]);
 
-  // 檢查是否可以複製，需排除掉 "room" 物件
+  // 檢查是否可以複製
+  // const canCopy = useCallback(() => {
+  //   if (!canvas) return false;
+  //   return !!canvas.getActiveObject();
+  // }, [canvas]);
+
   const canCopy = useCallback(() => {
     if (!canvas) return false;
     const activeObject = canvas.getActiveObject();

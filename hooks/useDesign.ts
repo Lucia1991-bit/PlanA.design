@@ -18,7 +18,7 @@ import { useHotkeys } from "@/hooks/useHotkeys";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useHistory } from "./useHistory";
 import { useLoadDesign } from "./useLoadDesign";
-import { useDrawWall } from "./useDrawWall3";
+import { useDrawWall } from "./useDrawWall";
 import { usePattern } from "./usePattern";
 import { useContextMenu } from "./useContextMenu";
 import { useCanvasOrdering } from "./useCanvasOrdering";
@@ -192,7 +192,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   //改變 unfinishedWall的狀態
   const memoizedSetUnfinishedWall = useCallback(
     (wall: fabric.Object | null) => {
-      console.log("設置 unfinishedWall:", wall);
       setUnfinishedWall(wall);
       unfinishedWallRef.current = wall;
     },
@@ -215,7 +214,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
           newWalls = wallsOrUpdater;
         }
 
-        console.log("設置 completedWalls:", newWalls);
         completedWallsRef.current = newWalls;
         return newWalls;
       });
@@ -623,7 +621,6 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
   }, [isCanvasReady, canvas, updateGridPosition, updateGridColor]);
 
   useEffect(() => {
-    console.log("useDesign 中的 unfinishedWall 變化:", unfinishedWall);
     unfinishedWallRef.current = unfinishedWall;
   }, [unfinishedWall]);
 

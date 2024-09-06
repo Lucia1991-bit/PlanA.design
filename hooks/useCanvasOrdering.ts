@@ -12,42 +12,47 @@ export const useCanvasOrdering = ({
   gridRef,
   updateGridColor,
 }: UseCanvasOrderingProps) => {
+  // 狀態：是否可以上移和下移
   const [canMoveUp, setCanMoveUp] = useState(false);
   const [canMoveDown, setCanMoveDown] = useState(false);
 
-  const fixedElementNames = ["room", "wallGroup", "finishedWall", "designGrid"];
+  // 定義固定在底部和頂部的元素
+  const fixedBottomElements = ["designGrid"];
+  const fixedTopElements = ["wallGroup", "finishedWall"];
 
+  // 確保設計元素保持在底部的函數
   const ensureDesignElementsAtBottom = useCallback(() => {
     if (!canvas || !gridRef.current) return;
 
     const grid = gridRef.current;
+    // 分類畫布上的對象
     const roomObjects = canvas
       .getObjects()
       .filter((obj) => obj.name === "room");
     const wallObjects = canvas
       .getObjects()
-      .filter((obj) => obj.name === "wallGroup" || obj.name === "finishedWall");
+      .filter((obj) => fixedTopElements.includes(obj.name as string));
     const otherObjects = canvas
       .getObjects()
       .filter(
         (obj) =>
           obj !== grid &&
           obj.name !== "room" &&
-          obj.name !== "wallGroup" &&
-          obj.name !== "finishedWall"
+          !fixedTopElements.includes(obj.name as string)
       );
 
+    // 清空畫布並按順序重新添加對象
     canvas.clear();
-
     canvas.add(grid);
     updateGridColor();
     roomObjects.forEach((room) => canvas.add(room));
-    wallObjects.forEach((wall) => canvas.add(wall));
     otherObjects.forEach((obj) => canvas.add(obj));
+    wallObjects.forEach((wall) => canvas.add(wall));
 
     canvas.renderAll();
   }, [canvas, gridRef, updateGridColor]);
 
+  // 更新是否可以移動的狀態
   const updateMoveStatus = useCallback(() => {
     if (!canvas) {
       setCanMoveUp(false);
@@ -63,79 +68,86 @@ export const useCanvasOrdering = ({
     }
 
     const canvasObjects = canvas.getObjects();
-    const fixedTopIndex = canvasObjects.findIndex((obj) =>
-      fixedElementNames.includes(obj.name as string)
+    const fixedBottomIndex = canvasObjects.findIndex((obj) =>
+      fixedBottomElements.includes(obj.name as string)
+    );
+    const firstFixedTopIndex = canvasObjects.findIndex((obj) =>
+      fixedTopElements.includes(obj.name as string)
     );
 
-    const nonFixedObjects = canvasObjects.filter(
-      (obj) => !fixedElementNames.includes(obj.name as string)
-    );
-
-    const highestActiveObjectIndex = Math.max(
-      ...activeObjects.map((obj) => canvasObjects.indexOf(obj))
-    );
-
-    // Check if any active object is not a fixed element and can move up
-    const canMoveUpValue = activeObjects.some(
-      (obj) =>
-        !fixedElementNames.includes(obj.name as string) &&
-        canvasObjects.indexOf(obj) < canvasObjects.length - 1
-    );
+    // 檢查是否可以上移
+    const canMoveUpValue = activeObjects.some((obj) => {
+      const index = canvasObjects.indexOf(obj);
+      return (
+        index < firstFixedTopIndex - 1 ||
+        (obj.name === "room" && index < firstFixedTopIndex - 1)
+      );
+    });
     setCanMoveUp(canMoveUpValue);
 
-    const lowestActiveObjectIndex = Math.min(
-      ...activeObjects.map((obj) => nonFixedObjects.indexOf(obj))
-    );
-    setCanMoveDown(lowestActiveObjectIndex > 0);
+    // 檢查是否可以下移
+    const canMoveDownValue = activeObjects.some((obj) => {
+      const index = canvasObjects.indexOf(obj);
+      return (
+        index > fixedBottomIndex + 1 ||
+        (obj.name === "room" && index > fixedBottomIndex + 1)
+      );
+    });
+    setCanMoveDown(canMoveDownValue);
   }, [canvas]);
 
+  // 將選中的對象向上移動
   const bringForward = useCallback(() => {
     if (!canvas || !canMoveUp) return;
     const activeObjects = canvas.getActiveObjects();
     const canvasObjects = canvas.getObjects();
+    const firstFixedTopIndex = canvasObjects.findIndex((obj) =>
+      fixedTopElements.includes(obj.name as string)
+    );
 
     activeObjects.sort(
       (a, b) => canvasObjects.indexOf(b) - canvasObjects.indexOf(a)
     );
     activeObjects.forEach((object) => {
-      if (!fixedElementNames.includes(object.name as string)) {
-        const currentIndex = canvasObjects.indexOf(object);
-        if (currentIndex < canvasObjects.length - 1) {
-          canvas.bringForward(object);
-        }
+      const currentIndex = canvasObjects.indexOf(object);
+      if (
+        currentIndex < firstFixedTopIndex - 1 ||
+        (object.name === "room" && currentIndex < firstFixedTopIndex - 1)
+      ) {
+        canvas.bringForward(object);
       }
     });
+
     canvas.renderAll();
     ensureDesignElementsAtBottom();
     updateMoveStatus();
   }, [canvas, canMoveUp, ensureDesignElementsAtBottom, updateMoveStatus]);
 
+  // 將選中的對象向下移動
   const sendBackward = useCallback(() => {
     if (!canvas || !canMoveDown) return;
     const activeObjects = canvas.getActiveObjects();
     const canvasObjects = canvas.getObjects();
-    const fixedTopIndex = canvasObjects.findIndex((obj) =>
-      fixedElementNames.includes(obj.name as string)
+    const fixedBottomIndex = canvasObjects.findIndex((obj) =>
+      fixedBottomElements.includes(obj.name as string)
     );
 
     activeObjects.sort(
       (a, b) => canvasObjects.indexOf(a) - canvasObjects.indexOf(b)
     );
-    let moved = false;
     activeObjects.forEach((object) => {
-      if (!fixedElementNames.includes(object.name as string)) {
-        const currentIndex = canvasObjects.indexOf(object);
-        if (currentIndex > fixedTopIndex + 1) {
-          canvas.sendBackwards(object);
-          moved = true;
-        }
+      const currentIndex = canvasObjects.indexOf(object);
+      if (
+        currentIndex > fixedBottomIndex + 1 ||
+        (object.name === "room" && currentIndex > fixedBottomIndex + 1)
+      ) {
+        canvas.sendBackwards(object);
       }
     });
-    if (moved) {
-      canvas.renderAll();
-      ensureDesignElementsAtBottom();
-      updateMoveStatus();
-    }
+
+    canvas.renderAll();
+    ensureDesignElementsAtBottom();
+    updateMoveStatus();
   }, [canvas, canMoveDown, ensureDesignElementsAtBottom, updateMoveStatus]);
 
   return {
