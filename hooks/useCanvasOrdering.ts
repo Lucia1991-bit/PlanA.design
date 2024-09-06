@@ -68,45 +68,52 @@ export const useCanvasOrdering = ({
     }
 
     const canvasObjects = canvas.getObjects();
-    const fixedTopIndex = canvasObjects.findIndex((obj) =>
-      fixedElementNames.includes(obj.name as string)
-    );
-
-    const nonFixedObjects = canvasObjects.filter(
-      (obj) => !fixedElementNames.includes(obj.name as string)
-    );
+    const roomObjects = canvasObjects.filter((obj) => obj.name === "room");
+    const topmostRoom = roomObjects[roomObjects.length - 1];
 
     // 檢查是否可以上移
-    const canMoveUpValue = activeObjects.some(
-      (obj) =>
-        (obj.name === "room" ||
-          !fixedElementNames.includes(obj.name as string)) &&
-        canvasObjects.indexOf(obj) < canvasObjects.length - 1
-    );
+    const canMoveUpValue = activeObjects.some((obj) => {
+      const currentIndex = canvasObjects.indexOf(obj);
+      if (currentIndex < canvasObjects.length - 1) {
+        const nextObject = canvasObjects[currentIndex + 1];
+        if (obj.name === "room") {
+          // 如果是 room 物件，檢查它是否不是最上層的 room
+          return (
+            obj !== topmostRoom &&
+            !fixedElementNames.includes(nextObject.name as string)
+          );
+        } else {
+          // 對於其他物件，檢查上面的物件是否不是固定物件且不是 room
+          return (
+            !fixedElementNames.includes(obj.name as string) &&
+            !fixedElementNames.includes(nextObject.name as string) &&
+            nextObject.name !== "room"
+          );
+        }
+      }
+      return false;
+    });
     setCanMoveUp(canMoveUpValue);
 
-    // 檢查是否可以下移
+    // 檢查是否可以下移 (保持原有邏輯)
     const canMoveDownValue = activeObjects.every((obj) => {
       const currentIndex = canvasObjects.indexOf(obj);
-      if (currentIndex <= 1) return false; // 不能移到 designGrid 下面
+      if (currentIndex <= 1) return false;
 
-      const nextObject = canvasObjects[currentIndex - 1];
+      const previousObject = canvasObjects[currentIndex - 1];
       if (obj.name === "room") {
-        // room 物件可以移動到 designGrid 之上
         return currentIndex > 1;
       } else {
-        // 非 room 物件不能移動到 room 物件之下
         return (
-          nextObject &&
-          nextObject.name !== "room" &&
-          !fixedElementNames.includes(nextObject.name as string)
+          previousObject &&
+          previousObject.name !== "room" &&
+          !fixedElementNames.includes(previousObject.name as string)
         );
       }
     });
     setCanMoveDown(canMoveDownValue);
   }, [canvas]);
 
-  // 將選中的對象向上移動
   const bringForward = useCallback(() => {
     if (!canvas || !canMoveUp) return;
     const activeObjects = canvas.getActiveObjects();
@@ -115,20 +122,35 @@ export const useCanvasOrdering = ({
     activeObjects.sort(
       (a, b) => canvasObjects.indexOf(b) - canvasObjects.indexOf(a)
     );
+
+    let moved = false;
     activeObjects.forEach((object) => {
-      if (
-        object.name === "room" ||
-        !fixedElementNames.includes(object.name as string)
-      ) {
-        const currentIndex = canvasObjects.indexOf(object);
+      const currentIndex = canvasObjects.indexOf(object);
+      if (object.name === "room") {
+        // 對於 room 物件，只有當上面的物件不是固定元素時才移動
+        if (
+          currentIndex < canvasObjects.length - 1 &&
+          !fixedElementNames.includes(
+            canvasObjects[currentIndex + 1].name as string
+          )
+        ) {
+          canvas.bringForward(object);
+          moved = true;
+        }
+      } else if (!fixedElementNames.includes(object.name as string)) {
+        // 對於其他非固定物件，保持原有邏輯
         if (currentIndex < canvasObjects.length - 1) {
           canvas.bringForward(object);
+          moved = true;
         }
       }
     });
-    canvas.renderAll();
-    ensureDesignElementsAtBottom();
-    updateMoveStatus();
+
+    if (moved) {
+      canvas.renderAll();
+      ensureDesignElementsAtBottom();
+      updateMoveStatus();
+    }
   }, [canvas, canMoveUp, ensureDesignElementsAtBottom, updateMoveStatus]);
 
   // 將選中的對象向下移動
