@@ -220,11 +220,7 @@ export const useDrawWall = ({
     const otherObjects = canvas
       .getObjects()
       .filter(
-        (obj) =>
-          obj !== grid &&
-          obj.name !== "room" &&
-          obj.name !== "wallGroup" &&
-          obj.name !== "finishedWall"
+        (obj) => obj !== grid && obj.name !== "room" && obj.name !== "wallGroup"
       );
 
     canvas.clear();
@@ -319,6 +315,8 @@ export const useDrawWall = ({
 
       canvas.add(group);
       updateWalls(group, false); // 更新牆體狀態
+      //確保順序正確
+      ensureDesignElementsAtBottom();
       return group;
     },
     [canvas, color.wall.fill, WALL_THICKNESS, POINT_RADIUS, PREVIEW_LINE_COLOR]
@@ -486,8 +484,8 @@ export const useDrawWall = ({
         evented: true,
         hasBorders: true,
         hasControls: false,
-        lockMovementX: true,
-        lockMovementY: true,
+        // lockMovementX: true,
+        // lockMovementY: true,
         lockRotation: true,
         lockScalingX: true,
         lockScalingY: true,
@@ -590,6 +588,8 @@ export const useDrawWall = ({
     }
 
     setCurrentPath([]);
+    //確保順序正確
+    ensureDesignElementsAtBottom();
     canvas.renderAll();
     save();
   }, [

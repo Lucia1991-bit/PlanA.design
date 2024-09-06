@@ -73,13 +73,13 @@ const useCanvasEvents = ({
 
         if (target.name === "room") {
           target.set({
-            lockMovementX: true,
-            lockMovementY: true,
+            // lockMovementX: true,
+            // lockMovementY: true,
             lockRotation: true,
             lockScalingX: true,
             lockScalingY: true,
             selectable: true,
-            evented: false,
+            evented: true,
           });
         }
 
