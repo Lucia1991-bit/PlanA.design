@@ -399,8 +399,17 @@ export const useDrawWall = ({
 
       setCurrentPath((prev) => {
         const updatedPath = [...prev, newPoint];
+        console.log("Updated path length:", updatedPath.length);
 
-        if (updatedPath.length >= 2) {
+        createOrUpdatePoint(x, y, endPointRef, "endPoint");
+
+        // 如果這是第一個點，也創建起點
+        if (updatedPath.length === 1) {
+          createOrUpdatePoint(x, y, startPointRef, "startPoint");
+        } else if (updatedPath.length >= 2) {
+          const prevPoint = updatedPath[updatedPath.length - 2];
+          createOrUpdateGuideLine(prevPoint.x, prevPoint.y, x, y);
+
           const wall = createContinuousWall(updatedPath);
           if (wall) {
             if (currentLineRef.current) {
@@ -410,19 +419,6 @@ export const useDrawWall = ({
             currentLineRef.current = wall;
             updateWalls(wall, false);
           }
-        }
-
-        createOrUpdatePoint(
-          updatedPath[0].x,
-          updatedPath[0].y,
-          startPointRef,
-          "startPoint"
-        );
-        createOrUpdatePoint(x, y, endPointRef, "endPoint");
-
-        if (updatedPath.length >= 2) {
-          const prevPoint = updatedPath[updatedPath.length - 2];
-          createOrUpdateGuideLine(prevPoint.x, prevPoint.y, x, y);
         }
 
         return updatedPath;
@@ -442,7 +438,6 @@ export const useDrawWall = ({
       save,
     ]
   );
-
   const draw = useCallback(
     (event: fabric.IEvent) => {
       if (!isDrawingRef.current || !canvas || currentPath.length === 0) return;
@@ -522,7 +517,7 @@ export const useDrawWall = ({
   );
   //結束繪製
   const finishDrawWall = useCallback(() => {
-    if (!canvas || !isDrawingRef.current || currentPath.length < 2) return;
+    if (!canvas || !isDrawingRef.current) return;
 
     setIsDrawingMode(false);
     isDrawingRef.current = false;
@@ -536,6 +531,19 @@ export const useDrawWall = ({
         }
       }
     );
+
+    // 處理只有一個點或沒有點的情況
+    if (currentPath.length <= 1) {
+      console.log("無法構成一個牆面，結束繪製並清理");
+      if (unfinishedWall.current) {
+        canvas.remove(unfinishedWall.current);
+      }
+      updateWalls(null);
+      setCurrentPath([]);
+      canvas.renderAll();
+      save();
+      return;
+    }
 
     const firstPoint = currentPath[0];
     const lastPoint = currentPath[currentPath.length - 1];
