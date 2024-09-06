@@ -86,13 +86,23 @@ export const useCanvasOrdering = ({
     setCanMoveUp(canMoveUpValue);
 
     // 檢查是否可以下移
-    const lowestActiveObjectIndex = Math.min(
-      ...activeObjects.map((obj) => nonFixedObjects.indexOf(obj))
-    );
-    const canMoveDownValue =
-      lowestActiveObjectIndex > 0 ||
-      (activeObjects[0].name === "room" &&
-        canvasObjects.indexOf(activeObjects[0]) > 1);
+    const canMoveDownValue = activeObjects.every((obj) => {
+      const currentIndex = canvasObjects.indexOf(obj);
+      if (currentIndex <= 1) return false; // 不能移到 designGrid 下面
+
+      const nextObject = canvasObjects[currentIndex - 1];
+      if (obj.name === "room") {
+        // room 物件可以移動到 designGrid 之上
+        return currentIndex > 1;
+      } else {
+        // 非 room 物件不能移動到 room 物件之下
+        return (
+          nextObject &&
+          nextObject.name !== "room" &&
+          !fixedElementNames.includes(nextObject.name as string)
+        );
+      }
+    });
     setCanMoveDown(canMoveDownValue);
   }, [canvas]);
 
