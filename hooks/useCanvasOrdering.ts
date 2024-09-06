@@ -12,13 +12,12 @@ export const useCanvasOrdering = ({
   gridRef,
   updateGridColor,
 }: UseCanvasOrderingProps) => {
-  // 狀態：是否可以上移和下移
+  // 控制是否可以上移和下移的狀態
   const [canMoveUp, setCanMoveUp] = useState(false);
   const [canMoveDown, setCanMoveDown] = useState(false);
 
-  // 定義固定在底部和頂部的元素
-  const fixedBottomElements = ["designGrid"];
-  const fixedTopElements = ["wallGroup", "finishedWall"];
+  // 定義固定元素的名稱
+  const fixedElementNames = ["wallGroup", "finishedWall", "designGrid"];
 
   // 確保設計元素保持在底部的函數
   const ensureDesignElementsAtBottom = useCallback(() => {
@@ -31,14 +30,15 @@ export const useCanvasOrdering = ({
       .filter((obj) => obj.name === "room");
     const wallObjects = canvas
       .getObjects()
-      .filter((obj) => fixedTopElements.includes(obj.name as string));
+      .filter((obj) => obj.name === "wallGroup" || obj.name === "finishedWall");
     const otherObjects = canvas
       .getObjects()
       .filter(
         (obj) =>
           obj !== grid &&
           obj.name !== "room" &&
-          !fixedTopElements.includes(obj.name as string)
+          obj.name !== "wallGroup" &&
+          obj.name !== "finishedWall"
       );
 
     // 清空畫布並按順序重新添加對象
@@ -52,7 +52,7 @@ export const useCanvasOrdering = ({
     canvas.renderAll();
   }, [canvas, gridRef, updateGridColor]);
 
-  // 更新是否可以移動的狀態
+  // 更新物件是否可以移動的狀態
   const updateMoveStatus = useCallback(() => {
     if (!canvas) {
       setCanMoveUp(false);
@@ -68,31 +68,31 @@ export const useCanvasOrdering = ({
     }
 
     const canvasObjects = canvas.getObjects();
-    const fixedBottomIndex = canvasObjects.findIndex((obj) =>
-      fixedBottomElements.includes(obj.name as string)
+    const fixedTopIndex = canvasObjects.findIndex((obj) =>
+      fixedElementNames.includes(obj.name as string)
     );
-    const firstFixedTopIndex = canvasObjects.findIndex((obj) =>
-      fixedTopElements.includes(obj.name as string)
+
+    const nonFixedObjects = canvasObjects.filter(
+      (obj) => !fixedElementNames.includes(obj.name as string)
     );
 
     // 檢查是否可以上移
-    const canMoveUpValue = activeObjects.some((obj) => {
-      const index = canvasObjects.indexOf(obj);
-      return (
-        index < firstFixedTopIndex - 1 ||
-        (obj.name === "room" && index < firstFixedTopIndex - 1)
-      );
-    });
+    const canMoveUpValue = activeObjects.some(
+      (obj) =>
+        (obj.name === "room" ||
+          !fixedElementNames.includes(obj.name as string)) &&
+        canvasObjects.indexOf(obj) < canvasObjects.length - 1
+    );
     setCanMoveUp(canMoveUpValue);
 
     // 檢查是否可以下移
-    const canMoveDownValue = activeObjects.some((obj) => {
-      const index = canvasObjects.indexOf(obj);
-      return (
-        index > fixedBottomIndex + 1 ||
-        (obj.name === "room" && index > fixedBottomIndex + 1)
-      );
-    });
+    const lowestActiveObjectIndex = Math.min(
+      ...activeObjects.map((obj) => nonFixedObjects.indexOf(obj))
+    );
+    const canMoveDownValue =
+      lowestActiveObjectIndex > 0 ||
+      (activeObjects[0].name === "room" &&
+        canvasObjects.indexOf(activeObjects[0]) > 1);
     setCanMoveDown(canMoveDownValue);
   }, [canvas]);
 
@@ -101,23 +101,21 @@ export const useCanvasOrdering = ({
     if (!canvas || !canMoveUp) return;
     const activeObjects = canvas.getActiveObjects();
     const canvasObjects = canvas.getObjects();
-    const firstFixedTopIndex = canvasObjects.findIndex((obj) =>
-      fixedTopElements.includes(obj.name as string)
-    );
 
     activeObjects.sort(
       (a, b) => canvasObjects.indexOf(b) - canvasObjects.indexOf(a)
     );
     activeObjects.forEach((object) => {
-      const currentIndex = canvasObjects.indexOf(object);
       if (
-        currentIndex < firstFixedTopIndex - 1 ||
-        (object.name === "room" && currentIndex < firstFixedTopIndex - 1)
+        object.name === "room" ||
+        !fixedElementNames.includes(object.name as string)
       ) {
-        canvas.bringForward(object);
+        const currentIndex = canvasObjects.indexOf(object);
+        if (currentIndex < canvasObjects.length - 1) {
+          canvas.bringForward(object);
+        }
       }
     });
-
     canvas.renderAll();
     ensureDesignElementsAtBottom();
     updateMoveStatus();
@@ -128,26 +126,31 @@ export const useCanvasOrdering = ({
     if (!canvas || !canMoveDown) return;
     const activeObjects = canvas.getActiveObjects();
     const canvasObjects = canvas.getObjects();
-    const fixedBottomIndex = canvasObjects.findIndex((obj) =>
-      fixedBottomElements.includes(obj.name as string)
+    const fixedTopIndex = canvasObjects.findIndex((obj) =>
+      fixedElementNames.includes(obj.name as string)
     );
 
     activeObjects.sort(
       (a, b) => canvasObjects.indexOf(a) - canvasObjects.indexOf(b)
     );
+    let moved = false;
     activeObjects.forEach((object) => {
-      const currentIndex = canvasObjects.indexOf(object);
       if (
-        currentIndex > fixedBottomIndex + 1 ||
-        (object.name === "room" && currentIndex > fixedBottomIndex + 1)
+        object.name === "room" ||
+        !fixedElementNames.includes(object.name as string)
       ) {
-        canvas.sendBackwards(object);
+        const currentIndex = canvasObjects.indexOf(object);
+        if (currentIndex > 1) {
+          canvas.sendBackwards(object);
+          moved = true;
+        }
       }
     });
-
-    canvas.renderAll();
-    ensureDesignElementsAtBottom();
-    updateMoveStatus();
+    if (moved) {
+      canvas.renderAll();
+      ensureDesignElementsAtBottom();
+      updateMoveStatus();
+    }
   }, [canvas, canMoveDown, ensureDesignElementsAtBottom, updateMoveStatus]);
 
   return {
