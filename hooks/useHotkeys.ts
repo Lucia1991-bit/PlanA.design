@@ -10,7 +10,7 @@ interface UseHotkeysProps {
   undo: () => void;
   redo: () => void;
   saveToDatabase: () => void;
-  startDrawWall: () => void;
+  startDrawWall?: () => void;
   finishDrawWall: () => void;
 }
 
