@@ -128,8 +128,8 @@ export const useHistory = ({
           (obj.fill && obj.fill instanceof fabric.Pattern)
         ) {
           //保持屬性不變
-          baseObject.selectable = true;
-          baseObject.evented = true;
+          baseObject.selectable = obj.selectable;
+          baseObject.evented = obj.evented;
           baseObject.hasBorders = true;
           baseObject.hasControls = false;
           // baseObject.lockMovementX = true;
