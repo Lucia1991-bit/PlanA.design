@@ -11,6 +11,7 @@ import {
   useDisclosure,
   keyframes,
 } from "@chakra-ui/react";
+// 移除 Image import
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,27 +28,28 @@ const steps = [
     title: "繪製空間",
     description:
       "使用繪製工具繪製牆面，系統自動識別並生成封閉空間，未完成封閉空間的牆面可接續繪製",
-    gifUrl: "/內容假圖.png",
+    videoUrl:
+      "https://res.cloudinary.com/datj4og4i/video/upload/v1725735185/step1%E5%A3%93%E7%B8%AE_eyxtvv.mp4",
     duration: 10000,
   },
   {
     title: "應用材質",
     description:
       "從材質庫內選擇材質，一鍵應用至選取的空間，可即時預覽、隨時更換以達到理想效果",
-    gifUrl: "/內容假圖.png",
+    videoUrl: "/內容假圖.png",
     duration: 8000,
   },
   {
     title: "擺放家具",
     description:
       "從家具庫內選擇家具，以拖曳方式自由擺放，可按右鍵使用操作選單進行更多操作",
-    gifUrl: "/內容假圖.png",
+    videoUrl: "/內容假圖.png",
     duration: 8000,
   },
   {
     title: "分享成果",
     description: "完成設計後，可匯出圖片格式與親友分享圖面",
-    gifUrl: "/內容假圖.png",
+    videoUrl: "/內容假圖.png",
     duration: 8000,
   },
 ];
@@ -73,40 +75,49 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
   const controls = useAnimation();
   const [animationComplete, setAnimationComplete] = useState(false);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  //整體步驟動畫控制
   useEffect(() => {
     if (animate) {
       controls.start("visible").then(() => setAnimationComplete(true));
     }
   }, [animate, controls]);
 
+  //影片控制和進度條更新
   useEffect(() => {
-    if (animationComplete) {
-      const currentStepData = steps[currentStep];
-      setVideoProgress(0); // 重置進度條為 0
+    const video = videoRef.current;
+    if (!video) return;
 
-      const stepTimer = setTimeout(() => {
-        setCurrentStep((prevStep) => (prevStep + 1) % steps.length);
-      }, currentStepData.duration);
+    const handleVideoEnd = () => {
+      setCurrentStep((prevStep) => (prevStep + 1) % steps.length);
+    };
 
-      const progressTimer = setInterval(() => {
-        setVideoProgress((prevProgress) => {
-          if (prevProgress < 100) {
-            return prevProgress + 100 / (currentStepData.duration / 100);
-          }
-          return 100;
-        });
-      }, 100);
+    const updateProgress = () => {
+      const progress = (video.currentTime / video.duration) * 100;
+      setVideoProgress(progress);
+    };
 
-      return () => {
-        clearTimeout(stepTimer);
-        clearInterval(progressTimer);
-      };
-    }
-  }, [animationComplete, currentStep]);
+    video.addEventListener("ended", handleVideoEnd);
+    video.addEventListener("timeupdate", updateProgress);
+
+    // 重置影片並播放
+    video.currentTime = 0;
+    video.play();
+
+    return () => {
+      video.removeEventListener("ended", handleVideoEnd);
+      video.removeEventListener("timeupdate", updateProgress);
+    };
+  }, [currentStep, steps.length]);
 
   const handleStepClick = (index: number) => {
     setCurrentStep(index);
     setVideoProgress(0);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+    }
   };
 
   const calculateStepProgressHeight = () => {
@@ -264,19 +275,25 @@ const InstructionSection = ({ animate }: InstructionSectionProps) => {
           >
             <AspectRatio ratio={16 / 9} width="100%">
               <Box position="relative" bg="#ecebeb">
-                <Image
-                  priority
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  src={steps[currentStep].gifUrl}
-                  alt={`Step ${currentStep + 1}`}
-                  style={{ objectFit: "contain" }}
+                <video
+                  ref={videoRef}
+                  src={steps[currentStep].videoUrl}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                  autoPlay
+                  loop={false}
+                  muted
+                  playsInline
+                  controls={false}
                 />
               </Box>
             </AspectRatio>
             <Box
               w="100%"
-              h="4px"
+              h="5px"
               bg="brand.light"
               overflow="hidden"
               borderRadius="full"

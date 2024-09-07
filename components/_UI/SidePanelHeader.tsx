@@ -6,14 +6,14 @@ interface SidePanelHeaderProps {
   title: string;
   description?: string;
   instruction?: string;
-  image?: string;
+  videoUrl?: string;
 }
 
 const SidePanelHeader = ({
   title,
   description,
   instruction,
-  image,
+  videoUrl,
 }: SidePanelHeaderProps) => {
   const color = useDesignColor();
 
@@ -31,15 +31,19 @@ const SidePanelHeader = ({
       <Text fontSize="14px" color={color.toolBar.subText} mb="5px">
         {description}
       </Text>
-      {image && (
-        <Image
-          priority
-          src={image}
-          width={300}
-          height={100}
-          alt="gif"
-          draggable="false"
-        />
+      {videoUrl && (
+        <Box width="300px" height="200px" position="relative" overflow="hidden">
+          <video
+            src={videoUrl}
+            width="100%"
+            height="100%"
+            loop
+            muted
+            autoPlay
+            playsInline
+            style={{ objectFit: "contain" }}
+          />
+        </Box>
       )}
       <Text fontSize="13px" color={color.toolBar.subText} mt="5px">
         {instruction}

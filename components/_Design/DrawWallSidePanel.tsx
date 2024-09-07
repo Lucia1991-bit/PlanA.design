@@ -52,9 +52,9 @@ const DrawWallSidePanel = ({
           instruction={
             isDrawing ? "完成繪製後按下方按鈕或Esc鍵退出繪製模式" : ""
           }
-          image={
+          videoUrl={
             isDrawing
-              ? "https://res.cloudinary.com/datj4og4i/image/upload/q_auto/v1725726129/drawWall_zmrmhl.gif"
+              ? "https://res.cloudinary.com/datj4og4i/video/upload/v1725736733/drawWall_xoxe7u.mp4"
               : ""
           }
         />
