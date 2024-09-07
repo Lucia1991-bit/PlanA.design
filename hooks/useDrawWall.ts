@@ -145,24 +145,25 @@ export const useDrawWall = ({
 
       if (guideLineRef.current) {
         guideLineRef.current.set({
-          x1: midX - 1000 * Math.cos((angle * Math.PI) / 180),
-          y1: midY - 1000 * Math.sin((angle * Math.PI) / 180),
-          x2: midX + 1000 * Math.cos((angle * Math.PI) / 180),
-          y2: midY + 1000 * Math.sin((angle * Math.PI) / 180),
+          x1: midX - 1200 * Math.cos((angle * Math.PI) / 180),
+          y1: midY - 1200 * Math.sin((angle * Math.PI) / 180),
+          x2: midX + 1200 * Math.cos((angle * Math.PI) / 180),
+          y2: midY + 1200 * Math.sin((angle * Math.PI) / 180),
         });
       } else {
         const guideLine = new fabric.Line(
           [
-            midX - 1000 * Math.cos((angle * Math.PI) / 180),
-            midY - 1000 * Math.sin((angle * Math.PI) / 180),
-            midX + 1000 * Math.cos((angle * Math.PI) / 180),
-            midY + 1000 * Math.sin((angle * Math.PI) / 180),
+            midX - 1200 * Math.cos((angle * Math.PI) / 180),
+            midY - 1200 * Math.sin((angle * Math.PI) / 180),
+            midX + 1200 * Math.cos((angle * Math.PI) / 180),
+            midY + 1200 * Math.sin((angle * Math.PI) / 180),
           ],
           {
             stroke: GUIDE_LINE_COLOR,
             strokeDashArray: [5, 5],
             selectable: false,
             evented: false,
+            objectCaching: false,
             excludeFromExport: true, // 防止被保存到歷史記錄
           }
         );
@@ -349,7 +350,6 @@ export const useDrawWall = ({
 
   //進入繪製模式
   const startDrawWall = useCallback(() => {
-    console.log("test");
     setIsDrawingMode(true);
     isDrawingRef.current = true;
 

@@ -44,7 +44,7 @@ interface DesignNavBarProps {
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
   design: Design | undefined;
-  saveDesign: (fabricData: string) => void;
+  saveDesign: (fabricData: string, thumbnailURL: string) => void;
   isUpdating: boolean;
   error: string | null;
   hasSaved: boolean;

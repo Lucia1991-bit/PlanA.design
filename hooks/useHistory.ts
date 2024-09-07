@@ -90,6 +90,15 @@ export const useHistory = ({
         // 創建對象的淺複製，確保包含 name 屬性
         const baseObject = Object.assign({}, obj.toObject(), {
           name: obj.name,
+          // 保存鎖定狀態
+          lockMovementX: obj.lockMovementX,
+          lockMovementY: obj.lockMovementY,
+          lockRotation: obj.lockRotation,
+          lockScalingX: obj.lockScalingX,
+          lockScalingY: obj.lockScalingY,
+          hasControls: obj.hasControls,
+          selectable: obj.selectable,
+          evented: obj.evented,
         });
 
         // 另外處理 wallGroup 牆體的屬性
@@ -204,6 +213,26 @@ export const useHistory = ({
     unfinishedWall,
     completedWalls,
   ]);
+
+  //獲取用於保存到數據庫的畫布狀態
+  const getDatabaseState = useCallback(() => {
+    if (!canvas) return null;
+
+    const currentState = getCanvasState();
+    if (!currentState) return null;
+
+    const { canvasState, ...rest } = JSON.parse(currentState);
+
+    // 從 objects 數組中過濾掉 wallGroup
+    canvasState.objects = canvasState.objects.filter(
+      (obj: any) => obj.name !== "wallGroup"
+    );
+
+    return JSON.stringify({
+      canvasState,
+      ...rest,
+    });
+  }, [canvas, getCanvasState]);
 
   // 保存當前狀態到歷史記錄
   const save = useCallback(() => {
@@ -399,9 +428,9 @@ export const useHistory = ({
     isInSaveOperation.current = true;
 
     try {
-      const currentState = getCanvasState();
-      if (currentState) {
-        await saveDesign(currentState);
+      const databaseState = getDatabaseState();
+      if (databaseState) {
+        await saveDesign(databaseState);
       }
     } catch (error) {
       console.error("保存設計時發生錯誤:", error);

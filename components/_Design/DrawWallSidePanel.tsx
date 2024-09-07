@@ -47,7 +47,7 @@ const DrawWallSidePanel = ({
           description={
             isDrawing
               ? "請使用滑鼠左鍵點擊並拖曳以繪製牆體，拖曳到滿意的位置後再點擊一次繪製下一道牆"
-              : "點擊下方按鈕後進入繪製模式"
+              : "點擊下方按鈕或L鍵後進入繪製模式"
           }
           instruction={
             isDrawing ? "完成繪製後按下方按鈕或Esc鍵退出繪製模式" : ""
@@ -61,7 +61,8 @@ const DrawWallSidePanel = ({
             spacing="15px"
             icon="/icons/wall.svg"
             iconWidth="90%"
-            label={isDrawing ? "退出繪製" : "開始繪製"}
+            label={isDrawing ? "退出繪製 Esc" : "開始繪製 L"}
+            shortcut={isDrawing ? "Esc" : "L"}
             textFlex="0.1"
             onClick={handleDrawWallClick}
             isActive={isDrawing}

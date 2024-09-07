@@ -14,7 +14,7 @@ import { BoardType } from "@/types/BoardType";
 import ContextMenu from "./ContextMenu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import ExportSidePanel from "./ExportSidePanel";
-import LogoLoadingPage from "../_Loading/LogoLoadingPage";
+import { de } from "date-fns/locale";
 
 interface DesignEditorProps {
   board: BoardType;
@@ -200,6 +200,14 @@ const DesignEditor = ({ board, userId }: DesignEditorProps) => {
               canMoveDown={design.canMoveDown}
               onBringForward={() => design.bringForward()}
               onSendBackwards={() => design.sendBackward()}
+              onGroupSelectedObjects={() => design.groupSelectedObjects()}
+              onUngroupSelectedObjects={() => design.ungroupSelectedObjects()}
+              canGroup={design.canGroup}
+              canUngroup={design.canUngroup}
+              onLockObjects={() => design.lockObjects()}
+              onUnlockObjects={() => design.unlockObjects()}
+              canLock={design.canLock}
+              hasLockedObjects={design.hasLockedObjects}
             />
           )}
         </Box>

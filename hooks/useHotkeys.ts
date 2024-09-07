@@ -10,6 +10,7 @@ interface UseHotkeysProps {
   undo: () => void;
   redo: () => void;
   saveToDatabase: () => void;
+  startDrawWall: () => void;
   finishDrawWall: () => void;
 }
 
@@ -23,6 +24,7 @@ export const useHotkeys = ({
   undo,
   redo,
   saveToDatabase,
+  startDrawWall,
 }: UseHotkeysProps) => {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -75,6 +77,12 @@ export const useHotkeys = ({
         event.preventDefault();
         paste();
       }
+
+      if (event.key === "l" && canvas) {
+        if (isDrawingMode) return;
+        event.preventDefault();
+        startDrawWall?.();
+      }
     },
     [
       canvas,
@@ -86,6 +94,7 @@ export const useHotkeys = ({
       undo,
       redo,
       saveToDatabase,
+      startDrawWall,
     ]
   );
 

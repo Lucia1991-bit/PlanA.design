@@ -160,8 +160,8 @@ const useCanvasEvents = ({
         let y = evt.clientY;
 
         // 使用實際的 ContextMenu 寬度和高度
-        const menuWidth = 180;
-        const menuHeight = 300; // 估計高度，可能需要根據實際情況調整
+        const menuWidth = 200;
+        const menuHeight = 460; // 估計高度，可能需要根據實際情況調整
 
         // 確保右鍵選單不會超出畫布邊界
         if (x + menuWidth > canvasRect.right) {

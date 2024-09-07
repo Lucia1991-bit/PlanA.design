@@ -17,6 +17,7 @@ interface LeftToolBarItemProps {
   textFlex?: string;
   spacing?: string;
   draggable?: boolean;
+  shortcut?: string;
 }
 
 const LeftToolBarItem = ({
@@ -34,6 +35,7 @@ const LeftToolBarItem = ({
   iconHeight = "30px",
   spacing = "4px",
   draggable = true,
+  shortcut,
 }: LeftToolBarItemProps) => {
   const color = useDesignPageColor();
   return (
@@ -69,6 +71,7 @@ const LeftToolBarItem = ({
             style={{ objectFit: "contain" }}
           />
         </Box>
+
         <Text fontSize="xs" flex={textFlex} mt={mt}>
           {label}
         </Text>

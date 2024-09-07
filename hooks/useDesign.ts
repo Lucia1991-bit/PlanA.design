@@ -79,6 +79,159 @@ const buildDesign = ({
     });
   };
 
+  //群組物件
+  const groupSelectedObjects = () => {
+    if (!canvas) return;
+    const activeSelection = canvas.getActiveObject() as fabric.ActiveSelection;
+    if (!activeSelection || activeSelection.type !== "activeSelection") {
+      console.warn("No multiple selection to group");
+      return;
+    }
+
+    // 創建群組
+    const group = activeSelection.toGroup();
+    canvas.setActiveObject(group);
+
+    canvas.requestRenderAll();
+  };
+
+  //解除群組
+  const ungroupSelectedObjects = () => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject() as fabric.Group;
+    if (!activeObject || activeObject.type !== "group") {
+      console.warn("Selected object is not a group");
+      return;
+    }
+
+    // 解散群組
+    activeObject.toActiveSelection();
+    canvas.requestRenderAll();
+  };
+
+  // 檢查是否可以群組
+  const canGroup = () => {
+    if (!canvas) return false;
+    const activeObject = canvas.getActiveObject();
+
+    if (activeObject && activeObject.type === "activeSelection") {
+      // 檢查 activeSelection 中的物件數量
+      const selectedObjects = (
+        activeObject as fabric.ActiveSelection
+      ).getObjects();
+      return selectedObjects.length > 1;
+    }
+
+    // 如果不是 activeSelection，檢查是否有多個物件被選中
+    const selectedObjects = canvas.getActiveObjects();
+    return selectedObjects.length > 1;
+  };
+
+  // 檢查是否可以解散群組
+  const canUngroup = () => {
+    if (!canvas) return false;
+    const activeObject = canvas.getActiveObject();
+    return !!(activeObject && activeObject.type === "group");
+  };
+
+  //鎖定物件
+  const lockObjects = () => {
+    const activeObjects = canvas.getActiveObjects();
+    activeObjects.forEach((obj) => {
+      if (obj.name !== "designGrid" && obj.name !== "wallGroup") {
+        if (obj.name === "room") {
+          // 對於 room 物件，只鎖定移動
+          obj.set({
+            lockMovementX: true,
+            lockMovementY: true,
+            selectable: false,
+            evented: false,
+          });
+        } else {
+          // 對於其他物件，完全鎖定
+          obj.set({
+            lockMovementX: true,
+            lockMovementY: true,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            hasControls: false,
+            selectable: false,
+            evented: false,
+          });
+        }
+      }
+    });
+    canvas.discardActiveObject();
+    canvas.requestRenderAll();
+    save();
+  };
+
+  //解鎖物件
+  const unlockObjects = () => {
+    canvas.getObjects().forEach((obj) => {
+      // 檢查是否是特殊物件
+      if (obj.name === "designGrid" || obj.name === "wallGroup") {
+        // 不改變這些物件的屬性
+        return;
+      }
+
+      if (obj.name === "room") {
+        // 對於 room 物件，只解鎖移動，保留其他特殊屬性
+        obj.set({
+          lockMovementX: false,
+          lockMovementY: false,
+          selectable: true,
+          evented: true,
+          // 保留其他特殊屬性
+          hasControls: false,
+          lockRotation: true,
+          lockScalingX: true,
+          lockScalingY: true,
+        });
+      } else if (obj.lockMovementX && obj.lockMovementY) {
+        // 對於其他被鎖定的物件，完全解鎖
+        obj.set({
+          lockMovementX: false,
+          lockMovementY: false,
+          lockRotation: false,
+          lockScalingX: false,
+          lockScalingY: false,
+          hasControls: true,
+          selectable: true,
+          evented: true,
+        });
+      }
+    });
+    canvas.requestRenderAll();
+    save();
+  };
+
+  //是否可以鎖定
+  const canLock = () => {
+    return canvas
+      .getActiveObjects()
+      .some(
+        (obj) =>
+          obj.name !== "designGrid" &&
+          obj.name !== "wallGroup" &&
+          !obj.lockMovementX &&
+          !obj.lockMovementY
+      );
+  };
+
+  //畫布上是否有可以解除鎖定的物件
+  const hasLockedObjects = () => {
+    return canvas
+      .getObjects()
+      .some(
+        (obj) =>
+          obj.name !== "designGrid" &&
+          obj.name !== "wallGroup" &&
+          (obj.lockMovementX || obj.lockMovementY)
+      );
+  };
+
   return {
     canvas,
     canUndo,
@@ -151,6 +304,14 @@ const buildDesign = ({
     adjustToNewPaperSize,
     handleExport,
     cancelExport,
+    groupSelectedObjects,
+    ungroupSelectedObjects,
+    canGroup,
+    canUngroup,
+    lockObjects,
+    unlockObjects,
+    canLock,
+    hasLockedObjects,
   };
 };
 
@@ -506,6 +667,7 @@ const useDesign = ({ defaultState, saveDesign }: DesignHookProps) => {
     paste,
     deleteObjects,
     isDrawingMode,
+    startDrawWall,
     finishDrawWall,
     undo,
     redo,

@@ -4,8 +4,8 @@ export const designPageColor = {
   light: {
     canvas: {
       backgroundColor: "#ecebeb",
-      mainGridColor: "rgba(199,200,201, 0.4)",
-      subGridColor: "rgba(199,200,201, 0.3)",
+      mainGridColor: "rgba(199,200,201, 0.5)",
+      subGridColor: "rgba(199,200,201, 0.4)",
     },
     toolBar: {
       backgroundColor: "#f9f9f8",

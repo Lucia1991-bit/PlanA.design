@@ -64,15 +64,40 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
 
       const tempFabricCanvas = new fabric.Canvas(tempCanvas);
 
-      // 過濾並複製對象
+      //遞迴複製，確保嵌套群組物件都會被複製
+      const cloneObjectDeep = (obj: fabric.Object): Promise<fabric.Object> => {
+        return new Promise((resolve) => {
+          obj.clone(
+            (cloned: fabric.Object) => {
+              if (obj.type === "group") {
+                const group = obj as fabric.Group;
+                const clonedGroup = cloned as fabric.Group;
+                Promise.all(group.getObjects().map(cloneObjectDeep)).then(
+                  (clonedChildren) => {
+                    //@ts-ignore
+                    clonedGroup.set({ objects: clonedChildren });
+                    resolve(clonedGroup);
+                  }
+                );
+              } else {
+                resolve(cloned);
+              }
+            },
+            ["objects"]
+          );
+        });
+      };
+
+      // 過濾不要匯出的物件
       const objectsToExport = canvas
         .getObjects()
         .filter((obj) => obj.name !== "designGrid" && obj.name !== "wallGroup");
 
-      objectsToExport.forEach((obj) => {
-        const clonedObj = fabric.util.object.clone(obj);
-        tempFabricCanvas.add(clonedObj);
-      });
+      const clonedObjects = await Promise.all(
+        objectsToExport.map(cloneObjectDeep)
+      );
+
+      clonedObjects.forEach((obj) => tempFabricCanvas.add(obj));
 
       // 計算邊界框
       const groupToExport = new fabric.Group(tempFabricCanvas.getObjects(), {
@@ -129,8 +154,6 @@ export const useExport = ({ canvas, saveToDatabase }: ExportProps) => {
       link.click();
 
       tempFabricCanvas.dispose();
-
-      console.log("Export completed successfully");
     } catch (error) {
       console.error("Error during export process:", error);
     } finally {

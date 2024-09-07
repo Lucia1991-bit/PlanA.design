@@ -9,6 +9,10 @@ import {
   LuFlipVertical2,
   LuArrowUp,
   LuArrowDown,
+  LuGroup,
+  LuUngroup,
+  LuLock,
+  LuUnlock,
 } from "react-icons/lu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 
@@ -28,6 +32,14 @@ interface ContextMenuProps {
   canMoveDown: boolean;
   onBringForward: () => void;
   onSendBackwards: () => void;
+  onGroupSelectedObjects: () => void;
+  onUngroupSelectedObjects: () => void;
+  canGroup: () => boolean;
+  canUngroup: () => boolean;
+  onLockObjects: () => void;
+  onUnlockObjects: () => void;
+  canLock: () => boolean;
+  hasLockedObjects: () => boolean;
 }
 
 const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -46,6 +58,14 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   canMoveDown,
   onBringForward,
   onSendBackwards,
+  onGroupSelectedObjects,
+  onUngroupSelectedObjects,
+  canGroup,
+  canUngroup,
+  onLockObjects,
+  onUnlockObjects,
+  canLock,
+  hasLockedObjects,
 }) => {
   const handleAction = (action: () => void) => {
     action();
@@ -57,7 +77,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   return (
     <Box
       position="fixed"
-      width="180px"
+      width="200px"
       left={x}
       top={y}
       zIndex={20}
@@ -311,6 +331,136 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             alignItems="center"
           >
             <Text>下移一層</Text>
+          </HStack>
+        </Button>
+        <Divider
+          orientation="horizontal"
+          height="100%"
+          borderColor={color.navBar.hover}
+        />
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onGroupSelectedObjects)}
+          leftIcon={<LuGroup />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!canGroup()}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>組成群組</Text>
+          </HStack>
+        </Button>
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onUngroupSelectedObjects)}
+          leftIcon={<LuUngroup />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!canUngroup()}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>解散群組</Text>
+          </HStack>
+        </Button>
+        <Divider
+          orientation="horizontal"
+          height="100%"
+          borderColor={color.navBar.hover}
+        />
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onLockObjects)}
+          leftIcon={<LuLock />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!canLock()}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>鎖定物件</Text>
+          </HStack>
+        </Button>
+        <Button
+          fontSize="13.5px"
+          borderRadius="0"
+          color={color.toolBar.text}
+          onClick={() => handleAction(onUnlockObjects)}
+          leftIcon={<LuUnlock />}
+          justifyContent="flex-start"
+          variant="ghost"
+          w="100%"
+          px={3}
+          py={1}
+          _hover={{
+            bg: color.toolBar.hover,
+          }}
+          fontWeight="500"
+          isDisabled={!hasLockedObjects()}
+          _disabled={{
+            opacity: 0.4,
+            cursor: "default",
+            _hover: { bg: "transparent" },
+          }}
+        >
+          <HStack
+            width="100%"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Text>解鎖所有物件</Text>
           </HStack>
         </Button>
       </VStack>
