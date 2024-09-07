@@ -46,13 +46,17 @@ const DrawWallSidePanel = ({
           title="繪製牆體"
           description={
             isDrawing
-              ? "請使用滑鼠左鍵點擊並拖曳以繪製牆體，拖曳到滿意的位置後再點擊一次繪製下一道牆"
+              ? "使用滑鼠左鍵點擊並拖曳以繪製牆體，拖曳到滿意的位置後再點擊一次繪製下一道牆"
               : "點擊下方按鈕或L鍵後進入繪製模式"
           }
           instruction={
             isDrawing ? "完成繪製後按下方按鈕或Esc鍵退出繪製模式" : ""
           }
-          image={isDrawing ? "/instruction.gif" : ""}
+          image={
+            isDrawing
+              ? "https://res.cloudinary.com/datj4og4i/image/upload/q_auto/v1725726129/drawWall_zmrmhl.gif"
+              : ""
+          }
         />
         <HStack width="100%" px={3}>
           <LeftToolBarItem

@@ -123,14 +123,14 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
             position="relative"
             maxWidth={{ base: "300px", md: "400px", lg: "600px" }}
             width="100%"
-            height={{ base: "200px", md: "250px", lg: "400px" }}
+            height={{ base: "200px", md: "250px", lg: "500px" }}
             variants={contentVariants}
             custom={0}
             initial="hidden"
             animate={controls}
           >
             <Image
-              src="/floorPlan2.png"
+              src="https://res.cloudinary.com/datj4og4i/image/upload/f_auto,q_auto/v1725725397/floor-plan2_f0juoa.png"
               alt="floor-plan"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

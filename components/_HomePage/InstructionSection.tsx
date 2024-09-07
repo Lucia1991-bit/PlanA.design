@@ -25,27 +25,28 @@ const MotionVStack = motion(VStack);
 const steps = [
   {
     title: "繪製空間",
-    description: "使用繪製工具繪製牆面，系統自動識別並生成封閉空間",
+    description:
+      "使用繪製工具繪製牆面，系統自動識別並生成封閉空間，未完成封閉空間的牆面可接續繪製",
     gifUrl: "/內容假圖.png",
     duration: 10000,
   },
   {
     title: "應用材質",
     description:
-      "從材質庫內選擇材質，一鍵應用至相應的空間。可即時預覽效果，隨時更換以達到理想效果",
+      "從材質庫內選擇材質，一鍵應用至選取的空間，可即時預覽、隨時更換以達到理想效果",
     gifUrl: "/內容假圖.png",
     duration: 8000,
   },
   {
     title: "擺放家具",
     description:
-      "從家具庫內選擇家具，以拖曳方式擺放，可自由調整家具的位置、角度和尺寸",
+      "從家具庫內選擇家具，以拖曳方式自由擺放，可按右鍵使用操作選單進行更多操作",
     gifUrl: "/內容假圖.png",
     duration: 8000,
   },
   {
-    title: "分享設計",
-    description: "完成設計後，提供分享選項，可匯出並分享成果",
+    title: "分享成果",
+    description: "完成設計後，可匯出圖片格式與親友分享圖面",
     gifUrl: "/內容假圖.png",
     duration: 8000,
   },

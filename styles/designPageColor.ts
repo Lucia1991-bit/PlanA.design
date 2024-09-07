@@ -26,7 +26,7 @@ export const designPageColor = {
       text: "#ffffff",
     },
     wall: {
-      fill: "#8c8c8c",
+      fill: "#7e7e7e",
       stroke: "#000",
     },
   },
