@@ -121,9 +121,9 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
         >
           <MotionBox
             position="relative"
-            maxWidth={{ base: "300px", md: "400px", lg: "600px" }}
+            maxWidth={{ base: "400px", md: "500px", lg: "600px" }}
             width="100%"
-            height={{ base: "200px", md: "250px", lg: "500px" }}
+            height={{ base: "250px", md: "300px", lg: "500px" }}
             variants={contentVariants}
             custom={0}
             initial="hidden"
@@ -169,8 +169,14 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
               custom={2}
               initial="hidden"
               animate={controls}
+              textAlign={{ base: "center", lg: "left" }}
             >
-              輕鬆創建居家平面配置圖，實現每一個靈感
+              <Text display={{ base: "block", md: "inline" }}>
+                輕鬆創建居家平面配置圖，
+              </Text>
+              <Text display={{ base: "block", md: "inline" }}>
+                實現每一個靈感
+              </Text>
             </MotionHeading>
             <VStack
               spacing={2}
