@@ -29,27 +29,30 @@ const steps = [
     description:
       "使用繪製工具繪製牆面，系統自動識別並生成封閉空間，未完成封閉空間的牆面可接續繪製",
     videoUrl:
-      "https://res.cloudinary.com/datj4og4i/video/upload/v1725735185/step1%E5%A3%93%E7%B8%AE_eyxtvv.mp4",
+      "https://res.cloudinary.com/datj4og4i/video/upload/v1725780291/step1%E9%87%8D%E9%8C%84_hypr19.mp4",
     duration: 10000,
   },
   {
     title: "應用材質",
     description:
       "從材質庫內選擇材質，一鍵應用至選取的空間，可即時預覽、隨時更換以達到理想效果",
-    videoUrl: "/內容假圖.png",
+    videoUrl:
+      "https://res.cloudinary.com/datj4og4i/video/upload/v1725780290/step2%E9%87%8D%E9%8C%84_ldcx0m.mp4",
     duration: 8000,
   },
   {
     title: "擺放家具",
     description:
       "從家具庫內選擇家具，以拖曳方式自由擺放，可按右鍵使用操作選單進行更多操作",
-    videoUrl: "/內容假圖.png",
+    videoUrl:
+      "https://res.cloudinary.com/datj4og4i/video/upload/v1725780290/step3%E9%87%8D%E9%8C%84_doecld.mp4",
     duration: 8000,
   },
   {
     title: "分享成果",
     description: "完成設計後，可匯出圖片格式與親友分享圖面",
-    videoUrl: "/內容假圖.png",
+    videoUrl:
+      "https://res.cloudinary.com/datj4og4i/video/upload/v1725780463/step4%E9%87%8D%E9%8C%84_ru9o3v.mp4",
     duration: 8000,
   },
 ];
