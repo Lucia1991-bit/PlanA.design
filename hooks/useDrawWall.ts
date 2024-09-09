@@ -61,9 +61,6 @@ export const useDrawWall = ({
   const startPointRef = useRef<fabric.Circle | null>(null);
   const endPointRef = useRef<fabric.Circle | null>(null);
 
-  //追蹤未完成牆體的繪製順序（預設是必須從終點開始繪製，如果想從起點開始必須反轉）
-  const currentReversedRef = useRef(false);
-
   const defaultPatternUrl =
     "https://res.cloudinary.com/datj4og4i/image/upload/v1725103376/plan-a/material/%E7%A3%81%E7%A3%9A/tile16_small.jpg";
 
@@ -72,7 +69,6 @@ export const useDrawWall = ({
   const GUIDE_LINE_COLOR = "#3b82f6";
   const POINT_RADIUS = 6;
   const SNAP_THRESHOLD = 10;
-  const CORNER_SIZE = WALL_THICKNESS * 1.5;
 
   //鎖點網格
   const snapToGrid = useCallback(
@@ -399,6 +395,7 @@ export const useDrawWall = ({
 
       setCurrentPath((prev) => {
         const updatedPath = [...prev, newPoint];
+        //TODO:跟下面創建第一點重複了
         createOrUpdatePoint(x, y, endPointRef, "endPoint");
 
         // 如果這是第一個點，也創建起點
@@ -415,6 +412,8 @@ export const useDrawWall = ({
             }
             canvas.add(wall);
             currentLineRef.current = wall;
+            //確保歷史紀錄的狀態更新
+            //TODO:這裡其實可以拿掉，因為createContinuousWall裡面有更新
             updateWalls(wall, false);
           }
         }
@@ -545,12 +544,15 @@ export const useDrawWall = ({
 
     const firstPoint = currentPath[0];
     const lastPoint = currentPath[currentPath.length - 1];
+    //點的距離差距
     const dx = Math.abs(firstPoint.x - lastPoint.x);
     const dy = Math.abs(firstPoint.y - lastPoint.y);
 
+    //路徑有兩個點以上並且起點跟終點非常靠近，則視為封閉空間
     if (currentPath.length > 2 && dx < SNAP_THRESHOLD && dy < SNAP_THRESHOLD) {
       console.log("檢測到封閉空間");
-      // 創建完全閉合的路徑
+
+      // 創建完全閉合的路徑(整理該空間的點，把起點添加進去，讓終點連接回起點)
       const closedPoints = [...currentPath, firstPoint];
 
       // 移除所有與新封閉空間重疊的未完成牆體和已存在的房間

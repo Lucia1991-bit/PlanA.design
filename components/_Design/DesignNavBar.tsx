@@ -215,7 +215,7 @@ const DesignNavBar = ({
               shortcutContent={
                 <>
                   <MdKeyboardCommandKey />
-                  <Text>Y</Text>
+                  <Text>S</Text>
                 </>
               }
             >
