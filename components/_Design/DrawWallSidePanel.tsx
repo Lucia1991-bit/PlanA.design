@@ -46,12 +46,10 @@ const DrawWallSidePanel = ({
           title="繪製牆體"
           description={
             isDrawing
-              ? "使用滑鼠左鍵點擊並拖曳以繪製牆體，拖曳到滿意的位置後再點擊一次繪製下一道牆"
+              ? "使用滑鼠左鍵點擊並拖曳以繪製牆體\n拖曳到滿意的位置後再點擊一次繪製下一道牆\n把起點與終點重合後再點擊一次即可完成繪製"
               : "點擊下方按鈕或L鍵後進入繪製模式"
           }
-          instruction={
-            isDrawing ? "完成繪製後按下方按鈕或Esc鍵退出繪製模式" : ""
-          }
+          instruction={isDrawing ? "或可按下方按鈕或Esc鍵退出繪製模式" : ""}
           videoUrl={
             isDrawing
               ? "https://res.cloudinary.com/datj4og4i/video/upload/v1725736733/drawWall_xoxe7u.mp4"

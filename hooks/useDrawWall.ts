@@ -50,6 +50,8 @@ export const useDrawWall = ({
   const [currentPath, setCurrentPath] = useState<fabric.Point[]>([]);
 
   const [rooms, setRooms] = useState<fabric.Path[]>([]);
+  //封閉空間
+  const [isClosedSpace, setIsClosedSpace] = useState(false);
 
   const color = useDesignPageColor();
 
@@ -61,6 +63,7 @@ export const useDrawWall = ({
   const startPointRef = useRef<fabric.Circle | null>(null);
   const endPointRef = useRef<fabric.Circle | null>(null);
 
+  //預設材質
   const defaultPatternUrl =
     "https://res.cloudinary.com/datj4og4i/image/upload/v1725103376/plan-a/material/%E7%A3%81%E7%A3%9A/tile16_small.jpg";
 
@@ -231,6 +234,31 @@ export const useDrawWall = ({
     canvas.renderAll();
   }, [canvas, gridRef, updateGridColor]);
 
+  // 更新牆體狀態的函數
+  const updateWalls = useCallback(
+    (newWall: fabric.Object | null, isCompleted: boolean = false) => {
+      if (isCompleted) {
+        // 如果牆體已完成（形成封閉空間）將新牆體添加到已完成牆體列表
+        //清除未完成牆體
+        setCompletedWalls((prev) => [...prev, newWall!]);
+        setUnfinishedWall(null);
+      } else if (newWall) {
+        // 如果有新的未完成牆體，設置新的未完成牆體
+        setUnfinishedWall(newWall);
+        // 更新已完成牆體列表：移除之前的未完成牆體（如果存在），並添加新牆體
+        setCompletedWalls((prev) => [
+          ...prev.filter((w) => w !== unfinishedWall.current),
+          newWall,
+        ]);
+      } else {
+        // 當 newWall 為 null 且不是完成狀態時（例如取消繪製）
+        // 只清除未完成牆體
+        setUnfinishedWall(null);
+      }
+    },
+    [setUnfinishedWall, setCompletedWalls, unfinishedWall]
+  );
+
   // 創建連續牆體
   //獲取所有牆體的端點，重新繪製一次牆面(才能確保轉角處的連續性)
   const createContinuousWall = useCallback(
@@ -316,146 +344,20 @@ export const useDrawWall = ({
       ensureDesignElementsAtBottom();
       return group;
     },
-    [canvas, color.wall.fill, WALL_THICKNESS, POINT_RADIUS, PREVIEW_LINE_COLOR]
+    [canvas, color.wall.fill, updateWalls, ensureDesignElementsAtBottom]
   );
 
-  // 更新牆體狀態的函數
-  const updateWalls = useCallback(
-    (newWall: fabric.Object | null, isCompleted: boolean = false) => {
-      if (isCompleted) {
-        // 如果牆體已完成（形成封閉空間）將新牆體添加到已完成牆體列表
-        //清除未完成牆體
-        setCompletedWalls((prev) => [...prev, newWall!]);
-        setUnfinishedWall(null);
-      } else if (newWall) {
-        // 如果有新的未完成牆體，設置新的未完成牆體
-        setUnfinishedWall(newWall);
-        // 更新已完成牆體列表：移除之前的未完成牆體（如果存在），並添加新牆體
-        setCompletedWalls((prev) => [
-          ...prev.filter((w) => w !== unfinishedWall.current),
-          newWall,
-        ]);
-      } else {
-        // 當 newWall 為 null 且不是完成狀態時（例如取消繪製）
-        // 只清除未完成牆體
-        setUnfinishedWall(null);
-      }
+  //檢查是否形成封閉空間
+  const checkForClosedSpace = useCallback(
+    (path: fabric.Point[]) => {
+      if (path.length <= 2) return false;
+      const firstPoint = path[0];
+      const lastPoint = path[path.length - 1];
+      const dx = Math.abs(firstPoint.x - lastPoint.x);
+      const dy = Math.abs(firstPoint.y - lastPoint.y);
+      return dx < SNAP_THRESHOLD && dy < SNAP_THRESHOLD;
     },
-    [setUnfinishedWall, setCompletedWalls, unfinishedWall]
-  );
-
-  //進入繪製模式
-  const startDrawWall = useCallback(() => {
-    setIsDrawingMode(true);
-    isDrawingRef.current = true;
-
-    // 清除之前的參考點和指引線
-    [startPointRef, endPointRef, guideLineRef].forEach((ref) => {
-      if (ref.current) {
-        canvas?.remove(ref.current);
-        ref.current = null;
-      }
-    });
-
-    if (unfinishedWall.current && unfinishedWall.current.get) {
-      const wallPoints = unfinishedWall.current.get(
-        //@ts-ignore
-        "allPoints"
-      ) as fabric.Point[];
-      console.log("繼續未完成牆體的繪製, 點數:", wallPoints.length);
-      setCurrentPath(wallPoints);
-      createOrUpdatePoint(
-        wallPoints[0].x,
-        wallPoints[0].y,
-        startPointRef,
-        "startPoint"
-      );
-      createOrUpdatePoint(
-        wallPoints[wallPoints.length - 1].x,
-        wallPoints[wallPoints.length - 1].y,
-        endPointRef,
-        "endPoint"
-      );
-    } else {
-      console.log("開始新的牆體繪製");
-      setCurrentPath([]);
-    }
-
-    canvas?.renderAll();
-    save();
-  }, [setIsDrawingMode, unfinishedWall, canvas, save, createOrUpdatePoint]);
-
-  const startDrawing = useCallback(
-    (event: fabric.IEvent) => {
-      if (!isDrawingMode || !canvas) return;
-
-      const pointer = canvas.getPointer(event.e);
-      const [x, y] = snapToGrid(pointer.x, pointer.y);
-      const newPoint = new fabric.Point(x, y);
-
-      setCurrentPath((prev) => {
-        const updatedPath = [...prev, newPoint];
-        //TODO:跟下面創建第一點重複了
-        createOrUpdatePoint(x, y, endPointRef, "endPoint");
-
-        // 如果這是第一個點，也創建起點
-        if (updatedPath.length === 1) {
-          createOrUpdatePoint(x, y, startPointRef, "startPoint");
-        } else if (updatedPath.length >= 2) {
-          const prevPoint = updatedPath[updatedPath.length - 2];
-          createOrUpdateGuideLine(prevPoint.x, prevPoint.y, x, y);
-
-          const wall = createContinuousWall(updatedPath);
-          if (wall) {
-            if (currentLineRef.current) {
-              canvas.remove(currentLineRef.current);
-            }
-            canvas.add(wall);
-            currentLineRef.current = wall;
-            //確保歷史紀錄的狀態更新
-            //TODO:這裡其實可以拿掉，因為createContinuousWall裡面有更新
-            updateWalls(wall, false);
-          }
-        }
-
-        return updatedPath;
-      });
-
-      canvas.renderAll();
-      save();
-    },
-    [
-      isDrawingMode,
-      canvas,
-      snapToGrid,
-      createContinuousWall,
-      createOrUpdatePoint,
-      createOrUpdateGuideLine,
-      updateWalls,
-      save,
-    ]
-  );
-  const draw = useCallback(
-    (event: fabric.IEvent) => {
-      if (!isDrawingRef.current || !canvas || currentPath.length === 0) return;
-
-      const pointer = canvas.getPointer(event.e);
-      const [x, y] = snapToGrid(pointer.x, pointer.y);
-      const startPoint = currentPath[currentPath.length - 1];
-
-      createOrUpdatePreviewLine(startPoint.x, startPoint.y, x, y);
-      createOrUpdatePoint(x, y, endPointRef, "endPoint");
-      createOrUpdateGuideLine(startPoint.x, startPoint.y, x, y);
-      canvas.renderAll();
-    },
-    [
-      canvas,
-      currentPath,
-      snapToGrid,
-      createOrUpdatePreviewLine,
-      createOrUpdatePoint,
-      createOrUpdateGuideLine,
-    ]
+    [SNAP_THRESHOLD]
   );
 
   //為創建的空間填入材質
@@ -512,6 +414,7 @@ export const useDrawWall = ({
       setRooms,
     ]
   );
+
   //結束繪製
   const finishDrawWall = useCallback(() => {
     if (!canvas || !isDrawingRef.current) return;
@@ -542,18 +445,16 @@ export const useDrawWall = ({
       return;
     }
 
-    const firstPoint = currentPath[0];
-    const lastPoint = currentPath[currentPath.length - 1];
-    //點的距離差距
-    const dx = Math.abs(firstPoint.x - lastPoint.x);
-    const dy = Math.abs(firstPoint.y - lastPoint.y);
+    // 檢查是否形成封閉空間
+    const isClosedPath = checkForClosedSpace(currentPath);
 
-    //路徑有兩個點以上並且起點跟終點非常靠近，則視為封閉空間
-    if (currentPath.length > 2 && dx < SNAP_THRESHOLD && dy < SNAP_THRESHOLD) {
-      console.log("檢測到封閉空間");
+    if (isClosedPath || isClosedSpace) {
+      console.log("檢測到封閉空間，創建房間");
 
-      // 創建完全閉合的路徑(整理該空間的點，把起點添加進去，讓終點連接回起點)
-      const closedPoints = [...currentPath, firstPoint];
+      // 創建完全閉合的路徑
+      const closedPoints = isClosedPath
+        ? [...currentPath, currentPath[0]]
+        : currentPath;
 
       // 移除所有與新封閉空間重疊的未完成牆體和已存在的房間
       canvas.getObjects().forEach((obj) => {
@@ -602,15 +503,143 @@ export const useDrawWall = ({
     save();
   }, [
     canvas,
-    currentPath,
     setIsDrawingMode,
-    SNAP_THRESHOLD,
-    createContinuousWall,
-    createPolygonWithPattern,
-    updateWalls,
-    setCompletedWalls,
+    currentPath,
+    checkForClosedSpace,
+    isClosedSpace,
+    ensureDesignElementsAtBottom,
     save,
+    unfinishedWall,
+    updateWalls,
+    createPolygonWithPattern,
+    setCompletedWalls,
+    createContinuousWall,
   ]);
+
+  //進入繪製模式
+  const startDrawWall = useCallback(() => {
+    setIsDrawingMode(true);
+    isDrawingRef.current = true;
+
+    // 清除之前的參考點和指引線
+    [startPointRef, endPointRef, guideLineRef].forEach((ref) => {
+      if (ref.current) {
+        canvas?.remove(ref.current);
+        ref.current = null;
+      }
+    });
+
+    if (unfinishedWall.current && unfinishedWall.current.get) {
+      const wallPoints = unfinishedWall.current.get(
+        //@ts-ignore
+        "allPoints"
+      ) as fabric.Point[];
+      console.log("繼續未完成牆體的繪製, 點數:", wallPoints.length);
+      setCurrentPath(wallPoints);
+      createOrUpdatePoint(
+        wallPoints[0].x,
+        wallPoints[0].y,
+        startPointRef,
+        "startPoint"
+      );
+      createOrUpdatePoint(
+        wallPoints[wallPoints.length - 1].x,
+        wallPoints[wallPoints.length - 1].y,
+        endPointRef,
+        "endPoint"
+      );
+    } else {
+      console.log("開始新的牆體繪製");
+      setCurrentPath([]);
+    }
+
+    canvas?.renderAll();
+    save();
+  }, [setIsDrawingMode, unfinishedWall, canvas, save, createOrUpdatePoint]);
+
+  const startDrawing = useCallback(
+    (event: fabric.IEvent) => {
+      if (!isDrawingMode || !canvas) return;
+
+      const pointer = canvas.getPointer(event.e);
+      const [x, y] = snapToGrid(pointer.x, pointer.y);
+      const newPoint = new fabric.Point(x, y);
+
+      if (isClosedSpace) {
+        // 如果已經檢測到封閉空間，下一次點擊會觸發 finishDrawWall
+        finishDrawWall();
+        setIsClosedSpace(false);
+        return;
+      }
+
+      setCurrentPath((prev) => {
+        const updatedPath = [...prev, newPoint];
+
+        // 如果這是第一個點，也創建起點
+        if (updatedPath.length === 1) {
+          createOrUpdatePoint(x, y, startPointRef, "startPoint");
+        } else if (updatedPath.length >= 2) {
+          const prevPoint = updatedPath[updatedPath.length - 2];
+          createOrUpdateGuideLine(prevPoint.x, prevPoint.y, x, y);
+
+          const wall = createContinuousWall(updatedPath);
+          if (wall) {
+            if (currentLineRef.current) {
+              canvas.remove(currentLineRef.current);
+            }
+            canvas.add(wall);
+            currentLineRef.current = wall;
+            updateWalls(wall, false);
+          }
+        }
+        // 檢查是否形成封閉空間
+        if (checkForClosedSpace(updatedPath)) {
+          console.log("檢測到封閉空間");
+          setIsClosedSpace(true);
+        }
+
+        return updatedPath;
+      });
+
+      canvas.renderAll();
+      save();
+    },
+    [
+      isDrawingMode,
+      canvas,
+      snapToGrid,
+      isClosedSpace,
+      save,
+      finishDrawWall,
+      checkForClosedSpace,
+      createOrUpdatePoint,
+      createOrUpdateGuideLine,
+      createContinuousWall,
+      updateWalls,
+    ]
+  );
+  const draw = useCallback(
+    (event: fabric.IEvent) => {
+      if (!isDrawingRef.current || !canvas || currentPath.length === 0) return;
+
+      const pointer = canvas.getPointer(event.e);
+      const [x, y] = snapToGrid(pointer.x, pointer.y);
+      const startPoint = currentPath[currentPath.length - 1];
+
+      createOrUpdatePreviewLine(startPoint.x, startPoint.y, x, y);
+      createOrUpdatePoint(x, y, endPointRef, "endPoint");
+      createOrUpdateGuideLine(startPoint.x, startPoint.y, x, y);
+      canvas.renderAll();
+    },
+    [
+      canvas,
+      currentPath,
+      snapToGrid,
+      createOrUpdatePreviewLine,
+      createOrUpdatePoint,
+      createOrUpdateGuideLine,
+    ]
+  );
 
   // 刪除所有牆面
   const deleteAllWalls = useCallback(() => {

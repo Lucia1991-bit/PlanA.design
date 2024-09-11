@@ -23,12 +23,23 @@ const SidePanelHeader = ({
         fontWeight="600"
         fontSize="18px"
         color={color.toolBar.text}
-        mb="5px"
+        mb="10px"
       >
         {title}
       </Text>
 
-      <Text fontSize="14px" color={color.toolBar.subText} mb="5px">
+      <Text
+        fontSize="14px"
+        color={color.toolBar.subText}
+        mb="10px"
+        whiteSpace="pre-line"
+        lineHeight="1.6"
+        sx={{
+          "& > p": {
+            marginBottom: "8px",
+          },
+        }}
+      >
         {description}
       </Text>
       {videoUrl && (
@@ -45,7 +56,7 @@ const SidePanelHeader = ({
           />
         </Box>
       )}
-      <Text fontSize="13px" color={color.toolBar.subText} mt="5px">
+      <Text fontSize="14px" color={color.toolBar.subText} mt="5px">
         {instruction}
       </Text>
     </Box>
