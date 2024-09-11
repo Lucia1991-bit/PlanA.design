@@ -170,7 +170,7 @@ const AuthForm = () => {
       {!isSignUp && (
         <Text
           fontSize={{ base: "13px", md: "14px", lg: "15px" }}
-          color="gray.600"
+          color="brand.dark"
         >
           歡迎使用測試帳號登入體驗
         </Text>
