@@ -35,8 +35,8 @@ interface AlertInfo {
 }
 
 const AuthForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("test@plana-design.com");
+  const [password, setPassword] = useState("123456");
   const [isLoading, setIsLoading] = useState(false);
   const [alertInfo, setAlertInfo] = useState<AlertInfo | null>(null);
   const router = useRouter();
@@ -167,6 +167,15 @@ const AuthForm = () => {
         </Alert>
       )}
 
+      {!isSignUp && (
+        <Text
+          fontSize={{ base: "13px", md: "14px", lg: "15px" }}
+          color="gray.600"
+        >
+          歡迎使用測試帳號登入體驗
+        </Text>
+      )}
+
       <FormControl>
         <InputGroup>
           <InputLeftElement
@@ -275,7 +284,7 @@ const AuthForm = () => {
     >
       <Tabs isFitted variant="line" isLazy onChange={handleTabChange}>
         <TabList>
-          {["SIGN UP", "SIGN IN"].map((label, index) => (
+          {["SIGN IN", "SIGN UP"].map((label, index) => (
             <Tab
               key={label}
               letterSpacing={2}
@@ -298,8 +307,8 @@ const AuthForm = () => {
           ))}
         </TabList>
         <TabPanels>
-          <TabPanel>{renderForm(true)}</TabPanel>
           <TabPanel>{renderForm(false)}</TabPanel>
+          <TabPanel>{renderForm(true)}</TabPanel>
         </TabPanels>
       </Tabs>
     </Box>
