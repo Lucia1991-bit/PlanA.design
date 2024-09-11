@@ -170,6 +170,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
               initial="hidden"
               animate={controls}
               textAlign={{ base: "center", lg: "left" }}
+              mb={2}
             >
               <Text display={{ base: "block", md: "inline" }}>
                 輕鬆創建居家平面配置圖，
@@ -208,8 +209,9 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
                     </Show>
                     <Text
                       whiteSpace={index === 0 ? "nowrap" : "normal"}
+                      fontWeight={300}
                       fontSize={{ base: "14px", md: "15px", lg: "16px" }}
-                      color="brand.third"
+                      color="brand.dark"
                     >
                       {text}
                     </Text>

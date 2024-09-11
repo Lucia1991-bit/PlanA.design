@@ -30,7 +30,8 @@ const SidePanelHeader = ({
 
       <Text
         fontSize="14px"
-        color={color.toolBar.subText}
+        fontWeight="300"
+        color={color.toolBar.text}
         mb="10px"
         whiteSpace="pre-line"
         lineHeight="1.6"
@@ -56,7 +57,12 @@ const SidePanelHeader = ({
           />
         </Box>
       )}
-      <Text fontSize="14px" color={color.toolBar.subText} mt="5px">
+      <Text
+        fontSize="14px"
+        fontWeight="300"
+        color={color.toolBar.text}
+        mt="5px"
+      >
         {instruction}
       </Text>
     </Box>
