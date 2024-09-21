@@ -76,7 +76,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ##### Wall Sketching and Room Detection
 
-![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726935013/%E7%95%AB%E7%89%863.gif)
+![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726938193/%E7%95%AB%E7%89%86111.gif)
 
 - Grid-snapping feature for precise placement.
 - Real-time preview of walls and guide lines while dragging.
@@ -93,7 +93,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ##### Component Interaction
 
-![component interaction](https://res.cloudinary.com/datj4og4i/image/upload/v1726935642/%E7%89%A9%E4%BB%B6%E4%BA%92%E5%8B%953.gif)
+![component interaction](https://res.cloudinary.com/datj4og4i/image/upload/v1726938159/%E7%89%A9%E4%BB%B6%E4%BA%92%E5%8B%95%E7%AC%AC%E4%BA%8C%E6%AC%A1.gif)
 
 - Doors, Windows, and Furniture:
   - Free drag, rotate, and drop functionality for easy placement and adjustment.
