@@ -2,6 +2,8 @@
 
 ##### Plan A is an Online Design Tool for Creating Interior Floor Plans.
 
+Developed to simplify the complex process of traditional design software, Plan A offers an intuitive platform for both professionals and enthusiasts. With user-friendly features like `Wall Sketching`, `Room Detection`, `Material Library`, and `Furniture Library`, it streamlines the creation of detailed 2D floor plans, making interior design more accessible and efficient.
+
 ![homepage](https://res.cloudinary.com/datj4og4i/image/upload/v1726918479/homepage_x7j4gk.png)
 
 [Demo Video]()
@@ -108,7 +110,7 @@
 
 ##### Export Functionality
 
-![export](https://res.cloudinary.com/datj4og4i/image/upload/v1726929123/%E5%8C%AF%E5%87%BA2_mpt4a8.gif)
+![export](https://res.cloudinary.com/datj4og4i/image/upload/v1726934219/%E5%8C%AF%E5%87%BA3_usq7zl.gif)
 
 - Export as PNG image with selectable A3 or A4 size.
 - Automatic canvas data backup to database during export.
