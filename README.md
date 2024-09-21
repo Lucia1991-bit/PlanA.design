@@ -41,7 +41,7 @@
 
 #### Dashboard Page
 
-![dashboard](https://res.cloudinary.com/datj4og4i/image/upload/v1726917407/dashboard_d9vegc.gif)
+![dashboard](https://res.cloudinary.com/datj4og4i/image/upload/v1726929121/dashboard2_qhi35a.gif)
 
 - Displays user's design projects retrieved from database.
 - Project management:
@@ -60,6 +60,8 @@
 
 ##### Top toolbar
 
+![toolbar](https://res.cloudinary.com/datj4og4i/image/upload/v1726929122/toptoolbar2_d7fk5h.gif)
+
 - Top toolbar with tooltips showing function descriptions and hotkeys.
 - Project management features:
   - Rename project functionality, syncing with dashboard for consistency.
@@ -72,6 +74,8 @@
 
 ##### Wall Sketching and Room Detection
 
+![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726928809/%E7%95%AB%E7%89%862_ejsgkv.gif)
+
 - Grid-snapping feature for precise placement.
 - Real-time preview of walls and guide lines while dragging.
 - 360-degree wall rotation for irregular space design.
@@ -80,10 +84,14 @@
 
 ##### Material Application
 
+![material application](https://res.cloudinary.com/datj4og4i/image/upload/v1726929121/%E5%A1%AB%E5%85%A5%E6%9D%90%E8%B3%AA2_qabphl.gif)
+
 - Apply materials to selected rooms.
 - System provides warning if non-room objects are selected for material application
 
 ##### Component Interaction
+
+![component interaction](https://res.cloudinary.com/datj4og4i/image/upload/v1726929122/%E7%89%A9%E4%BB%B6%E4%BA%92%E5%8B%952_gshw4n.gif)
 
 - Doors, Windows, and Furniture:
   - Free drag, rotate, and drop functionality for easy placement and adjustment.
@@ -93,10 +101,14 @@
 
 ##### Layering System
 
+![layering](https://res.cloudinary.com/datj4og4i/image/upload/v1726929120/%E9%A0%86%E5%BA%8F2_f46fbn.gif)
+
 - Automatic layering: rooms and walls remain beneath objects.
 - Manual control over object stacking order for fine-tuned designs.
 
 ##### Export Functionality
+
+![export](https://res.cloudinary.com/datj4og4i/image/upload/v1726929123/%E5%8C%AF%E5%87%BA2_mpt4a8.gif)
 
 - Export as PNG image with selectable A3 or A4 size.
 - Automatic canvas data backup to database during export.
