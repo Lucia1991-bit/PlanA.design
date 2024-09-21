@@ -8,10 +8,19 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 [Demo Video]()
 
+### Test Account
+
+| Account  | test@plana-design.com |
+| -------- | --------------------- |
+| Password | 123456                |
+
 ## Table of Contents
 
 - [Tech Stack](#technical-stack)
 - [Website Features](#website-features)
+  - [Home Page](#home-page)
+  - [Dashboard Page](#dashboard)
+  - [Design Editor Page](#design-editor-page)
 
 ## Tech Stack
 
@@ -76,7 +85,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ##### Wall Sketching and Room Detection
 
-![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726938193/%E7%95%AB%E7%89%86111.gif)
+![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726938920/%E7%95%AB%E7%89%86try.gif)
 
 - Grid-snapping feature for precise placement.
 - Real-time preview of walls and guide lines while dragging.
