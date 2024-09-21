@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## [Plan A](https://plan-a-design.vercel.app/)
 
-## Getting Started
+##### Plan A is an Online Design Tool for Creating Interior Floor Plans.
 
-First, run the development server:
+![homepage](https://res.cloudinary.com/datj4og4i/image/upload/v1726918479/homepage_x7j4gk.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[Demo Video]()
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Table of Contents
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [Tech Stack](#technical-stack)
+- [Website Features](#website-features)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Tech Stack
 
-## Learn More
+- **Frontend Framework**: Next.js, React, TypeScript
+- **CSS Library**: Chakra UI
+- **Canvas Manipulation**: Canvas API, Fabric.js
+- **State Management**: React Context API, Custom Hooks
+- **Backend Services**: Firebase Authentication, Cloud Firestore
+- **Data Handling**: React Query
+- **Version Control**: Git / GitHub
+- **Deployment**: Vercel
 
-To learn more about Next.js, take a look at the following resources:
+## Website Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### Home Page
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+![auth](https://res.cloudinary.com/datj4og4i/image/upload/v1726838909/%E6%88%AA%E5%9C%96_2024-09-20_%E6%99%9A%E4%B8%8A9.20.13_h5vabm.png)
 
-## Deploy on Vercel
+![introduction](https://res.cloudinary.com/datj4og4i/image/upload/v1726838957/%E6%88%AA%E5%9C%96_2024-09-15_%E6%99%9A%E4%B8%8A8.05.11_hgnilj.png)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+![instruction](https://res.cloudinary.com/datj4og4i/image/upload/v1726838959/%E6%88%AA%E5%9C%96_2024-09-15_%E6%99%9A%E4%B8%8A8.05.36_w6vfqj.png)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Informative layout with website introduction and usage instructions.
+- Sign-up / Sign-in options:
+  - Email
+  - Google third-party authentication
+  - Test account provided
+- Automatic redirection to Dashboard page after sign in.
+
+#### Dashboard Page
+
+![dashboard](https://res.cloudinary.com/datj4og4i/image/upload/v1726917407/dashboard_d9vegc.gif)
+
+- Displays user's design projects retrieved from database.
+- Project management:
+  - Create new project
+  - Rename project
+  - Delete project
+  - Projects sorted by most recent update
+
+#### Design Editor Page
+
+##### Grid System
+
+- Fixed grid overlay providing precise dimensional references.
+- Mouse-centric zooming.
+- Smooth panning across the canvas.
+
+##### Top toolbar
+
+- Top toolbar with tooltips showing function descriptions and hotkeys.
+- Project management features:
+  - Rename project functionality, syncing with dashboard for consistency.
+  - Save project to database, ensuring work is always backed up.
+- Canvas controls:
+  - Clear canvas option for starting fresh or major redesigns.
+  - Toggle between light and dark modes for comfortable editing in any environment.
+- Edit history:
+  - Undo and Redo functionality for easy correction and experimentation.
+
+##### Wall Sketching and Room Detection
+
+- Grid-snapping feature for precise placement.
+- Real-time preview of walls and guide lines while dragging.
+- 360-degree wall rotation for irregular space design.
+- Automatic room detection: recognizes enclosed spaces as rooms and applies default materials.
+- Ability to continue unfinished walls.
+
+##### Material Application
+
+- Apply materials to selected rooms.
+- System provides warning if non-room objects are selected for material application
+
+##### Component Interaction
+
+- Doors, Windows, and Furniture:
+  - Free drag, rotate, and drop functionality for easy placement and adjustment.
+  - Scaling functionality to resize objects as needed.
+  - Right-click menu for additional operations (e.g., copy, paste, delete and more).
+  - Hotkey support for quick actions and improved workflow.
+
+##### Layering System
+
+- Automatic layering: rooms and walls remain beneath objects.
+- Manual control over object stacking order for fine-tuned designs.
+
+##### Export Functionality
+
+- Export as PNG image with selectable A3 or A4 size.
+- Automatic canvas data backup to database during export.
