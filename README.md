@@ -76,7 +76,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ##### Wall Sketching and Room Detection
 
-![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726928809/%E7%95%AB%E7%89%862_ejsgkv.gif)
+![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726935013/%E7%95%AB%E7%89%863.gif)
 
 - Grid-snapping feature for precise placement.
 - Real-time preview of walls and guide lines while dragging.
@@ -93,7 +93,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ##### Component Interaction
 
-![component interaction](https://res.cloudinary.com/datj4og4i/image/upload/v1726929122/%E7%89%A9%E4%BB%B6%E4%BA%92%E5%8B%952_gshw4n.gif)
+![component interaction](https://res.cloudinary.com/datj4og4i/image/upload/v1726935642/%E7%89%A9%E4%BB%B6%E4%BA%92%E5%8B%953.gif)
 
 - Doors, Windows, and Furniture:
   - Free drag, rotate, and drop functionality for easy placement and adjustment.
@@ -110,7 +110,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ##### Export Functionality
 
-![export](https://res.cloudinary.com/datj4og4i/image/upload/v1726934219/%E5%8C%AF%E5%87%BA3_usq7zl.gif)
+![export](https://res.cloudinary.com/datj4og4i/image/upload/v1726935771/%E5%8C%AF%E5%87%BA3.gif)
 
 - Export as PNG image with selectable A3 or A4 size.
 - Automatic canvas data backup to database during export.
