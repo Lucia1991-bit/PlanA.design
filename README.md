@@ -1,6 +1,6 @@
 ## [Plan A](https://plan-a-design.vercel.app/)
 
-##### Plan A is an Online Design Tool for Creating Interior Floor Plans.
+**Plan A is an Online Design Tool for Creating Interior Floor Plans.**
 
 Developed to simplify the complex process of traditional design software, Plan A offers an intuitive platform for both professionals and enthusiasts. With user-friendly features like `Wall Sketching`, `Room Detection`, `Material Library`, and `Furniture Library`, it streamlines the creation of detailed 2D floor plans, making interior design more accessible and efficient.
 
