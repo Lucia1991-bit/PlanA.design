@@ -35,7 +35,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ## Website Features
 
-#### Home Page
+### Home Page
 
 ![auth](https://res.cloudinary.com/datj4og4i/image/upload/v1726838909/%E6%88%AA%E5%9C%96_2024-09-20_%E6%99%9A%E4%B8%8A9.20.13_h5vabm.png)
 
@@ -50,7 +50,7 @@ Developed to simplify the complex process of traditional design software, Plan A
   - Test account provided
 - Automatic redirection to Dashboard page after sign in.
 
-#### Dashboard Page
+### Dashboard Page
 
 ![dashboard](https://res.cloudinary.com/datj4og4i/image/upload/v1726929121/dashboard2_qhi35a.gif)
 
@@ -61,15 +61,15 @@ Developed to simplify the complex process of traditional design software, Plan A
   - Delete project
   - Projects sorted by most recent update
 
-#### Design Editor Page
+### Design Editor Page
 
-##### Grid System
+#### Grid System
 
 - Fixed grid overlay providing precise dimensional references.
 - Mouse-centric zooming.
 - Smooth panning across the canvas.
 
-##### Top toolbar
+#### Top toolbar
 
 ![toolbar](https://res.cloudinary.com/datj4og4i/image/upload/v1726929122/toptoolbar2_d7fk5h.gif)
 
@@ -83,9 +83,9 @@ Developed to simplify the complex process of traditional design software, Plan A
 - Edit history:
   - Undo and Redo functionality for easy correction and experimentation.
 
-##### Wall Sketching and Room Detection
+#### Wall Sketching and Room Detection
 
-![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726938920/%E7%95%AB%E7%89%86try.gif)
+![wall sketch](https://res.cloudinary.com/datj4og4i/image/upload/v1726938193/%E7%95%AB%E7%89%86111.gif)
 
 - Grid-snapping feature for precise placement.
 - Real-time preview of walls and guide lines while dragging.
@@ -93,14 +93,14 @@ Developed to simplify the complex process of traditional design software, Plan A
 - Automatic room detection: recognizes enclosed spaces as rooms and applies default materials.
 - Ability to continue unfinished walls.
 
-##### Material Application
+#### Material Application
 
 ![material application](https://res.cloudinary.com/datj4og4i/image/upload/v1726929121/%E5%A1%AB%E5%85%A5%E6%9D%90%E8%B3%AA2_qabphl.gif)
 
 - Apply materials to selected rooms.
 - System provides warning if non-room objects are selected for material application
 
-##### Component Interaction
+#### Component Interaction
 
 ![component interaction](https://res.cloudinary.com/datj4og4i/image/upload/v1726938159/%E7%89%A9%E4%BB%B6%E4%BA%92%E5%8B%95%E7%AC%AC%E4%BA%8C%E6%AC%A1.gif)
 
@@ -110,14 +110,14 @@ Developed to simplify the complex process of traditional design software, Plan A
   - Right-click menu for additional operations (e.g., copy, paste, delete and more).
   - Hotkey support for quick actions and improved workflow.
 
-##### Layering System
+#### Layering System
 
 ![layering](https://res.cloudinary.com/datj4og4i/image/upload/v1726929120/%E9%A0%86%E5%BA%8F2_f46fbn.gif)
 
 - Automatic layering: rooms and walls remain beneath objects.
 - Manual control over object stacking order for fine-tuned designs.
 
-##### Export Functionality
+#### Export Functionality
 
 ![export](https://res.cloudinary.com/datj4og4i/image/upload/v1726935771/%E5%8C%AF%E5%87%BA3.gif)
 
