@@ -24,7 +24,7 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ## Tech Stack
 
-| **_Category_**          | **_Technologies_**                       |
+| **_Category_**          | **_Technique_**                          |
 | ----------------------- | ---------------------------------------- |
 | **Frontend Framework**  | Next.js, React, TypeScript               |
 | **CSS Library**         | Chakra UI                                |
