@@ -10,9 +10,9 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ### Test Account
 
-| Account  | test@plana-design.com |
-| -------- | --------------------- |
-| Password | 123456                |
+| Account               | Password |
+| --------------------- | -------- |
+| test@plana-design.com | 123456   |
 
 ## Table of Contents
 
