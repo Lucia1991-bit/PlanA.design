@@ -24,14 +24,16 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ## Tech Stack
 
-- **Frontend Framework**: Next.js, React, TypeScript
-- **CSS Library**: Chakra UI
-- **Canvas Manipulation**: Canvas API, Fabric.js
-- **State Management**: React Context API, Custom Hooks
-- **Backend Services**: Firebase Authentication, Cloud Firestore
-- **Data Handling**: React Query
-- **Version Control**: Git / GitHub
-- **Deployment**: Vercel
+| **_Category_**          | **_Technologies_**                       |
+| ----------------------- | ---------------------------------------- |
+| **Frontend Framework**  | Next.js, React, TypeScript               |
+| **CSS Library**         | Chakra UI                                |
+| **Canvas Manipulation** | Canvas API, Fabric.js                    |
+| **State Management**    | React Context API, Custom Hooks          |
+| **Backend Services**    | Firebase Authentication, Cloud Firestore |
+| **Data Handling**       | React Query                              |
+| **Version Control**     | Git / GitHub                             |
+| **Deployment**          | Vercel                                   |
 
 ## Website Features
 
