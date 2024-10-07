@@ -2,13 +2,13 @@
 
 import { Box } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-import LoadingPage from "@/components/_Loading/LoadingPage";
-import BackgroundImage from "@/components/_HomePage/BackgroundImage";
-import MainTitle from "@/components/_HomePage/MainTitle";
-import Slogan from "@/components/_HomePage/Slogan";
-import InstructionSection from "@/components/_HomePage/InstructionSection";
-import ScrollIndicator from "@/components/_HomePage/ScrollIndicator";
-import IntroSection from "@/components/_HomePage/IntroSection";
+import LoadingPage from "@/components/loading/LoadingPage";
+import BackgroundImage from "@/components/homePage/BackgroundImage";
+import MainTitle from "@/components/homePage/MainTitle";
+import Slogan from "@/components/homePage/Slogan";
+import InstructionSection from "@/components/homePage/InstructionSection";
+import ScrollIndicator from "@/components/homePage/ScrollIndicator";
+import IntroSection from "@/components/homePage/IntroSection";
 import { usePageLoading } from "@/context/PageLoadingContext";
 
 const HomePage = () => {

@@ -1,11 +1,11 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import LoadingPage from "@/components/_Loading/LoadingPage";
+import LoadingPage from "@/components/loading/LoadingPage";
 import { Box, Container } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
 import useBoards from "@/hooks/useBoards";
-import BoardList from "@/components/_Dashboard/BoardList";
+import BoardList from "@/components/dashboard/BoardList";
 import { usePageLoading } from "@/context/PageLoadingContext";
 
 const DashboardPage = () => {

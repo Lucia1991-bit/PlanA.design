@@ -1,4 +1,4 @@
-import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
+import LogoLoadingPage from "@/components/loading/LogoLoadingPage";
 
 const DesignPageLoading = () => {
   return <LogoLoadingPage />;

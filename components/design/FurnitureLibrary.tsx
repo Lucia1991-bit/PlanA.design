@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import SidePanelHeader from "../_UI/SidePanelHeader";
+import SidePanelHeader from "../ui/SidePanelHeader";
 import {
   Box,
   Button,
@@ -20,7 +20,7 @@ import Image from "next/image";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import { Design } from "@/types/DesignType";
 import { useFurniture } from "@/hooks/useFurniture";
-import SidePanelCloseButton from "@/components/_UI/SidePanelCloseButton";
+import SidePanelCloseButton from "@/components/ui/SidePanelCloseButton";
 
 interface FurnitureLibraryProps {
   design: Design | undefined;

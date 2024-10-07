@@ -12,9 +12,9 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import AuthModal from "@/components/_Auth/AuthModal";
+import AuthModal from "@/components/auth/AuthModal";
 import { useAuth } from "@/hooks/useAuth";
-import ProfileMenu from "@/components/_Profile/ProfileMenu";
+import ProfileMenu from "@/components/profile/ProfileMenu";
 import NavBarBackground from "./NavBarBackground";
 import { usePageLoading } from "@/context/PageLoadingContext";
 

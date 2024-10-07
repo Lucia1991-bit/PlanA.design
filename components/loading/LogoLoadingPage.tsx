@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import LoadingLogo from "@/components/_Loading/LoadingLogo";
+import LoadingLogo from "@/components/loading/LoadingLogo";
 import { Flex, Text, StackProps, VStack } from "@chakra-ui/react";
 
 //可改變 FlexProps的屬性以及Text內容

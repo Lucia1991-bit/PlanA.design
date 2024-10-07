@@ -1,6 +1,7 @@
 "use client";
+import React from "react";
 import { usePathname } from "next/navigation";
-import NavBar from "@/components/_NavBar/NavBar";
+import NavBar from "@/components/navBar/NavBar";
 import Footer from "@/components/Footer";
 import { BoardsProvider } from "@/context/BoardsContext";
 import { DesignColorModeProvider } from "@/context/colorModeContext";

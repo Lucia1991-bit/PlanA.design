@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
-import Interactive404Canvas from "@/components/_Error/Interactive404Canvas";
+import Interactive404Canvas from "@/components/error/Interactive404Canvas";
 
 const NotFound = () => {
   return (

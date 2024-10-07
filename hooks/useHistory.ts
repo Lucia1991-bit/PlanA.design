@@ -41,7 +41,7 @@ export const useHistory = ({
 }: useHistoryProps) => {
   // 當前歷史記錄的索引
   const [historyIndex, setHistoryIndex] = useState(-1);
-  // 存儲畫布狀態歷史的陣列
+  // 儲存畫布狀態歷史的陣列
   const canvasHistory = useRef<string[]>([]);
   // 用於跳過保存操作的標誌
   const skipSave = useRef(false);
@@ -81,7 +81,6 @@ export const useHistory = ({
     const newImageResources: Record<string, string> = {};
 
     // 將 Pattern相關資料獨立到新的 CanvasLayer和 ImageResources中，不另外跟其他 Canvas狀態一起 JSON格式化
-    // 處理畫布上的所有物件
     const fabricObjects = canvas
       .getObjects()
       //排除有設定 excludeFromExport屬性的物件
@@ -138,12 +137,10 @@ export const useHistory = ({
           baseObject.lockScalingX = true;
           baseObject.lockScalingY = true;
 
-          // 為每個圖案生成唯一的 ID
           const imageId = `image_${index}`;
 
           // 檢查 fill 是否為有效的 Pattern
           if (obj.fill && obj.fill instanceof fabric.Pattern) {
-            // 嘗試獲取 sourceURL，首選 sourceURL，如果不存在則嘗試 source.src
             const sourceURL =
               obj.fill.sourceURL || (obj.fill.source && obj.fill.source.src);
             if (sourceURL) {
@@ -214,7 +211,7 @@ export const useHistory = ({
     completedWalls,
   ]);
 
-  //獲取用於保存到數據庫的畫布狀態
+  //獲取用於保存到資料庫的畫布狀態
   const getDatabaseState = useCallback(() => {
     if (!canvas) return null;
 
@@ -223,7 +220,7 @@ export const useHistory = ({
 
     const { canvasState, ...rest } = JSON.parse(currentState);
 
-    // 從 objects 數組中過濾掉 wallGroup
+    // 過濾掉 wallGroup
     canvasState.objects = canvasState.objects.filter(
       (obj: any) => obj.name !== "wallGroup"
     );
@@ -273,9 +270,8 @@ export const useHistory = ({
     (stateString: string) => {
       if (!canvas) return;
 
-      // 設置跳過保存的標誌，防止在恢復過程中觸發新的保存操作
       skipSave.current = true;
-      // 保存當前的網格引用
+
       const currentGrid = gridRef.current;
       const {
         canvasState,

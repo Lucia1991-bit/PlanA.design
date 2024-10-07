@@ -24,7 +24,7 @@ import {
 import { AuthError } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import OAuth from "@/components/_Auth/OAuth";
+import OAuth from "@/components/auth/OAuth";
 
 type AlertStatus = "error" | "success";
 

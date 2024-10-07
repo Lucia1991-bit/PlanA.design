@@ -14,8 +14,8 @@ import {
 import { useDesignColorMode } from "@/context/colorModeContext";
 import { useAuth } from "@/hooks/useAuth";
 import useSingleBoard from "@/hooks/useSingleBoard";
-import LogoLoadingPage from "@/components/_Loading/LogoLoadingPage";
-import DesignEditor from "@/components/_Design/DesignEditor";
+import LogoLoadingPage from "@/components/loading/LogoLoadingPage";
+import DesignEditor from "@/components/design/DesignEditor";
 import Error from "@/app/error";
 import NotFound from "@/app/not-found";
 import Link from "next/link";

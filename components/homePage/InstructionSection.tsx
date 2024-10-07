@@ -16,7 +16,7 @@ import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import AuthModal from "@/components/_Auth/AuthModal";
+import AuthModal from "@/components/auth/AuthModal";
 
 const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);

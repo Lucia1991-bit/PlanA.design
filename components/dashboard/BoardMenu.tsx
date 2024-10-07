@@ -13,7 +13,7 @@ import {
   useMediaQuery,
   VStack,
 } from "@chakra-ui/react";
-import BoardActionsModal from "../_UI/BoardActionsModal";
+import BoardActionsModal from "../ui/BoardActionsModal";
 import { useBoardOperations } from "@/hooks/useBoardOperations ";
 import { LuTrash2 } from "react-icons/lu";
 

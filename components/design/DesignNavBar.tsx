@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Button,
@@ -27,15 +28,15 @@ import {
 } from "react-icons/lu";
 import { BsCloudCheck, BsCloudSlash } from "react-icons/bs";
 import { MdKeyboardCommandKey, MdOutlineSpaceBar } from "react-icons/md";
-import ProfileMenu from "../_Profile/ProfileMenu";
+import ProfileMenu from "../profile/ProfileMenu";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import Logo from "./Logo";
 import ColorModeSwitch from "./ColorModeSwitch";
-import RenameProjectButton from "@/components/_Design/RenameProjectButton";
+import RenameProjectButton from "@/components/design/RenameProjectButton";
 import { ActiveTool, Design } from "@/types/DesignType";
 import { useCallback, useEffect, useState } from "react";
-import CustomTooltip from "../_UI/CustomTooltip";
-import ClearCanvasModal from "../_UI/ClearCanvasModal";
+import CustomTooltip from "../ui/CustomTooltip";
+import ClearCanvasModal from "../ui/ClearCanvasModal";
 import { PiMouseLeftClick } from "react-icons/pi";
 
 interface DesignNavBarProps {

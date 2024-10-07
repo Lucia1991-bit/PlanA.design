@@ -1,9 +1,10 @@
+import React from "react";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import { Design } from "@/types/DesignType";
 import { Box, Button, Divider, HStack, Text, VStack } from "@chakra-ui/react";
-import SidePanelHeader from "../_UI/SidePanelHeader";
+import SidePanelHeader from "../ui/SidePanelHeader";
 import LeftToolBarItem from "./LeftToolBarItem";
-import SidePanelCloseButton from "../_UI/SidePanelCloseButton";
+import SidePanelCloseButton from "../ui/SidePanelCloseButton";
 import { LuFileImage } from "react-icons/lu";
 
 interface ExportSidePanelProps {

@@ -6,7 +6,7 @@ import { useUpdateDesign } from "@/hooks/useUpdateDesign";
 import DesignNavBar from "./DesignNavBar";
 import LeftToolBar from "./LeftToolBar";
 import MaterialsLibrary from "./MaterialsLibrary";
-import SidePanel from "@/components/_UI/SidePanel";
+import SidePanel from "@/components/ui/SidePanel";
 import FurnitureLibrary from "./FurnitureLibrary";
 import DrawWallSidePanel from "./DrawWallSidePanel";
 import { ActiveTool, Design } from "@/types/DesignType";

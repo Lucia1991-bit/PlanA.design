@@ -1,6 +1,6 @@
 import { fabric } from "fabric";
 import React, { useEffect, useState } from "react";
-import SidePanelHeader from "../_UI/SidePanelHeader";
+import SidePanelHeader from "../ui/SidePanelHeader";
 import {
   Box,
   Button,
@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
-import SidePanelCloseButton from "../_UI/SidePanelCloseButton";
+import SidePanelCloseButton from "../ui/SidePanelCloseButton";
 import { Design } from "@/types/DesignType";
 import { useMaterials } from "@/hooks/useMaterials";
 import { InfoIcon, WarningIcon } from "@chakra-ui/icons";

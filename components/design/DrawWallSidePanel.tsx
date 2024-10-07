@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Divider, HStack, VStack } from "@chakra-ui/react";
-import SidePanelHeader from "../_UI/SidePanelHeader";
-import SidePanelCloseButton from "../_UI/SidePanelCloseButton";
+import SidePanelHeader from "../ui/SidePanelHeader";
+import SidePanelCloseButton from "../ui/SidePanelCloseButton";
 import useDesignPageColor from "@/hooks/useDesignPageColor";
 import { ActiveTool, Design } from "@/types/DesignType";
 import LeftToolBarItem from "./LeftToolBarItem";
