@@ -6,6 +6,8 @@ Developed to simplify the complex process of traditional design software, Plan A
 
 ![homepage](https://res.cloudinary.com/datj4og4i/image/upload/v1726918479/homepage_x7j4gk.png)
 
+![RWD](https://res.cloudinary.com/datj4og4i/image/upload/v1731675916/RWD_Mesa_de_trabajo_1_teyzbg.png)
+
 <!-- [Demo Video]() -->
 
 ### Test Account

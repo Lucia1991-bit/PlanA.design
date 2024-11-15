@@ -158,11 +158,11 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
               animate={controls}
               mb={{ base: "10px", lg: "18px" }}
             >
-              簡單步驟&nbsp;&nbsp;&nbsp;無限可能
+              簡單步驟&nbsp;&nbsp;&nbsp;無限地獄
             </MotionHeading>
             <MotionHeading
               as="h3"
-              fontSize={{ base: "18px", md: "20px", lg: "22px" }}
+              fontSize={{ base: "30px", md: "20px", lg: "22px" }}
               fontWeight="400"
               letterSpacing="1px"
               variants={contentVariants}
