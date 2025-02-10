@@ -138,6 +138,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-function useLoading(): { setIsPageLoading: any } {
-  throw new Error("Function not implemented.");
-}

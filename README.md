@@ -169,6 +169,6 @@ Feel free to contact me if you have any questions about this project.😊
 
 Email : thisislucia1991@gmail.com
 
-Linkedin : https://www.linkedin.com/in/ying-hsuan-lee2024/
+Linkedin : https://www.linkedin.com/in/yinghsuan2024/
 
 Phone : (+886) 919053736

@@ -158,7 +158,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
               animate={controls}
               mb={{ base: "10px", lg: "18px" }}
             >
-              簡單步驟&nbsp;&nbsp;&nbsp;無限地獄
+              簡單步驟&nbsp;&nbsp;&nbsp;無限可能
             </MotionHeading>
             <MotionHeading
               as="h3"
