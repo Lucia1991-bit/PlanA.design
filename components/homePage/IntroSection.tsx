@@ -162,7 +162,7 @@ const IntroSection: React.FC<IntroSectionProps> = ({ animate }) => {
             </MotionHeading>
             <MotionHeading
               as="h3"
-              fontSize={{ base: "30px", md: "20px", lg: "22px" }}
+              fontSize={{ base: "18px", md: "20px", lg: "22px" }}
               fontWeight="400"
               letterSpacing="1px"
               variants={contentVariants}
